@@ -1,24 +1,26 @@
-# Lucky Home Furniture Website
+# Lucky Interiors Furniture Website
 
-This is a beginner-friendly static website for a home goods / furniture store in India. It includes:
+This is a React + Vite website for a home goods / furniture store in India. It includes:
 
 - Product catalog
 - Category filters
 - Product search
 - WhatsApp enquiry buttons
 - Call-to-order buttons
+- Product detail modal
 - Store contact section
 
 ## Files
 
-- `index.html` controls the page content.
-- `styles.css` controls the design.
-- `script.js` controls products, search, filters, and WhatsApp links.
+- `src/data/catalog.js` controls business details, categories, and products.
+- `src/App.jsx` controls the website layout and catalog behavior.
+- `src/styles.css` controls the design.
+- `index.html` is the Vite entry file.
 
 ## What to Replace First
 
-1. In `script.js`, update the `business` object with your real name, phone number, WhatsApp number, address, and hours.
-2. In `script.js`, replace the sample products with your real products.
+1. In `src/data/catalog.js`, update the `business` object with your real name, phone number, WhatsApp number, address, and hours.
+2. In `src/data/catalog.js`, replace the sample products with your real products.
 3. Replace the Unsplash image URLs with your own product photos when ready.
 
 Example:
@@ -42,36 +44,37 @@ const business = {
 
 ## How to Preview Locally
 
-Because this is a simple static website, you can double-click `index.html` to open it in a browser.
-
-If you prefer using the terminal:
+Install dependencies once:
 
 ```powershell
-python -m http.server 8000
+npm install
 ```
 
-Then open:
+Start the local development server:
+
+```powershell
+npm run dev
+```
+
+Then open the local URL shown in the terminal, usually:
 
 ```text
-http://localhost:8000
+http://127.0.0.1:5173
 ```
 
 ## How to Put It Online With Cloudflare
 
-The easiest path is Cloudflare Pages:
+Use Cloudflare Pages:
 
-1. Create a GitHub repository.
-2. Upload/push these files to GitHub.
-3. In Cloudflare, go to `Workers & Pages`.
-4. Choose `Create application`.
-5. Choose `Pages`.
-6. Connect your GitHub repository.
-7. Build settings:
-   - Framework preset: `None`
-   - Build command: leave empty
-   - Build output directory: `/`
-8. Deploy.
-9. In the Cloudflare Pages project, add your custom domain.
+1. Push changes to GitHub.
+2. In Cloudflare, go to `Workers & Pages`.
+3. Select your Pages project.
+4. Build settings:
+   - Framework preset: `Vite`
+   - Build command: `npm run build`
+   - Build output directory: `dist`
+5. Deploy.
+6. In the Cloudflare Pages project, add your custom domain.
 
 ## Next Features Later
 
