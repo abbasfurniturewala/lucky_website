@@ -1,7 +1,5 @@
 import { useMemo, useState } from "react";
 import {
-  ArrowRight,
-  BedDouble,
   CheckCircle2,
   Eye,
   MapPin,
@@ -9,13 +7,22 @@ import {
   Phone,
   Search,
   ShieldCheck,
-  Sofa,
   Truck,
   X,
 } from "lucide-react";
-import { business, categories, products } from "./data/catalog.js";
+import { business, categories, products, promoBanner, shopCategories } from "./data/catalog.js";
 
 const allCategory = "All";
+const menuItems = [
+  { label: "Home", href: "#home" },
+  { label: "Sofas & Seating", category: "Living Room" },
+  { label: "Bedroom", category: "Bedroom" },
+  { label: "Dining & Kitchen", category: "Dining" },
+  { label: "Office", category: "Office" },
+  { label: "Storage Furniture", category: "Bedroom" },
+  { label: "Lighting & Decor", href: "#why-us" },
+  { label: "Furnishing", href: "#catalog" },
+];
 
 function createWhatsappLink(productName) {
   const text = productName
@@ -25,110 +32,93 @@ function createWhatsappLink(productName) {
   return `https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent(text)}`;
 }
 
-function Header() {
+function WhatsAppIcon() {
+  return (
+    <svg aria-hidden="true" className="whatsapp-mark" viewBox="0 0 32 32" focusable="false">
+      <path d="M16.04 4.5c-6.28 0-11.38 5.1-11.38 11.38 0 2.01.53 3.97 1.54 5.7L4.56 27.5l6.07-1.6a11.34 11.34 0 0 0 5.41 1.38h.01c6.27 0 11.37-5.1 11.37-11.38S22.32 4.5 16.04 4.5Zm0 20.86h-.01c-1.71 0-3.39-.46-4.85-1.33l-.35-.21-3.6.95.96-3.51-.23-.36a9.46 9.46 0 0 1-1.45-5.02c0-5.25 4.27-9.51 9.53-9.51 2.54 0 4.93.99 6.73 2.79a9.44 9.44 0 0 1 2.8 6.74c0 5.24-4.28 9.46-9.53 9.46Zm5.23-7.1c-.29-.14-1.69-.83-1.95-.93-.26-.1-.45-.14-.64.14-.19.29-.74.93-.91 1.12-.17.19-.33.21-.62.07-.29-.14-1.2-.44-2.29-1.41-.85-.76-1.42-1.69-1.59-1.98-.17-.29-.02-.44.13-.59.13-.13.29-.33.43-.5.14-.17.19-.29.29-.48.1-.19.05-.36-.02-.5-.07-.14-.64-1.55-.88-2.12-.23-.56-.47-.48-.64-.49h-.55c-.19 0-.5.07-.76.36-.26.29-1 1-1 2.38s1.02 2.73 1.16 2.92c.14.19 2 3.05 4.84 4.28.68.29 1.21.47 1.62.6.68.22 1.3.19 1.79.12.55-.08 1.69-.69 1.93-1.36.24-.67.24-1.24.17-1.36-.07-.12-.26-.19-.55-.33Z" />
+    </svg>
+  );
+}
+
+function Header({ onCategorySelect }) {
+  function handleMenuClick(category) {
+    onCategorySelect(category);
+  }
+
   return (
     <header className="site-header">
-      <a className="brand" href="#home" aria-label={`${business.name} home`}>
-        <span className="brand-mark">L</span>
-        <span>
-          <strong>{business.name}</strong>
-          <small>{business.tagline}</small>
-        </span>
-      </a>
-
-      <nav className="main-nav" aria-label="Primary navigation">
-        <a href="#categories">Categories</a>
-        <a href="#catalog">Catalog</a>
-        <a href="#visit">Visit</a>
-      </nav>
-
-      <div className="header-actions">
-        <a className="text-action" href={`tel:${business.callNumber}`}>
-          <Phone size={18} aria-hidden="true" />
-          <span>{business.phoneDisplay}</span>
-        </a>
-        <a className="button button-small" href={createWhatsappLink()} target="_blank" rel="noreferrer">
-          <MessageCircle size={18} aria-hidden="true" />
-          WhatsApp
+      <div className="utility-bar">
+        <a className="contact-link" href="#visit">
+          Contact us
         </a>
       </div>
+
+      <div className="logo-row">
+        <a className="logo-link" href="#home" aria-label={`${business.name} home`}>
+          <img className="logo-image" src={business.logo} alt={business.name} />
+        </a>
+      </div>
+
+      <nav className="menu-row" aria-label="Product navigation">
+        <div className="menu-nav">
+          {menuItems.map((item) =>
+            item.category ? (
+              <button
+                className="menu-link"
+                key={item.label}
+                type="button"
+                onClick={() => handleMenuClick(item.category)}
+              >
+                {item.label}
+              </button>
+            ) : (
+              <a className="menu-link" href={item.href} key={item.label}>
+                {item.label}
+              </a>
+            ),
+          )}
+        </div>
+      </nav>
     </header>
   );
 }
 
-function Hero() {
+function PromoBanner() {
   return (
-    <section className="hero" id="home">
-      <div className="hero-content">
-        <p className="eyebrow">Furniture store in Malad West, Mumbai</p>
-        <h1>Furniture for real Indian homes, selected with practical buying help.</h1>
-        <p>
-          Explore sofas, beds, wardrobes, dining sets, office chairs, and home essentials. Ask for
-          price, availability, size, fabric, and delivery details directly on WhatsApp.
-        </p>
-        <div className="hero-actions">
-          <a className="button" href="#catalog">
-            View catalog
-            <ArrowRight size={18} aria-hidden="true" />
-          </a>
-          <a className="button button-light" href={createWhatsappLink()} target="_blank" rel="noreferrer">
-            <MessageCircle size={18} aria-hidden="true" />
-            Enquire now
-          </a>
+    <section className="promo-section" id="home">
+      <div className="promo-banner">
+        <img src={promoBanner.image} alt="Living room furniture set" />
+        <div className="promo-copy">
+          <p>{promoBanner.eyebrow}</p>
+          <h1>{promoBanner.title}</h1>
+          <span>{promoBanner.text}</span>
         </div>
-      </div>
-      <div className="hero-strip" aria-label="Store highlights">
-        <span>Local delivery support</span>
-        <span>Custom sizing guidance</span>
-        <span>WhatsApp assisted ordering</span>
       </div>
     </section>
   );
 }
 
 function CategoryShowcase({ onCategorySelect }) {
-  const iconMap = {
-    "Living Room": Sofa,
-    Bedroom: BedDouble,
-    Dining: CheckCircle2,
-    Office: ShieldCheck,
-  };
-
   return (
     <section className="section category-section" id="categories">
-      <div className="section-heading">
-        <div>
-          <p className="eyebrow">Shop by room</p>
-          <h2>Start with the space you are furnishing.</h2>
-        </div>
-        <p>
-          A store-style catalog helps customers browse quickly, then message you for final price,
-          size, material, and delivery details.
-        </p>
+      <div className="compact-heading">
+        <h2>Shop By Categories</h2>
       </div>
 
       <div className="category-grid">
-        {categories.map((category) => {
-          const Icon = iconMap[category.name] || CheckCircle2;
-
-          return (
-            <button
-              className="category-card"
-              key={category.name}
-              type="button"
-              onClick={() => onCategorySelect(category.name)}
-            >
+        {shopCategories.map((category) => (
+          <button
+            className="category-card"
+            key={category.name}
+            type="button"
+            onClick={() => onCategorySelect(category.filterCategory)}
+          >
+            <span className="category-image-frame">
               <img src={category.image} alt="" loading="lazy" />
-              <span className="category-overlay">
-                <span className="category-icon">
-                  <Icon size={20} aria-hidden="true" />
-                </span>
-                <strong>{category.name}</strong>
-                <small>{category.description}</small>
-              </span>
-            </button>
-          );
-        })}
+            </span>
+            <strong>{category.name}</strong>
+          </button>
+        ))}
       </div>
     </section>
   );
@@ -401,17 +391,22 @@ export default function App() {
 
   return (
     <>
-      <Header />
+      <Header onCategorySelect={handleCategorySelect} />
       <main>
-        <Hero />
+        <PromoBanner />
         <CategoryShowcase onCategorySelect={handleCategorySelect} />
         <Catalog activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
         <ServiceBand />
         <VisitSection />
       </main>
-      <a className="floating-whatsapp" href={createWhatsappLink()} target="_blank" rel="noreferrer">
-        <MessageCircle size={20} aria-hidden="true" />
-        Chat
+      <a
+        className="floating-whatsapp"
+        href={createWhatsappLink()}
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Chat on WhatsApp"
+      >
+        <WhatsAppIcon />
       </a>
       <footer className="site-footer">
         <p>

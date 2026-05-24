@@ -1,6 +1,7 @@
 export const business = {
   name: "Lucky Interiors Furniture",
   tagline: "Furniture and home essentials in Mumbai",
+  logo: "/lucky-interiors-logo.png",
   phoneDisplay: "+91 96195 78893",
   whatsappNumber: "919619578893",
   callNumber: "+919619578893",
@@ -35,6 +36,89 @@ export const categories = [
     description: "Chairs, study desks, and work-from-home setups",
     image:
       "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=82",
+  },
+];
+
+export const promoBanner = {
+  eyebrow: "New collection for modern homes",
+  title: "Living room sets, bedroom furniture, dining and storage options.",
+  text: "Browse online first, then message us for price, size, finish, and delivery details.",
+  image:
+    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=2200&q=84",
+};
+
+export const shopCategories = [
+  {
+    name: "Sofas",
+    filterCategory: "Living Room",
+    image:
+      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=700&q=82",
+  },
+  {
+    name: "Beds",
+    filterCategory: "Bedroom",
+    image:
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=700&q=82",
+  },
+  {
+    name: "Dining Sets",
+    filterCategory: "Dining",
+    image:
+      "https://images.unsplash.com/photo-1604578762246-41134e37f9cc?auto=format&fit=crop&w=700&q=82",
+  },
+  {
+    name: "Study Tables",
+    filterCategory: "Office",
+    image:
+      "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=700&q=82",
+  },
+  {
+    name: "Centre Tables",
+    filterCategory: "Living Room",
+    image:
+      "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=700&q=82",
+  },
+  {
+    name: "Recliners",
+    filterCategory: "Living Room",
+    image:
+      "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=700&q=82",
+  },
+  {
+    name: "Sectional Sofas",
+    filterCategory: "Living Room",
+    image:
+      "https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?auto=format&fit=crop&w=700&q=82",
+  },
+  {
+    name: "Wardrobes",
+    filterCategory: "Bedroom",
+    image:
+      "https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=700&q=82",
+  },
+  {
+    name: "Cabinets & Sideboards",
+    filterCategory: "Living Room",
+    image:
+      "https://images.unsplash.com/photo-1615874694520-474822394e73?auto=format&fit=crop&w=700&q=82",
+  },
+  {
+    name: "Office Furniture",
+    filterCategory: "Office",
+    image:
+      "https://images.unsplash.com/photo-1580480055273-228ff5388ef8?auto=format&fit=crop&w=700&q=82",
+  },
+  {
+    name: "Shoe Racks",
+    filterCategory: "Bedroom",
+    image:
+      "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=700&q=82",
+  },
+  {
+    name: "Bar Furniture",
+    filterCategory: "Dining",
+    image:
+      "https://images.unsplash.com/photo-1559329007-40df8a9345d8?auto=format&fit=crop&w=700&q=82",
   },
 ];
 
