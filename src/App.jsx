@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -35,12 +35,17 @@ function productPath(product) {
   return `/products/${product.slug || product.id}`;
 }
 
-function currentPath() {
-  return window.location.pathname || "/";
+function searchPath(query) {
+  return `/search?q=${encodeURIComponent(query.trim())}`;
 }
 
-function parseRoute(pathname) {
-  const path = pathname.replace(/\/+$/, "") || "/";
+function currentPath() {
+  return `${window.location.pathname}${window.location.search}` || "/";
+}
+
+function parseRoute(locationPath) {
+  const url = new URL(locationPath, window.location.origin);
+  const path = url.pathname.replace(/\/+$/, "") || "/";
   const collectionMatch = path.match(/^\/collections\/([^/]+)$/);
   const productMatch = path.match(/^\/products\/([^/]+)$/);
 
@@ -60,6 +65,13 @@ function parseRoute(pathname) {
 
   if (path === "/") {
     return { type: "home" };
+  }
+
+  if (path === "/search") {
+    return {
+      query: url.searchParams.get("q") || "",
+      type: "search",
+    };
   }
 
   return { type: "not-found" };
@@ -95,6 +107,149 @@ function primaryProductImage(product) {
   return productImages(product)[0];
 }
 
+function normalizeSearchText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function searchTokens(query) {
+  return normalizeSearchText(query).split(" ").filter(Boolean);
+}
+
+function scoreSearchMatch(query, title, searchableText) {
+  const normalizedQuery = normalizeSearchText(query);
+  const tokens = searchTokens(query);
+  const normalizedTitle = normalizeSearchText(title);
+  const normalizedSearchable = normalizeSearchText(searchableText);
+  const searchableWords = normalizedSearchable.split(" ").filter(Boolean);
+  const titleWords = normalizedTitle.split(" ").filter(Boolean);
+
+  if (!normalizedQuery || tokens.length === 0) {
+    return 0;
+  }
+
+  let score = 0;
+
+  if (normalizedTitle === normalizedQuery) {
+    score += 100;
+  } else if (normalizedTitle.startsWith(normalizedQuery)) {
+    score += 70;
+  } else if (normalizedTitle.includes(normalizedQuery)) {
+    score += 48;
+  }
+
+  if (normalizedSearchable.includes(normalizedQuery)) {
+    score += 28;
+  }
+
+  const hasNumericToken = tokens.some((token) => /^\d+$/.test(token));
+  const hasSeatingToken = tokens.some((token) =>
+    ["seater", "seat", "seating", "chair", "chairs"].includes(token),
+  );
+
+  if (hasNumericToken && hasSeatingToken && !normalizedSearchable.includes(normalizedQuery)) {
+    return 0;
+  }
+
+  const tokenMatches = (token, words) =>
+    /^\d+$/.test(token)
+      ? words.includes(token)
+      : words.some((word) => word === token || word.startsWith(token) || word.includes(token));
+
+  const matchedTokens = tokens.filter((token) => tokenMatches(token, searchableWords));
+  score += matchedTokens.length * 12;
+
+  const titleTokenMatches = tokens.filter((token) => tokenMatches(token, titleWords));
+  score += titleTokenMatches.length * 10;
+
+  return matchedTokens.length === tokens.length ? score : 0;
+}
+
+function collectionForProduct(product) {
+  return product.collectionSlug ? findCollection(product.collectionSlug) : null;
+}
+
+function productSearchText(product) {
+  const collection = collectionForProduct(product);
+
+  return [
+    product.name,
+    product.category,
+    collection?.name,
+    collection?.description,
+    product.description,
+    product.badge,
+    displayPrice(product),
+    product.price,
+    product.availability,
+    product.seating ? `${product.seating} seater` : "",
+    product.style,
+    product.material,
+    product.dimensions,
+    ...(product.colors || []),
+    ...(product.tags || []),
+    ...(product.details || []),
+    ...(product.materialDetails || []),
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function buildSearchResults(query) {
+  const trimmedQuery = query.trim();
+
+  if (!trimmedQuery) {
+    return {
+      categories: [],
+      collections: [],
+      products: [],
+      total: 0,
+    };
+  }
+
+  const matchedCollections = shopCategories
+    .map((collection) => ({
+      collection,
+      score: scoreSearchMatch(
+        trimmedQuery,
+        collection.name,
+        [collection.name, collection.slug, collection.filterCategory, collection.description].join(" "),
+      ),
+    }))
+    .filter((result) => result.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  const matchedCategories = categories
+    .map((category) => ({
+      category,
+      score: scoreSearchMatch(
+        trimmedQuery,
+        category.name,
+        [category.name, category.description].join(" "),
+      ),
+    }))
+    .filter((result) => result.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  const matchedProducts = products
+    .filter((product) => product.active !== false)
+    .map((product) => ({
+      product,
+      score: scoreSearchMatch(trimmedQuery, product.name, productSearchText(product)),
+    }))
+    .filter((result) => result.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  return {
+    categories: matchedCategories,
+    collections: matchedCollections,
+    products: matchedProducts,
+    total: matchedCategories.length + matchedCollections.length + matchedProducts.length,
+  };
+}
+
 function createWhatsappLink(productName) {
   const text = productName
     ? `Hi ${business.name}, I am interested in ${productName}. Please share price, availability, and delivery details.`
@@ -111,6 +266,165 @@ function WhatsAppIcon() {
   );
 }
 
+function HeaderSearch({ onNavigate }) {
+  const [query, setQuery] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
+  const searchRef = useRef(null);
+  const results = useMemo(() => buildSearchResults(query), [query]);
+  const trimmedQuery = query.trim();
+  const showPanel = isFocused && trimmedQuery.length > 0;
+  const productSuggestions = results.products.slice(0, 4);
+  const collectionSuggestions = results.collections.slice(0, 3);
+  const categorySuggestions = results.categories.slice(0, 2);
+
+  useEffect(() => {
+    function handlePointerDown(event) {
+      if (!searchRef.current?.contains(event.target)) {
+        setIsFocused(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, []);
+
+  function runSearch() {
+    if (!trimmedQuery) {
+      return;
+    }
+
+    setIsFocused(false);
+    onNavigate(searchPath(trimmedQuery));
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    runSearch();
+  }
+
+  function handleKeyDown(event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      runSearch();
+    }
+  }
+
+  function handleResultClick(href, event) {
+    setIsFocused(false);
+    onNavigate(href, event);
+  }
+
+  return (
+    <div className="header-search" ref={searchRef}>
+      <form className="header-search-form" role="search" onSubmit={handleSubmit}>
+        <input
+          aria-label="Search products and categories"
+          type="text"
+          placeholder="Search for sofas, dining tables..."
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          onFocus={() => setIsFocused(true)}
+          onKeyDown={handleKeyDown}
+        />
+        {query && (
+          <button
+            className="global-search-clear"
+            type="button"
+            onClick={() => setQuery("")}
+            aria-label="Clear search"
+          >
+            <X size={15} aria-hidden="true" />
+          </button>
+        )}
+        <button className="global-search-submit" type="submit" aria-label="Search">
+          <Search size={18} aria-hidden="true" />
+        </button>
+      </form>
+
+      {showPanel && (
+        <div className="header-search-panel">
+          {results.total > 0 ? (
+            <>
+              {collectionSuggestions.length > 0 && (
+                <div className="search-suggestion-group">
+                  <p>Collections</p>
+                  {collectionSuggestions.map(({ collection }) => (
+                    <a
+                      className="search-result-row"
+                      href={collectionPath(collection.slug)}
+                      key={collection.slug}
+                      onClick={(event) => handleResultClick(collectionPath(collection.slug), event)}
+                    >
+                      <img src={collection.image} alt="" />
+                      <span>
+                        <strong>{collection.name}</strong>
+                        <small>{collection.description}</small>
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              )}
+
+              {productSuggestions.length > 0 && (
+                <div className="search-suggestion-group">
+                  <p>Products</p>
+                  {productSuggestions.map(({ product }) => (
+                    <a
+                      className="search-result-row"
+                      href={productPath(product)}
+                      key={product.id}
+                      onClick={(event) => handleResultClick(productPath(product), event)}
+                    >
+                      <img src={primaryProductImage(product)} alt="" />
+                      <span>
+                        <strong>{product.name}</strong>
+                        <small>
+                          {collectionForProduct(product)?.name || product.category} · {displayPrice(product)}
+                        </small>
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              )}
+
+              {categorySuggestions.length > 0 && (
+                <div className="search-suggestion-group">
+                  <p>Room categories</p>
+                  <div className="search-pill-row">
+                    {categorySuggestions.map(({ category }) => (
+                      <a
+                        className="search-pill"
+                        href={searchPath(category.name)}
+                        key={category.name}
+                        onClick={(event) => handleResultClick(searchPath(category.name), event)}
+                      >
+                        {category.name}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <a
+                className="search-view-all"
+                href={searchPath(trimmedQuery)}
+                onClick={(event) => handleResultClick(searchPath(trimmedQuery), event)}
+              >
+                View all results for "{trimmedQuery}"
+              </a>
+            </>
+          ) : (
+            <div className="search-empty">
+              <strong>No matches found</strong>
+              <span>Try sofa, dining, brown, 2 seater, bed, wardrobe, or sheesham.</span>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Header({ onNavigate }) {
   return (
     <>
@@ -122,6 +436,7 @@ function Header({ onNavigate }) {
         </div>
 
         <div className="logo-row">
+          <HeaderSearch onNavigate={onNavigate} />
           <a
             className="logo-link"
             href="/"
@@ -130,6 +445,7 @@ function Header({ onNavigate }) {
           >
             <img className="logo-image" src={business.logo} alt={business.name} />
           </a>
+          <div className="logo-row-spacer" aria-hidden="true" />
         </div>
       </header>
 
@@ -424,6 +740,94 @@ function CollectionPage({ collection, onNavigate }) {
 
       <ServiceBand />
       <VisitSection />
+    </main>
+  );
+}
+
+function SearchPage({ query, onNavigate }) {
+  const decodedQuery = query.trim();
+  const results = useMemo(() => buildSearchResults(decodedQuery), [decodedQuery]);
+
+  return (
+    <main>
+      <section className="search-page">
+        <div className="search-page-heading">
+          <p className="eyebrow">Search</p>
+          <h1>{decodedQuery ? `Results for "${decodedQuery}"` : "Search the catalog"}</h1>
+          <p>
+            Search covers product names, collections, room categories, colors, materials, seating,
+            prices, dimensions, and tags.
+          </p>
+        </div>
+
+        {!decodedQuery ? (
+          <div className="empty-state">Use the search box above to find products and categories.</div>
+        ) : results.total > 0 ? (
+          <div className="search-results-layout">
+            {results.collections.length > 0 && (
+              <section className="search-section">
+                <div className="compact-heading search-section-heading">
+                  <h2>Matching Collections</h2>
+                </div>
+                <div className="search-collection-grid">
+                  {results.collections.map(({ collection }) => (
+                    <a
+                      className="search-collection-card"
+                      href={collectionPath(collection.slug)}
+                      key={collection.slug}
+                      onClick={(event) => onNavigate(collectionPath(collection.slug), event)}
+                    >
+                      <img src={collection.image} alt="" />
+                      <span>
+                        <strong>{collection.name}</strong>
+                        <small>{collection.description}</small>
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {results.categories.length > 0 && (
+              <section className="search-section">
+                <div className="compact-heading search-section-heading">
+                  <h2>Room Categories</h2>
+                </div>
+                <div className="search-room-grid">
+                  {results.categories.map(({ category }) => (
+                    <a
+                      className="search-room-card"
+                      href={searchPath(category.name)}
+                      key={category.name}
+                      onClick={(event) => onNavigate(searchPath(category.name), event)}
+                    >
+                      <strong>{category.name}</strong>
+                      <span>{category.description}</span>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {results.products.length > 0 && (
+              <section className="search-section">
+                <div className="compact-heading search-section-heading">
+                  <h2>Matching Products</h2>
+                </div>
+                <div className="product-grid">
+                  {results.products.map(({ product }) => (
+                    <ProductCard key={product.id} product={product} onNavigate={onNavigate} />
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+        ) : (
+          <div className="empty-state">
+            No results found. Try a broader search like sofa, dining, brown, bed, or storage.
+          </div>
+        )}
+      </section>
     </main>
   );
 }
@@ -800,15 +1204,22 @@ export default function App() {
       return;
     }
 
+    if (route.type === "search") {
+      document.title = route.query
+        ? `Search: ${route.query} | ${business.name}`
+        : `Search | ${business.name}`;
+      return;
+    }
+
     document.title =
       route.type === "not-found"
         ? `Page not found | ${business.name}`
         : `${business.name} | Home Goods & Furniture Store`;
-  }, [collection, product, route.type]);
+  }, [collection, product, route.type, route.query]);
 
   function handleNavigate(href, event) {
     if (
-      event &&
+      event?.type === "click" &&
       (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey)
     ) {
       return;
@@ -817,14 +1228,15 @@ export default function App() {
     event?.preventDefault();
 
     const nextUrl = new URL(href, window.location.origin);
-    const nextPath = `${nextUrl.pathname}${nextUrl.hash}`;
-    const currentFullPath = `${window.location.pathname}${window.location.hash}`;
+    const nextPath = `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`;
+    const nextLocationPath = `${nextUrl.pathname}${nextUrl.search}`;
+    const currentFullPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
 
     if (nextPath !== currentFullPath) {
       window.history.pushState({}, "", nextPath);
     }
 
-    setPathname(nextUrl.pathname);
+    setPathname(nextLocationPath);
 
     window.setTimeout(() => {
       if (nextUrl.hash) {
@@ -842,6 +1254,8 @@ export default function App() {
     pageContent = <CollectionPage collection={collection} onNavigate={handleNavigate} />;
   } else if (route.type === "product" && product) {
     pageContent = <ProductDetailPage product={product} onNavigate={handleNavigate} />;
+  } else if (route.type === "search") {
+    pageContent = <SearchPage query={route.query} onNavigate={handleNavigate} />;
   } else if (
     route.type === "not-found" ||
     (route.type === "collection" && !collection) ||

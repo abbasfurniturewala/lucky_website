@@ -3,6 +3,7 @@
 This is a React + Vite website for a home goods / furniture store in India. It includes:
 
 - Product catalog
+- Global header search
 - Category filters
 - Product search
 - WhatsApp enquiry buttons
