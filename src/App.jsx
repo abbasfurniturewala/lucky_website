@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  ChevronLeft,
+  ChevronRight,
   CheckCircle2,
   Eye,
   MapPin,
@@ -10,7 +12,8 @@ import {
   Truck,
   X,
 } from "lucide-react";
-import { business, categories, products, promoBanner, shopCategories } from "./data/catalog.js";
+import { business, categories, promoBanner, shopCategories } from "./data/catalog.js";
+import { products } from "./data/products.js";
 
 const allCategory = "All";
 const menuItems = [
@@ -28,6 +31,10 @@ function collectionPath(slug) {
   return `/collections/${slug}`;
 }
 
+function productPath(product) {
+  return `/products/${product.slug || product.id}`;
+}
+
 function currentPath() {
   return window.location.pathname || "/";
 }
@@ -35,11 +42,19 @@ function currentPath() {
 function parseRoute(pathname) {
   const path = pathname.replace(/\/+$/, "") || "/";
   const collectionMatch = path.match(/^\/collections\/([^/]+)$/);
+  const productMatch = path.match(/^\/products\/([^/]+)$/);
 
   if (collectionMatch) {
     return {
       slug: decodeURIComponent(collectionMatch[1]),
       type: "collection",
+    };
+  }
+
+  if (productMatch) {
+    return {
+      slug: decodeURIComponent(productMatch[1]),
+      type: "product",
     };
   }
 
@@ -52,6 +67,32 @@ function parseRoute(pathname) {
 
 function findCollection(slug) {
   return shopCategories.find((category) => category.slug === slug);
+}
+
+function findProduct(slug) {
+  return products.find((product) => (product.slug || product.id) === slug);
+}
+
+function productsForCollection(collection) {
+  return products.filter(
+    (product) =>
+      product.active !== false &&
+      (product.collectionSlug === collection.slug ||
+        (!product.collectionSlug && product.category === collection.filterCategory)),
+  );
+}
+
+function displayPrice(product) {
+  return product.priceLabel || product.price || "Price on request";
+}
+
+function productImages(product) {
+  const images = product.images?.length ? product.images : [product.image];
+  return images.filter(Boolean);
+}
+
+function primaryProductImage(product) {
+  return productImages(product)[0];
 }
 
 function createWhatsappLink(productName) {
@@ -162,52 +203,82 @@ function CategoryShowcase({ onNavigate }) {
   );
 }
 
-function ProductCard({ product, onDetails }) {
+function ProductCard({ product, onNavigate }) {
+  const detailsPath = productPath(product);
+
   return (
     <article className="product-card">
       <div className="product-image-wrap">
-        <img src={product.image} alt={product.name} loading="lazy" />
+        <a
+          className="product-image-link"
+          href={detailsPath}
+          onClick={(event) => onNavigate(detailsPath, event)}
+          aria-label={`View ${product.name}`}
+        >
+          <img src={primaryProductImage(product)} alt={product.name} loading="lazy" />
+        </a>
         <span className="product-badge">{product.badge}</span>
       </div>
       <div className="product-body">
         <div className="product-meta">
           <span>{product.category}</span>
-          <strong>{product.price}</strong>
+          <strong>{displayPrice(product)}</strong>
         </div>
-        <h3>{product.name}</h3>
+        <a
+          className="product-title-link"
+          href={detailsPath}
+          onClick={(event) => onNavigate(detailsPath, event)}
+        >
+          <h3>{product.name}</h3>
+        </a>
         <p>{product.description}</p>
         <div className="product-actions">
           <a className="button" href={createWhatsappLink(product.name)} target="_blank" rel="noreferrer">
             <MessageCircle size={17} aria-hidden="true" />
             Enquire
           </a>
-          <button className="button button-secondary" type="button" onClick={() => onDetails(product)}>
+          <a
+            className="button button-secondary"
+            href={detailsPath}
+            onClick={(event) => onNavigate(detailsPath, event)}
+          >
             <Eye size={17} aria-hidden="true" />
             Details
-          </button>
+          </a>
         </div>
       </div>
     </article>
   );
 }
 
-function Catalog({ activeCategory, setActiveCategory }) {
+function Catalog({ activeCategory, setActiveCategory, onNavigate }) {
   const [query, setQuery] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const visibleProducts = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
     return products.filter((product) => {
+      if (product.active === false) {
+        return false;
+      }
+
       const matchesCategory = activeCategory === allCategory || product.category === activeCategory;
       const searchable = [
         product.name,
         product.category,
         product.description,
         product.badge,
+        displayPrice(product),
+        product.availability,
+        product.seating ? `${product.seating} seater` : "",
         product.material,
         product.dimensions,
+        ...(product.colors || []),
+        ...(product.tags || []),
+        ...(product.details || []),
+        ...(product.materialDetails || []),
       ]
+        .filter(Boolean)
         .join(" ")
         .toLowerCase();
 
@@ -269,23 +340,18 @@ function Catalog({ activeCategory, setActiveCategory }) {
       {visibleProducts.length > 0 ? (
         <div className="product-grid">
           {visibleProducts.map((product) => (
-            <ProductCard key={product.id} product={product} onDetails={setSelectedProduct} />
+            <ProductCard key={product.id} product={product} onNavigate={onNavigate} />
           ))}
         </div>
       ) : (
         <p className="empty-state">No products found. Try another search or category.</p>
-      )}
-
-      {selectedProduct && (
-        <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
       )}
     </section>
   );
 }
 
 function CollectionPage({ collection, onNavigate }) {
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const collectionProducts = products.filter((product) => product.category === collection.filterCategory);
+  const collectionProducts = productsForCollection(collection);
 
   return (
     <main>
@@ -327,7 +393,7 @@ function CollectionPage({ collection, onNavigate }) {
         {collectionProducts.length > 0 ? (
           <div className="product-grid">
             {collectionProducts.map((product) => (
-              <ProductCard key={product.id} product={product} onDetails={setSelectedProduct} />
+              <ProductCard key={product.id} product={product} onNavigate={onNavigate} />
             ))}
           </div>
         ) : (
@@ -358,10 +424,200 @@ function CollectionPage({ collection, onNavigate }) {
 
       <ServiceBand />
       <VisitSection />
+    </main>
+  );
+}
 
-      {selectedProduct && (
-        <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+function ProductDetailPage({ product, onNavigate }) {
+  const images = productImages(product);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const activeImage = images[activeImageIndex] || primaryProductImage(product);
+  const hasMultipleImages = images.length > 1;
+  const collection = product.collectionSlug ? findCollection(product.collectionSlug) : null;
+  const collectionHref = collection ? collectionPath(collection.slug) : "/#catalog";
+  const specItems = [
+    ["Price", displayPrice(product)],
+    ["Availability", product.availability],
+    ["Seating", product.seating ? `${product.seating} seater` : ""],
+    ["Colour", product.colors?.join(", ")],
+    ["Dimensions", product.dimensions],
+    ["Material", product.material],
+    ["Style", product.style],
+  ].filter(([, value]) => value);
+  const relatedProducts = products
+    .filter(
+      (item) =>
+        item.active !== false &&
+        item.id !== product.id &&
+        (item.collectionSlug === product.collectionSlug || item.category === product.category),
+    )
+    .slice(0, 4);
+
+  useEffect(() => {
+    setActiveImageIndex(0);
+  }, [product.id]);
+
+  function showPreviousImage() {
+    setActiveImageIndex((currentIndex) =>
+      currentIndex === 0 ? images.length - 1 : currentIndex - 1,
+    );
+  }
+
+  function showNextImage() {
+    setActiveImageIndex((currentIndex) =>
+      currentIndex === images.length - 1 ? 0 : currentIndex + 1,
+    );
+  }
+
+  return (
+    <main className="product-detail-page">
+      <section className="product-detail-shell">
+        <nav className="breadcrumb" aria-label="Breadcrumb">
+          <a href="/" onClick={(event) => onNavigate("/", event)}>
+            Home
+          </a>
+          <span aria-hidden="true">/</span>
+          <a href={collectionHref} onClick={(event) => onNavigate(collectionHref, event)}>
+            {collection?.name || product.category}
+          </a>
+          <span aria-hidden="true">/</span>
+          <span>{product.name}</span>
+        </nav>
+
+        <div className="product-detail-layout">
+          <div className="product-detail-media">
+            <div className="product-gallery-main">
+              <img src={activeImage} alt={product.name} />
+
+              {hasMultipleImages && (
+                <>
+                  <button
+                    className="gallery-arrow gallery-arrow-left"
+                    type="button"
+                    onClick={showPreviousImage}
+                    aria-label="Show previous product image"
+                  >
+                    <ChevronLeft size={24} aria-hidden="true" />
+                  </button>
+                  <button
+                    className="gallery-arrow gallery-arrow-right"
+                    type="button"
+                    onClick={showNextImage}
+                    aria-label="Show next product image"
+                  >
+                    <ChevronRight size={24} aria-hidden="true" />
+                  </button>
+                  <span className="gallery-count">
+                    {activeImageIndex + 1} / {images.length}
+                  </span>
+                </>
+              )}
+            </div>
+
+            {hasMultipleImages && (
+              <div className="product-gallery-thumbs" aria-label="Product images">
+                {images.map((image, index) => (
+                  <button
+                    className={index === activeImageIndex ? "gallery-thumb active" : "gallery-thumb"}
+                    type="button"
+                    key={image}
+                    onClick={() => setActiveImageIndex(index)}
+                    aria-label={`Show product image ${index + 1}`}
+                  >
+                    <img src={image} alt="" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="product-detail-info">
+            <p className="eyebrow">{collection?.name || product.category}</p>
+            <h1>{product.name}</h1>
+            <p className="product-detail-description">{product.description}</p>
+
+            <div className="product-detail-price">{displayPrice(product)}</div>
+
+            <div className="product-detail-actions">
+              <a className="button" href={createWhatsappLink(product.name)} target="_blank" rel="noreferrer">
+                <MessageCircle size={18} aria-hidden="true" />
+                Ask on WhatsApp
+              </a>
+              <a className="button button-secondary" href={`tel:${business.callNumber}`}>
+                <Phone size={18} aria-hidden="true" />
+                Call store
+              </a>
+            </div>
+
+            <dl className="spec-grid">
+              {specItems.map(([label, value]) => (
+                <div className="spec-card" key={label}>
+                  <dt>{label}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section className="section product-detail-section">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Product information</p>
+            <h2>Details and specifications</h2>
+          </div>
+          <p>
+            Confirm exact finish, size, and availability with the store before ordering. Product
+            information can vary by stock and customization.
+          </p>
+        </div>
+
+        <div className="product-detail-notes">
+          <article className="detail-panel">
+            <h3>Highlights</h3>
+            <ul className="feature-points">
+              {(product.details || []).map((detail) => (
+                <li key={detail}>
+                  <CheckCircle2 size={17} aria-hidden="true" />
+                  {detail}
+                </li>
+              ))}
+            </ul>
+          </article>
+
+          <article className="detail-panel">
+            <h3>Construction</h3>
+            {product.materialDetails?.length ? (
+              <ul className="feature-points">
+                {product.materialDetails.map((detail) => (
+                  <li key={detail}>
+                    <CheckCircle2 size={17} aria-hidden="true" />
+                    {detail}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>{product.material}</p>
+            )}
+          </article>
+        </div>
+      </section>
+
+      {relatedProducts.length > 0 && (
+        <section className="section product-detail-related">
+          <div className="compact-heading">
+            <h2>Related Products</h2>
+          </div>
+          <div className="product-grid">
+            {relatedProducts.map((item) => (
+              <ProductCard key={item.id} product={item} onNavigate={onNavigate} />
+            ))}
+          </div>
+        </section>
       )}
+
+      <VisitSection />
     </main>
   );
 }
@@ -394,7 +650,7 @@ function ProductModal({ product, onClose }) {
         <button className="modal-close" type="button" onClick={onClose} aria-label="Close details">
           <X size={20} aria-hidden="true" />
         </button>
-        <img src={product.image} alt={product.name} />
+        <img src={primaryProductImage(product)} alt={product.name} />
         <div className="modal-content">
           <p className="eyebrow">{product.category}</p>
           <h2 id="product-modal-title">{product.name}</h2>
@@ -402,7 +658,7 @@ function ProductModal({ product, onClose }) {
           <dl className="detail-list">
             <div>
               <dt>Price</dt>
-              <dd>{product.price}</dd>
+              <dd>{displayPrice(product)}</dd>
             </div>
             <div>
               <dt>Dimensions</dt>
@@ -522,6 +778,7 @@ export default function App() {
   const [activeCategory, setActiveCategory] = useState(allCategory);
   const route = parseRoute(pathname);
   const collection = route.type === "collection" ? findCollection(route.slug) : null;
+  const product = route.type === "product" ? findProduct(route.slug) : null;
 
   useEffect(() => {
     function handlePopState() {
@@ -533,6 +790,11 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (product) {
+      document.title = `${product.name} | ${business.name}`;
+      return;
+    }
+
     if (collection) {
       document.title = `${collection.name} | ${business.name}`;
       return;
@@ -542,7 +804,7 @@ export default function App() {
       route.type === "not-found"
         ? `Page not found | ${business.name}`
         : `${business.name} | Home Goods & Furniture Store`;
-  }, [collection, route.type]);
+  }, [collection, product, route.type]);
 
   function handleNavigate(href, event) {
     if (
@@ -578,14 +840,24 @@ export default function App() {
 
   if (route.type === "collection" && collection) {
     pageContent = <CollectionPage collection={collection} onNavigate={handleNavigate} />;
-  } else if (route.type === "not-found" || (route.type === "collection" && !collection)) {
+  } else if (route.type === "product" && product) {
+    pageContent = <ProductDetailPage product={product} onNavigate={handleNavigate} />;
+  } else if (
+    route.type === "not-found" ||
+    (route.type === "collection" && !collection) ||
+    (route.type === "product" && !product)
+  ) {
     pageContent = <NotFoundPage onNavigate={handleNavigate} />;
   } else {
     pageContent = (
       <main>
         <PromoBanner />
         <CategoryShowcase onNavigate={handleNavigate} />
-        <Catalog activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
+        <Catalog
+          activeCategory={activeCategory}
+          setActiveCategory={setActiveCategory}
+          onNavigate={handleNavigate}
+        />
         <ServiceBand />
         <VisitSection />
       </main>
