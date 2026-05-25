@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CheckCircle2,
   Eye,
@@ -14,15 +14,45 @@ import { business, categories, products, promoBanner, shopCategories } from "./d
 
 const allCategory = "All";
 const menuItems = [
-  { label: "Home", href: "#home" },
-  { label: "Sofas & Seating", category: "Living Room" },
-  { label: "Bedroom", category: "Bedroom" },
-  { label: "Dining & Kitchen", category: "Dining" },
-  { label: "Office", category: "Office" },
-  { label: "Storage Furniture", category: "Bedroom" },
-  { label: "Lighting & Decor", href: "#why-us" },
-  { label: "Furnishing", href: "#catalog" },
+  { label: "Home", href: "/" },
+  { label: "Sofas & Seating", collectionSlug: "sofas" },
+  { label: "Bedroom", collectionSlug: "beds" },
+  { label: "Dining & Kitchen", collectionSlug: "dining-sets" },
+  { label: "Office", collectionSlug: "office-furniture" },
+  { label: "Storage Furniture", collectionSlug: "wardrobes" },
+  { label: "Lighting & Decor", href: "/#why-us" },
+  { label: "Furnishing", href: "/#catalog" },
 ];
+
+function collectionPath(slug) {
+  return `/collections/${slug}`;
+}
+
+function currentPath() {
+  return window.location.pathname || "/";
+}
+
+function parseRoute(pathname) {
+  const path = pathname.replace(/\/+$/, "") || "/";
+  const collectionMatch = path.match(/^\/collections\/([^/]+)$/);
+
+  if (collectionMatch) {
+    return {
+      slug: decodeURIComponent(collectionMatch[1]),
+      type: "collection",
+    };
+  }
+
+  if (path === "/") {
+    return { type: "home" };
+  }
+
+  return { type: "not-found" };
+}
+
+function findCollection(slug) {
+  return shopCategories.find((category) => category.slug === slug);
+}
 
 function createWhatsappLink(productName) {
   const text = productName
@@ -40,22 +70,23 @@ function WhatsAppIcon() {
   );
 }
 
-function Header({ onCategorySelect }) {
-  function handleMenuClick(category) {
-    onCategorySelect(category);
-  }
-
+function Header({ onNavigate }) {
   return (
     <>
       <header className="site-header">
         <div className="utility-bar">
-          <a className="contact-link" href="#visit">
+          <a className="contact-link" href="/#visit" onClick={(event) => onNavigate("/#visit", event)}>
             Contact us
           </a>
         </div>
 
         <div className="logo-row">
-          <a className="logo-link" href="#home" aria-label={`${business.name} home`}>
+          <a
+            className="logo-link"
+            href="/"
+            aria-label={`${business.name} home`}
+            onClick={(event) => onNavigate("/", event)}
+          >
             <img className="logo-image" src={business.logo} alt={business.name} />
           </a>
         </div>
@@ -64,17 +95,22 @@ function Header({ onCategorySelect }) {
       <nav className="menu-row" aria-label="Product navigation">
         <div className="menu-nav">
           {menuItems.map((item) =>
-            item.category ? (
-              <button
+            item.collectionSlug ? (
+              <a
                 className="menu-link"
+                href={collectionPath(item.collectionSlug)}
                 key={item.label}
-                type="button"
-                onClick={() => handleMenuClick(item.category)}
+                onClick={(event) => onNavigate(collectionPath(item.collectionSlug), event)}
               >
                 {item.label}
-              </button>
+              </a>
             ) : (
-              <a className="menu-link" href={item.href} key={item.label}>
+              <a
+                className="menu-link"
+                href={item.href}
+                key={item.label}
+                onClick={(event) => onNavigate(item.href, event)}
+              >
                 {item.label}
               </a>
             ),
@@ -100,7 +136,7 @@ function PromoBanner() {
   );
 }
 
-function CategoryShowcase({ onCategorySelect }) {
+function CategoryShowcase({ onNavigate }) {
   return (
     <section className="section category-section" id="categories">
       <div className="compact-heading">
@@ -109,17 +145,17 @@ function CategoryShowcase({ onCategorySelect }) {
 
       <div className="category-grid">
         {shopCategories.map((category) => (
-          <button
+          <a
             className="category-card"
+            href={collectionPath(category.slug)}
             key={category.name}
-            type="button"
-            onClick={() => onCategorySelect(category.filterCategory)}
+            onClick={(event) => onNavigate(collectionPath(category.slug), event)}
           >
             <span className="category-image-frame">
               <img src={category.image} alt="" loading="lazy" />
             </span>
             <strong>{category.name}</strong>
-          </button>
+          </a>
         ))}
       </div>
     </section>
@@ -244,6 +280,104 @@ function Catalog({ activeCategory, setActiveCategory }) {
         <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
       )}
     </section>
+  );
+}
+
+function CollectionPage({ collection, onNavigate }) {
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const collectionProducts = products.filter((product) => product.category === collection.filterCategory);
+
+  return (
+    <main>
+      <section className="collection-hero">
+        <nav className="breadcrumb" aria-label="Breadcrumb">
+          <a href="/" onClick={(event) => onNavigate("/", event)}>
+            Home
+          </a>
+          <span aria-hidden="true">/</span>
+          <span>{collection.name}</span>
+        </nav>
+
+        <div className="collection-hero-panel">
+          <img src={collection.image} alt="" />
+          <div>
+            <p className="eyebrow">Collection</p>
+            <h1>{collection.name}</h1>
+            <p>{collection.description}</p>
+            <a className="button" href={createWhatsappLink(collection.name)} target="_blank" rel="noreferrer">
+              <MessageCircle size={18} aria-hidden="true" />
+              Ask about {collection.name}
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section className="section collection-products">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Available options</p>
+            <h2>{collection.name} products</h2>
+          </div>
+          <p>
+            These are starter products mapped to the closest furniture group. As you add real
+            products, each collection can become more specific.
+          </p>
+        </div>
+
+        {collectionProducts.length > 0 ? (
+          <div className="product-grid">
+            {collectionProducts.map((product) => (
+              <ProductCard key={product.id} product={product} onDetails={setSelectedProduct} />
+            ))}
+          </div>
+        ) : (
+          <p className="empty-state">Products for this collection will be added soon.</p>
+        )}
+      </section>
+
+      <section className="section related-collections">
+        <div className="compact-heading">
+          <h2>More Categories</h2>
+        </div>
+        <div className="related-grid">
+          {shopCategories
+            .filter((category) => category.slug !== collection.slug)
+            .slice(0, 6)
+            .map((category) => (
+              <a
+                className="related-link"
+                href={collectionPath(category.slug)}
+                key={category.slug}
+                onClick={(event) => onNavigate(collectionPath(category.slug), event)}
+              >
+                {category.name}
+              </a>
+            ))}
+        </div>
+      </section>
+
+      <ServiceBand />
+      <VisitSection />
+
+      {selectedProduct && (
+        <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+      )}
+    </main>
+  );
+}
+
+function NotFoundPage({ onNavigate }) {
+  return (
+    <main>
+      <section className="section not-found">
+        <p className="eyebrow">Page not found</p>
+        <h1>We could not find that page.</h1>
+        <p>Return to the homepage or browse the current furniture collections.</p>
+        <a className="button" href="/" onClick={(event) => onNavigate("/", event)}>
+          Back to home
+        </a>
+      </section>
+    </main>
   );
 }
 
@@ -384,23 +518,84 @@ function VisitSection() {
 }
 
 export default function App() {
+  const [pathname, setPathname] = useState(currentPath);
   const [activeCategory, setActiveCategory] = useState(allCategory);
+  const route = parseRoute(pathname);
+  const collection = route.type === "collection" ? findCollection(route.slug) : null;
 
-  function handleCategorySelect(category) {
-    setActiveCategory(category);
-    document.querySelector("#catalog")?.scrollIntoView({ behavior: "smooth" });
+  useEffect(() => {
+    function handlePopState() {
+      setPathname(currentPath());
+    }
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  useEffect(() => {
+    if (collection) {
+      document.title = `${collection.name} | ${business.name}`;
+      return;
+    }
+
+    document.title =
+      route.type === "not-found"
+        ? `Page not found | ${business.name}`
+        : `${business.name} | Home Goods & Furniture Store`;
+  }, [collection, route.type]);
+
+  function handleNavigate(href, event) {
+    if (
+      event &&
+      (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey)
+    ) {
+      return;
+    }
+
+    event?.preventDefault();
+
+    const nextUrl = new URL(href, window.location.origin);
+    const nextPath = `${nextUrl.pathname}${nextUrl.hash}`;
+    const currentFullPath = `${window.location.pathname}${window.location.hash}`;
+
+    if (nextPath !== currentFullPath) {
+      window.history.pushState({}, "", nextPath);
+    }
+
+    setPathname(nextUrl.pathname);
+
+    window.setTimeout(() => {
+      if (nextUrl.hash) {
+        document.querySelector(nextUrl.hash)?.scrollIntoView({ behavior: "smooth" });
+        return;
+      }
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 0);
   }
 
-  return (
-    <>
-      <Header onCategorySelect={handleCategorySelect} />
+  let pageContent;
+
+  if (route.type === "collection" && collection) {
+    pageContent = <CollectionPage collection={collection} onNavigate={handleNavigate} />;
+  } else if (route.type === "not-found" || (route.type === "collection" && !collection)) {
+    pageContent = <NotFoundPage onNavigate={handleNavigate} />;
+  } else {
+    pageContent = (
       <main>
         <PromoBanner />
-        <CategoryShowcase onCategorySelect={handleCategorySelect} />
+        <CategoryShowcase onNavigate={handleNavigate} />
         <Catalog activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
         <ServiceBand />
         <VisitSection />
       </main>
+    );
+  }
+
+  return (
+    <>
+      <Header onNavigate={handleNavigate} />
+      {pageContent}
       <a
         className="floating-whatsapp"
         href={createWhatsappLink()}

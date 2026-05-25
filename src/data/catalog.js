@@ -50,73 +50,97 @@ export const promoBanner = {
 export const shopCategories = [
   {
     name: "Sofas",
+    slug: "sofas",
     filterCategory: "Living Room",
+    description: "Browse sofa styles for living rooms, lounges, and family seating.",
     image:
       "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=700&q=82",
   },
   {
     name: "Beds",
+    slug: "beds",
     filterCategory: "Bedroom",
+    description: "Explore bed options, storage beds, and bedroom furniture pairings.",
     image:
       "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=700&q=82",
   },
   {
     name: "Dining Sets",
+    slug: "dining-sets",
     filterCategory: "Dining",
+    description: "Dining tables and chairs for compact homes and family spaces.",
     image:
       "https://images.unsplash.com/photo-1604578762246-41134e37f9cc?auto=format&fit=crop&w=700&q=82",
   },
   {
     name: "Study Tables",
+    slug: "study-tables",
     filterCategory: "Office",
+    description: "Study desks and work tables for students and home offices.",
     image:
       "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=700&q=82",
   },
   {
     name: "Centre Tables",
+    slug: "centre-tables",
     filterCategory: "Living Room",
+    description: "Centre tables and accent tables for everyday living room use.",
     image:
       "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=700&q=82",
   },
   {
     name: "Recliners",
+    slug: "recliners",
     filterCategory: "Living Room",
+    description: "Comfort seating and recliner-inspired lounge furniture options.",
     image:
       "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=700&q=82",
   },
   {
     name: "Sectional Sofas",
+    slug: "sectional-sofas",
     filterCategory: "Living Room",
+    description: "Sectional sofa options for larger rooms and open-plan seating.",
     image:
       "https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?auto=format&fit=crop&w=700&q=82",
   },
   {
     name: "Wardrobes",
+    slug: "wardrobes",
     filterCategory: "Bedroom",
+    description: "Wardrobes, sliding storage, mirror options, and bedroom organization.",
     image:
       "https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=700&q=82",
   },
   {
     name: "Cabinets & Sideboards",
+    slug: "cabinets-sideboards",
     filterCategory: "Living Room",
+    description: "Cabinets, sideboards, TV units, and practical storage furniture.",
     image:
       "https://images.unsplash.com/photo-1615874694520-474822394e73?auto=format&fit=crop&w=700&q=82",
   },
   {
     name: "Office Furniture",
+    slug: "office-furniture",
     filterCategory: "Office",
+    description: "Office chairs, desks, and work-from-home furniture options.",
     image:
       "https://images.unsplash.com/photo-1580480055273-228ff5388ef8?auto=format&fit=crop&w=700&q=82",
   },
   {
     name: "Shoe Racks",
+    slug: "shoe-racks",
     filterCategory: "Bedroom",
+    description: "Shoe racks and small-space storage options for organized homes.",
     image:
       "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=700&q=82",
   },
   {
     name: "Bar Furniture",
+    slug: "bar-furniture",
     filterCategory: "Dining",
+    description: "Bar counters, dining storage, and entertaining furniture ideas.",
     image:
       "https://images.unsplash.com/photo-1559329007-40df8a9345d8?auto=format&fit=crop&w=700&q=82",
   },
