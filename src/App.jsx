@@ -46,18 +46,20 @@ function Header({ onCategorySelect }) {
   }
 
   return (
-    <header className="site-header">
-      <div className="utility-bar">
-        <a className="contact-link" href="#visit">
-          Contact us
-        </a>
-      </div>
+    <>
+      <header className="site-header">
+        <div className="utility-bar">
+          <a className="contact-link" href="#visit">
+            Contact us
+          </a>
+        </div>
 
-      <div className="logo-row">
-        <a className="logo-link" href="#home" aria-label={`${business.name} home`}>
-          <img className="logo-image" src={business.logo} alt={business.name} />
-        </a>
-      </div>
+        <div className="logo-row">
+          <a className="logo-link" href="#home" aria-label={`${business.name} home`}>
+            <img className="logo-image" src={business.logo} alt={business.name} />
+          </a>
+        </div>
+      </header>
 
       <nav className="menu-row" aria-label="Product navigation">
         <div className="menu-nav">
@@ -79,7 +81,7 @@ function Header({ onCategorySelect }) {
           )}
         </div>
       </nav>
-    </header>
+    </>
   );
 }
 

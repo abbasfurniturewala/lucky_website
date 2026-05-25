@@ -68,13 +68,7 @@ button {
 }
 
 .site-header {
-  position: sticky;
-  top: 0;
-  z-index: 20;
   background: rgba(255, 255, 255, 0.96);
-  border-bottom: 1px solid var(--line);
-  box-shadow: 0 8px 24px rgba(20, 22, 24, 0.05);
-  backdrop-filter: blur(16px);
 }
 
 .utility-bar {
@@ -124,9 +118,14 @@ button {
 }
 
 .menu-row {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   overflow-x: auto;
   border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
   background: #fbfbfa;
+  box-shadow: 0 8px 24px rgba(20, 22, 24, 0.05);
 }
 
 .menu-nav {
