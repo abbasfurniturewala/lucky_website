@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Lucky Interiors">
+  <rect width="512" height="512" fill="#ffffff"/>
+  <path
+    fill="#101820"
+    d="M174 122c49 28 78 83 78 148v42h133l18 18v29H218v-89c0-49-21-91-63-115l19-33Z"
+  />
+  <path fill="#101820" d="M184 374h166v24H184z"/>
+  <path fill="#101820" d="M238 398h58v76h-58z"/>
+  <path fill="#101820" d="M204 468h126v24H204z"/>
+</svg>
