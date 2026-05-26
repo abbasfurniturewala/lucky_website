@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { business, categories, promoBanner, shopCategories } from "./data/catalog.js";
 import { products } from "./data/products.js";
+import { site } from "./data/site.js";
 
 const allCategory = "All";
 const menuItems = [
@@ -105,6 +106,327 @@ function productImages(product) {
 
 function primaryProductImage(product) {
   return productImages(product)[0];
+}
+
+function absoluteUrl(path = "/") {
+  return new URL(path || "/", site.origin).toString();
+}
+
+function truncateText(text, maxLength = 155) {
+  const normalized = String(text || "").replace(/\s+/g, " ").trim();
+
+  if (normalized.length <= maxLength) {
+    return normalized;
+  }
+
+  const clipped = normalized.slice(0, maxLength - 1).trim();
+  const lastSpace = clipped.lastIndexOf(" ");
+  const safeClip = lastSpace > maxLength * 0.6 ? clipped.slice(0, lastSpace) : clipped;
+
+  return `${safeClip.replace(/[.,;:]+$/, "")}.`;
+}
+
+function cleanJsonLd(value) {
+  if (Array.isArray(value)) {
+    const cleanedArray = value.map(cleanJsonLd).filter((item) => item !== undefined);
+    return cleanedArray.length ? cleanedArray : undefined;
+  }
+
+  if (value && typeof value === "object") {
+    const cleanedObject = Object.entries(value).reduce((current, [key, item]) => {
+      const cleanedValue = cleanJsonLd(item);
+
+      if (cleanedValue !== undefined) {
+        current[key] = cleanedValue;
+      }
+
+      return current;
+    }, {});
+
+    return Object.keys(cleanedObject).length ? cleanedObject : undefined;
+  }
+
+  if (value === undefined || value === null || value === "") {
+    return undefined;
+  }
+
+  return value;
+}
+
+function upsertMeta(attribute, value, content) {
+  let element = document.head.querySelector(`meta[${attribute}="${value}"]`);
+
+  if (!element) {
+    element = document.createElement("meta");
+    element.setAttribute(attribute, value);
+    document.head.append(element);
+  }
+
+  element.setAttribute("content", content);
+}
+
+function upsertCanonical(href) {
+  let element = document.head.querySelector('link[rel="canonical"]');
+
+  if (!element) {
+    element = document.createElement("link");
+    element.setAttribute("rel", "canonical");
+    document.head.append(element);
+  }
+
+  element.setAttribute("href", href);
+}
+
+function setJsonLd(id, data) {
+  const cleanedData = cleanJsonLd(data);
+  let element = document.getElementById(id);
+
+  if (!cleanedData) {
+    element?.remove();
+    return;
+  }
+
+  if (!element) {
+    element = document.createElement("script");
+    element.id = id;
+    element.type = "application/ld+json";
+    document.head.append(element);
+  }
+
+  element.textContent = JSON.stringify(cleanedData);
+}
+
+function removeJsonLd(id) {
+  document.getElementById(id)?.remove();
+}
+
+function schemaAvailability(availability = "") {
+  const normalized = normalizeSearchText(availability);
+
+  if (normalized.includes("in stock")) {
+    return "https://schema.org/InStock";
+  }
+
+  if (normalized.includes("made to order")) {
+    return "https://schema.org/PreOrder";
+  }
+
+  return "https://schema.org/LimitedAvailability";
+}
+
+function buildLocalBusinessJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FurnitureStore",
+    "@id": `${site.origin}/#store`,
+    name: business.name,
+    description: business.tagline,
+    image: absoluteUrl(business.logo || site.defaultImage),
+    url: site.origin,
+    telephone: business.callNumber,
+    priceRange: "Rs. 10,000 - Rs. 100,000",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: business.address,
+      addressLocality: "Mumbai",
+      addressRegion: "Maharashtra",
+      addressCountry: "IN",
+    },
+    openingHours: "Mo-Su 10:00-21:00",
+  };
+}
+
+function buildBreadcrumbJsonLd(items) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: absoluteUrl(item.href),
+    })),
+  };
+}
+
+function buildProductJsonLd(product) {
+  const numericPrice = typeof product.price === "number" ? product.price : undefined;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description,
+    image: productImages(product).map(absoluteUrl),
+    brand: {
+      "@type": "Brand",
+      name: business.name,
+    },
+    category: collectionForProduct(product)?.name || product.category,
+    material: product.material,
+    color: product.colors?.join(", "),
+    sku: product.id,
+    offers: {
+      "@type": "Offer",
+      url: absoluteUrl(productPath(product)),
+      priceCurrency: "INR",
+      price: numericPrice,
+      availability: schemaAvailability(product.availability),
+      seller: {
+        "@type": "FurnitureStore",
+        name: business.name,
+      },
+    },
+  };
+}
+
+function buildCollectionJsonLd(collection) {
+  const collectionProducts = productsForCollection(collection).slice(0, 12);
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `${collection.name} | ${business.name}`,
+    description: collection.description,
+    url: absoluteUrl(collectionPath(collection.slug)),
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: collectionProducts.map((product, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        url: absoluteUrl(productPath(product)),
+        name: product.name,
+      })),
+    },
+  };
+}
+
+function productSeoDescription(product) {
+  return truncateText(
+    [
+      product.description,
+      product.material ? `Material: ${product.material}.` : "",
+      product.dimensions ? `Dimensions: ${product.dimensions}.` : "",
+      `${business.name}, Mumbai.`,
+    ]
+      .filter(Boolean)
+      .join(" "),
+  );
+}
+
+function buildSeoData(route, collection, product) {
+  if (route.type === "product" && product) {
+    const productCollection = collectionForProduct(product);
+    const description = productSeoDescription(product);
+    const canonical = absoluteUrl(productPath(product));
+
+    return {
+      title: `${product.name} | ${business.name}`,
+      description,
+      canonical,
+      image: absoluteUrl(primaryProductImage(product) || site.defaultImage),
+      robots: "index,follow",
+      type: "product",
+      pageJsonLd: [
+        buildBreadcrumbJsonLd([
+          { name: "Home", href: "/" },
+          { name: productCollection?.name || product.category, href: productCollection ? collectionPath(productCollection.slug) : "/#catalog" },
+          { name: product.name, href: productPath(product) },
+        ]),
+        buildProductJsonLd(product),
+      ],
+    };
+  }
+
+  if (route.type === "collection" && collection) {
+    const description = truncateText(
+      `${collection.description} Browse ${collection.name.toLowerCase()} and enquire with ${business.name} in Mumbai.`,
+    );
+    const canonical = absoluteUrl(collectionPath(collection.slug));
+
+    return {
+      title: `${collection.name} | ${business.name}`,
+      description,
+      canonical,
+      image: absoluteUrl(collection.image || site.defaultImage),
+      robots: "index,follow",
+      type: "website",
+      pageJsonLd: [
+        buildBreadcrumbJsonLd([
+          { name: "Home", href: "/" },
+          { name: collection.name, href: collectionPath(collection.slug) },
+        ]),
+        buildCollectionJsonLd(collection),
+      ],
+    };
+  }
+
+  if (route.type === "search") {
+    const query = route.query.trim();
+
+    return {
+      title: query ? `Search: ${query} | ${business.name}` : `Search | ${business.name}`,
+      description: query
+        ? `Search results for ${query} in the ${business.name} furniture catalog.`
+        : `Search the ${business.name} furniture catalog.`,
+      canonical: query ? absoluteUrl(searchPath(query)) : absoluteUrl("/search"),
+      image: absoluteUrl(site.defaultImage),
+      robots: "noindex,follow",
+      type: "website",
+      pageJsonLd: [],
+    };
+  }
+
+  if (route.type === "not-found" || (route.type === "collection" && !collection) || (route.type === "product" && !product)) {
+    return {
+      title: `Page not found | ${business.name}`,
+      description: "This page could not be found. Browse Lucky Interiors Furniture collections and products.",
+      canonical: absoluteUrl(window.location.pathname),
+      image: absoluteUrl(site.defaultImage),
+      robots: "noindex,follow",
+      type: "website",
+      pageJsonLd: [],
+    };
+  }
+
+  return {
+    title: site.defaultTitle,
+    description: site.defaultDescription,
+    canonical: absoluteUrl("/"),
+    image: absoluteUrl(site.defaultImage),
+    robots: "index,follow",
+    type: "website",
+    pageJsonLd: [],
+  };
+}
+
+function applySeo(seo) {
+  document.title = seo.title;
+  upsertMeta("name", "description", seo.description);
+  upsertMeta("name", "robots", seo.robots);
+  upsertMeta("property", "og:site_name", business.name);
+  upsertMeta("property", "og:type", seo.type);
+  upsertMeta("property", "og:title", seo.title);
+  upsertMeta("property", "og:description", seo.description);
+  upsertMeta("property", "og:url", seo.canonical);
+  upsertMeta("property", "og:image", seo.image);
+  upsertMeta("name", "twitter:card", "summary_large_image");
+  upsertMeta("name", "twitter:title", seo.title);
+  upsertMeta("name", "twitter:description", seo.description);
+  upsertMeta("name", "twitter:image", seo.image);
+  upsertCanonical(seo.canonical);
+  setJsonLd("local-business-jsonld", buildLocalBusinessJsonLd());
+
+  ["page-jsonld-0", "page-jsonld-1", "page-jsonld-2"].forEach((id, index) => {
+    const data = seo.pageJsonLd[index];
+
+    if (data) {
+      setJsonLd(id, data);
+      return;
+    }
+
+    removeJsonLd(id);
+  });
 }
 
 function normalizeSearchText(value) {
@@ -379,7 +701,7 @@ function HeaderSearch({ onNavigate }) {
                       <span>
                         <strong>{product.name}</strong>
                         <small>
-                          {collectionForProduct(product)?.name || product.category} · {displayPrice(product)}
+                          {collectionForProduct(product)?.name || product.category} - {displayPrice(product)}
                         </small>
                       </span>
                     </a>
@@ -1194,28 +1516,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (product) {
-      document.title = `${product.name} | ${business.name}`;
-      return;
-    }
-
-    if (collection) {
-      document.title = `${collection.name} | ${business.name}`;
-      return;
-    }
-
-    if (route.type === "search") {
-      document.title = route.query
-        ? `Search: ${route.query} | ${business.name}`
-        : `Search | ${business.name}`;
-      return;
-    }
-
-    document.title =
-      route.type === "not-found"
-        ? `Page not found | ${business.name}`
-        : `${business.name} | Home Goods & Furniture Store`;
-  }, [collection, product, route.type, route.query]);
+    applySeo(buildSeoData(route, collection, product));
+  }, [collection, product, route.type, route.query, route.slug]);
 
   function handleNavigate(href, event) {
     if (

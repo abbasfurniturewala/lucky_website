@@ -15,8 +15,10 @@ This is a React + Vite website for a home goods / furniture store in India. It i
 
 - `src/data/catalog.js` controls business details, homepage categories, and collection pages.
 - `src/data/products.js` controls product data and includes a `PRODUCT_TEMPLATE` copy/paste example.
+- `src/data/site.js` controls the live domain and default SEO text.
 - `src/App.jsx` controls the website layout and catalog behavior.
 - `src/styles.css` controls the design.
+- `generate-seo.mjs` generates `public/sitemap.xml` and `public/robots.txt`.
 - `index.html` is the Vite entry file.
 
 ## What to Replace First
@@ -95,6 +97,22 @@ Use Cloudflare Pages:
    - Build output directory: `dist`
 5. Deploy.
 6. In the Cloudflare Pages project, add your custom domain.
+
+## SEO Basics
+
+The site now updates SEO information for each route:
+
+- Homepage, collection pages, and product pages are indexable.
+- Search result pages use `noindex,follow`, because Google should not index every search query.
+- Product pages include Product structured data.
+- Collection and product pages include breadcrumb structured data.
+- `npm run build` regenerates `public/sitemap.xml` and `public/robots.txt`.
+
+After deploying, submit this sitemap in Google Search Console:
+
+```text
+https://luckyinteriorsfurniture.com/sitemap.xml
+```
 
 ## Next Features Later
 

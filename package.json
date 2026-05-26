@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "build": "vite build",
+    "generate:seo": "node generate-seo.mjs",
+    "build": "npm run generate:seo && vite build",
     "preview": "vite preview --host 127.0.0.1"
   },
   "dependencies": {
