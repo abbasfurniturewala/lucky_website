@@ -1,3 +1,5 @@
+import { importedProducts } from "./importedProducts.js";
+
 /*
   How to add a product:
 
@@ -289,4 +291,5 @@ export const products = [
     image:
       "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=1000&q=82",
   },
+  ...importedProducts,
 ];

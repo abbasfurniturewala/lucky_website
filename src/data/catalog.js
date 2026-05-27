@@ -37,6 +37,12 @@ export const categories = [
     image:
       "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=82",
   },
+  {
+    name: "Storage Furniture",
+    description: "Cabinets, TV units, bookshelves, and compact storage",
+    image:
+      "/products/betterhomeindia/bh-039-modern-4-door-storage-cabinet-da/1.webp",
+  },
 ];
 
 export const promoBanner = {
@@ -115,10 +121,18 @@ export const shopCategories = [
   {
     name: "Cabinets & Sideboards",
     slug: "cabinets-sideboards",
-    filterCategory: "Living Room",
+    filterCategory: "Storage Furniture",
     description: "Cabinets, sideboards, TV units, and practical storage furniture.",
     image:
       "https://images.unsplash.com/photo-1615874694520-474822394e73?auto=format&fit=crop&w=700&q=82",
+  },
+  {
+    name: "Bookshelves",
+    slug: "bookshelves",
+    filterCategory: "Storage Furniture",
+    description: "Bookshelves, bookcases, and display racks for organized rooms.",
+    image:
+      "/products/betterhomeindia/bh-006-wooden-open-bookshelf-modern-3-t/1.webp",
   },
   {
     name: "Office Furniture",
