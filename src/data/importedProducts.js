@@ -5948,7 +5948,7 @@ export const importedProducts = [
     "slug": "arabian-recliner-sofaset",
     "name": "Arabian - Recliner Sofa Set",
     "category": "Living Room",
-    "collectionSlug": "sofas",
+    "collectionSlug": "recliners",
     "badge": "Imported shortlist",
     "price": 136999,
     "priceLabel": "Rs. 1,36,999",
@@ -5956,15 +5956,15 @@ export const importedProducts = [
     "colors": [],
     "description": "Arabian is Imported made Racksine Sofa Set, it gives you contemparary modern look to your Living Room Furniture. This is Reclinear Sofaset with manual mechanism.",
     "details": [
-      "Sofa Set",
+      "Recliner Sofa Set",
       "Material: Fabric upholstery",
       "Availability: In stock"
     ],
     "dimensions": "",
     "material": "Fabric upholstery",
     "tags": [
-      "sofas",
-      "Sofa Set",
+      "recliners",
+      "Recliner Sofa Set",
       "arabian",
       "recliner",
       "sofa"
@@ -6082,7 +6082,7 @@ export const importedProducts = [
     "slug": "boston-reclinear-sofaset",
     "name": "Boston - Reclinear Sofaset",
     "category": "Living Room",
-    "collectionSlug": "sofas",
+    "collectionSlug": "recliners",
     "badge": "Imported shortlist",
     "price": 177499,
     "priceLabel": "Rs. 1,77,499",
@@ -6090,15 +6090,15 @@ export const importedProducts = [
     "colors": [],
     "description": "Boston is Imported Reclinear Sofa Set with manual mechanism.The set gives comfort with contemporary look to your Living Room Furniture. This is always looks great in P.U.Racksine so it also known as Racksine Sofa Set.",
     "details": [
-      "Sofa Set",
+      "Recliner Sofa Set",
       "Material: Ask for material details",
       "Availability: In stock"
     ],
     "dimensions": "",
     "material": "Ask for material details",
     "tags": [
-      "sofas",
-      "Sofa Set",
+      "recliners",
+      "Recliner Sofa Set",
       "boston",
       "reclinear",
       "sofaset"
@@ -7325,7 +7325,7 @@ export const importedProducts = [
     "slug": "vina-reclinear-chair-new-arrival",
     "name": "VINA RECLINEAR CHAIR - SOFA CHAIR",
     "category": "Living Room",
-    "collectionSlug": "sofas",
+    "collectionSlug": "recliners",
     "badge": "Imported shortlist",
     "price": 28000,
     "priceLabel": "Rs. 28,000",
@@ -7333,15 +7333,15 @@ export const importedProducts = [
     "colors": [],
     "description": "Vina is Imported made Reclinear chair, it gives you contemparary modern look to your Living Room Furniture. This is Reclinear Chair with manual mechanism.",
     "details": [
-      "Sofa Set",
+      "Recliner Chair",
       "Material: Ask for material details",
       "Availability: In stock"
     ],
     "dimensions": "",
     "material": "Ask for material details",
     "tags": [
-      "sofas",
-      "Sofa Set",
+      "recliners",
+      "Recliner Chair",
       "vina",
       "reclinear",
       "chair",
