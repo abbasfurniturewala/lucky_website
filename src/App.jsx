@@ -18,7 +18,6 @@ import { business, categories, promoBanner, shopCategories } from "./data/catalo
 import { products } from "./data/products.js";
 import { site } from "./data/site.js";
 
-const allCategory = "All";
 const menuItems = [
   { label: "Home", href: "/" },
   { label: "Sofas & Seating", collectionSlug: "sofas" },
@@ -29,6 +28,19 @@ const menuItems = [
   { label: "Lighting & Decor", href: "/#why-us" },
   { label: "Furnishing", href: "/#catalog" },
 ];
+
+const featuredProductIds = [
+  "brown-2-seater-sofa",
+  "darkbrown-2-seater-sofa",
+  "brown-4-seater-dining-table-set",
+  "wooden-queen-bed",
+  "sliding-wardrobe",
+  "accent-lounge-chair",
+  "tv-unit-with-storage",
+  "compact-study-desk",
+];
+
+const popularSearchTerms = ["sofas", "2 seater sofa", "wardrobes", "dining set", "centre table", "storage"];
 
 function collectionPath(slug) {
   return `/collections/${slug}`;
@@ -935,101 +947,95 @@ function ProductCard({ product, onNavigate }) {
   );
 }
 
-function Catalog({ activeCategory, setActiveCategory, onNavigate }) {
-  const [query, setQuery] = useState("");
+function FeaturedProducts({ onNavigate }) {
+  const [featuredSearchQuery, setFeaturedSearchQuery] = useState("");
+  const featuredProducts = featuredProductIds
+    .map((id) => products.find((product) => product.id === id || product.slug === id))
+    .filter((product) => product && product.active !== false);
 
-  const visibleProducts = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
+  function handleFeaturedSearch(event) {
+    event.preventDefault();
+    const trimmedQuery = featuredSearchQuery.trim();
 
-    return products.filter((product) => {
-      if (product.active === false) {
-        return false;
-      }
+    if (!trimmedQuery) {
+      return;
+    }
 
-      const matchesCategory = activeCategory === allCategory || product.category === activeCategory;
-      const searchable = [
-        product.name,
-        product.category,
-        product.description,
-        product.badge,
-        displayPrice(product),
-        product.availability,
-        product.seating ? `${product.seating} seater` : "",
-        product.material,
-        product.dimensions,
-        ...(product.colors || []),
-        ...(product.tags || []),
-        ...(product.details || []),
-        ...(product.materialDetails || []),
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-
-      return matchesCategory && searchable.includes(normalizedQuery);
-    });
-  }, [activeCategory, query]);
-
-  const categoryOptions = [allCategory, ...categories.map((category) => category.name)];
+    onNavigate(searchPath(trimmedQuery));
+  }
 
   return (
-    <section className="section catalog-section" id="catalog">
+    <section className="section featured-section" id="catalog">
       <div className="section-heading">
         <div>
-          <p className="eyebrow">Product catalog</p>
-          <h2>Browse popular furniture options.</h2>
+          <p className="eyebrow">Featured picks</p>
+          <h2>A small shortlist to start with.</h2>
         </div>
-        <p>
-          This is still simple for customers: they browse, open details, and enquire. Behind the
-          scenes, React keeps products and categories easy to expand.
-        </p>
-      </div>
-
-      <div className="catalog-toolbar">
-        <div className="search-field">
-          <Search size={18} aria-hidden="true" />
-          <input
-            aria-label="Search products"
-            type="search"
-            placeholder="Search sofa, bed, wardrobe..."
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-          {query && (
-            <button
-              className="search-clear"
-              type="button"
-              onClick={() => setQuery("")}
-              aria-label="Clear search"
+        <div className="featured-heading-actions">
+          <p>
+            We keep the home page focused on a few representative products. Use categories or search
+            to browse the full catalog.
+          </p>
+          <div className="featured-search-block">
+            <form className="featured-search-form" role="search" onSubmit={handleFeaturedSearch}>
+              <Search size={18} aria-hidden="true" />
+              <input
+                aria-label="Search the furniture catalog"
+                type="text"
+                placeholder="Search sofas, wardrobes, dining sets..."
+                value={featuredSearchQuery}
+                onChange={(event) => setFeaturedSearchQuery(event.target.value)}
+              />
+              <button className="button" type="submit">
+                Search
+              </button>
+            </form>
+            <a
+              className="featured-browse-link"
+              href="/#categories"
+              onClick={(event) => onNavigate("/#categories", event)}
             >
-              <X size={16} aria-hidden="true" />
-            </button>
-          )}
-        </div>
-
-        <div className="category-tabs" aria-label="Filter products by category">
-          {categoryOptions.map((category) => (
-            <button
-              className={category === activeCategory ? "tab active" : "tab"}
-              key={category}
-              type="button"
-              onClick={() => setActiveCategory(category)}
-            >
-              {category}
-            </button>
-          ))}
+              Browse categories
+              <ChevronRight size={16} aria-hidden="true" />
+            </a>
+          </div>
         </div>
       </div>
 
-      {visibleProducts.length > 0 ? (
-        <div className="product-grid">
-          {visibleProducts.map((product) => (
+      {featuredProducts.length > 0 ? (
+        <div className="product-grid featured-grid">
+          {featuredProducts.map((product) => (
             <ProductCard key={product.id} product={product} onNavigate={onNavigate} />
           ))}
         </div>
       ) : (
-        <p className="empty-state">No products found. Try another search or category.</p>
+        <p className="empty-state">Featured products are being updated.</p>
       )}
+    </section>
+  );
+}
+
+function HomeHelpStrip({ onNavigate }) {
+  return (
+    <section className="home-help-strip" aria-label="Furniture buying help">
+      <div>
+        <p className="eyebrow">Need help choosing?</p>
+        <h2>Send us a photo, size, or budget and we will help shortlist options.</h2>
+      </div>
+      <div className="home-help-actions">
+        <a className="button" href={createWhatsappLink()} target="_blank" rel="noreferrer">
+          <MessageCircle size={18} aria-hidden="true" />
+          WhatsApp us
+        </a>
+        <a
+          className="button button-secondary"
+          href="/contact"
+          onClick={(event) => onNavigate("/contact", event)}
+        >
+          <Mail size={18} aria-hidden="true" />
+          Contact page
+        </a>
+      </div>
     </section>
   );
 }
@@ -1115,6 +1121,11 @@ function CollectionPage({ collection, onNavigate }) {
 function SearchPage({ query, onNavigate }) {
   const decodedQuery = query.trim();
   const results = useMemo(() => buildSearchResults(decodedQuery), [decodedQuery]);
+  const starterCollections = shopCategories.slice(0, 6);
+  const starterProducts = featuredProductIds
+    .map((id) => products.find((product) => product.id === id || product.slug === id))
+    .filter((product) => product && product.active !== false)
+    .slice(0, 4);
 
   return (
     <main>
@@ -1129,7 +1140,62 @@ function SearchPage({ query, onNavigate }) {
         </div>
 
         {!decodedQuery ? (
-          <div className="empty-state">Use the search box above to find products and categories.</div>
+          <div className="search-start-layout">
+            <section className="search-start-card">
+              <div>
+                <p className="eyebrow">Popular searches</p>
+                <h2>Start with a product type, room, color, or use case.</h2>
+              </div>
+              <div className="search-chip-grid" aria-label="Popular search terms">
+                {popularSearchTerms.map((term) => (
+                  <a
+                    className="search-start-chip"
+                    href={searchPath(term)}
+                    key={term}
+                    onClick={(event) => onNavigate(searchPath(term), event)}
+                  >
+                    <Search size={15} aria-hidden="true" />
+                    {term}
+                  </a>
+                ))}
+              </div>
+            </section>
+
+            <section className="search-section">
+              <div className="compact-heading search-section-heading">
+                <h2>Browse Collections</h2>
+              </div>
+              <div className="search-collection-grid">
+                {starterCollections.map((collection) => (
+                  <a
+                    className="search-collection-card"
+                    href={collectionPath(collection.slug)}
+                    key={collection.slug}
+                    onClick={(event) => onNavigate(collectionPath(collection.slug), event)}
+                  >
+                    <img src={collection.image} alt="" />
+                    <span>
+                      <strong>{collection.name}</strong>
+                      <small>{collection.description}</small>
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </section>
+
+            {starterProducts.length > 0 && (
+              <section className="search-section">
+                <div className="compact-heading search-section-heading">
+                  <h2>Featured Products</h2>
+                </div>
+                <div className="product-grid featured-grid">
+                  {starterProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} onNavigate={onNavigate} />
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
         ) : results.total > 0 ? (
           <div className="search-results-layout">
             {results.collections.length > 0 && (
@@ -1683,7 +1749,6 @@ function ContactPage({ onNavigate }) {
 
 export default function App() {
   const [pathname, setPathname] = useState(currentPath);
-  const [activeCategory, setActiveCategory] = useState(allCategory);
   const route = parseRoute(pathname);
   const collection = route.type === "collection" ? findCollection(route.slug) : null;
   const product = route.type === "product" ? findProduct(route.slug) : null;
@@ -1753,12 +1818,9 @@ export default function App() {
       <main>
         <PromoBanner />
         <CategoryShowcase onNavigate={handleNavigate} />
-        <Catalog
-          activeCategory={activeCategory}
-          setActiveCategory={setActiveCategory}
-          onNavigate={handleNavigate}
-        />
+        <FeaturedProducts onNavigate={handleNavigate} />
         <ServiceBand />
+        <HomeHelpStrip onNavigate={handleNavigate} />
         <VisitSection />
       </main>
     );
