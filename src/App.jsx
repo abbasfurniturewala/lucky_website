@@ -42,6 +42,29 @@ const featuredProductIds = [
 
 const popularSearchTerms = ["sofas", "2 seater sofa", "wardrobes", "dining set", "centre table", "storage"];
 
+const defaultCollectionFilters = {
+  availability: "all",
+  color: "all",
+  material: "all",
+  price: "all",
+  seating: "all",
+};
+
+const priceFilterOptions = [
+  { label: "Any price", value: "all" },
+  { label: "Under Rs. 10,000", value: "under-10000" },
+  { label: "Rs. 10,000 - Rs. 25,000", value: "10000-25000" },
+  { label: "Rs. 25,000 - Rs. 50,000", value: "25000-50000" },
+  { label: "Above Rs. 50,000", value: "above-50000" },
+  { label: "Price on request", value: "request" },
+];
+
+const collectionSortOptions = [
+  { label: "Popular", value: "popular" },
+  { label: "Newest", value: "newest" },
+  { label: "Price: Low to High", value: "price-asc" },
+];
+
 function collectionPath(slug) {
   return `/collections/${slug}`;
 }
@@ -117,9 +140,183 @@ function displayPrice(product) {
   return product.priceLabel || product.price || "Price on request";
 }
 
+function numericProductPrice(product) {
+  if (typeof product.price === "number") {
+    return product.price;
+  }
+
+  const priceText = [product.price, product.priceLabel].filter(Boolean).join(" ");
+  const parsedPrice = Number(priceText.replace(/[^0-9]/g, ""));
+
+  return Number.isFinite(parsedPrice) && parsedPrice > 0 ? parsedPrice : null;
+}
+
 function productImages(product) {
   const images = product.images?.length ? product.images : [product.image];
   return images.filter(Boolean);
+}
+
+function uniqueFilterOptions(productsList, getValues) {
+  const options = new Map();
+
+  productsList.forEach((product) => {
+    const values = getValues(product);
+    const valueList = Array.isArray(values) ? values : [values];
+
+    valueList
+      .filter(Boolean)
+      .map((value) => String(value).trim())
+      .filter(Boolean)
+      .forEach((value) => {
+        const key = normalizeSearchText(value);
+        if (key && !options.has(key)) {
+          options.set(key, value);
+        }
+      });
+  });
+
+  return Array.from(options.values()).sort((first, second) =>
+    first.localeCompare(second, undefined, { numeric: true, sensitivity: "base" }),
+  );
+}
+
+function getCollectionFilterOptions(collectionProducts) {
+  return {
+    availabilities: uniqueFilterOptions(collectionProducts, (product) => product.availability),
+    colors: uniqueFilterOptions(collectionProducts, (product) => product.colors || []),
+    materials: uniqueFilterOptions(collectionProducts, (product) => product.material),
+    seating: uniqueFilterOptions(collectionProducts, (product) => product.seating)
+      .map((value) => Number(value))
+      .filter((value) => Number.isFinite(value))
+      .sort((first, second) => first - second),
+  };
+}
+
+function productMatchesPriceFilter(product, priceFilter) {
+  const price = numericProductPrice(product);
+
+  if (priceFilter === "all") {
+    return true;
+  }
+
+  if (priceFilter === "request") {
+    return price === null;
+  }
+
+  if (price === null) {
+    return false;
+  }
+
+  if (priceFilter === "under-10000") {
+    return price < 10000;
+  }
+
+  if (priceFilter === "10000-25000") {
+    return price >= 10000 && price <= 25000;
+  }
+
+  if (priceFilter === "25000-50000") {
+    return price >= 25000 && price <= 50000;
+  }
+
+  if (priceFilter === "above-50000") {
+    return price > 50000;
+  }
+
+  return true;
+}
+
+function productMatchesCollectionFilters(product, filters) {
+  const colorMatch =
+    filters.color === "all" ||
+    (product.colors || []).some((color) => normalizeSearchText(color) === normalizeSearchText(filters.color));
+  const materialMatch =
+    filters.material === "all" ||
+    normalizeSearchText(product.material) === normalizeSearchText(filters.material);
+  const availabilityMatch =
+    filters.availability === "all" ||
+    normalizeSearchText(product.availability) === normalizeSearchText(filters.availability);
+  const seatingMatch = filters.seating === "all" || String(product.seating || "") === filters.seating;
+
+  return (
+    productMatchesPriceFilter(product, filters.price) &&
+    colorMatch &&
+    materialMatch &&
+    availabilityMatch &&
+    seatingMatch
+  );
+}
+
+function productPopularityScore(product) {
+  const text = normalizeSearchText([
+    product.badge,
+    product.name,
+    ...(product.tags || []),
+    ...(product.details || []),
+  ].join(" "));
+  const ratingMatch = text.match(/product rating ([0-9]+(?: [0-9]+)?)/);
+  const ratingScore = ratingMatch ? Number(ratingMatch[1].replace(" ", ".")) * 10 : 0;
+  let score = Number.isFinite(ratingScore) ? ratingScore : 0;
+
+  if (text.includes("popular") || text.includes("best seller") || text.includes("bestseller")) {
+    score += 90;
+  }
+
+  if (text.includes("premium")) {
+    score += 35;
+  }
+
+  if (text.includes("new arrival") || text.includes("new")) {
+    score += 25;
+  }
+
+  if (text.includes("imported shortlist")) {
+    score += 10;
+  }
+
+  return score;
+}
+
+function sortCollectionProducts(productsToSort, sortBy, sourceProducts) {
+  const sourceOrder = new Map(sourceProducts.map((product, index) => [product.id, index]));
+
+  return [...productsToSort].sort((first, second) => {
+    const firstPrice = numericProductPrice(first);
+    const secondPrice = numericProductPrice(second);
+    const firstOrder = sourceOrder.get(first.id) ?? 0;
+    const secondOrder = sourceOrder.get(second.id) ?? 0;
+
+    if (sortBy === "price-asc") {
+      if (firstPrice === null && secondPrice === null) {
+        return firstOrder - secondOrder;
+      }
+
+      if (firstPrice === null) {
+        return 1;
+      }
+
+      if (secondPrice === null) {
+        return -1;
+      }
+
+      return firstPrice - secondPrice || firstOrder - secondOrder;
+    }
+
+    if (sortBy === "newest") {
+      return secondOrder - firstOrder;
+    }
+
+    const popularityDifference = productPopularityScore(second) - productPopularityScore(first);
+    return popularityDifference || firstOrder - secondOrder;
+  });
+}
+
+function collectionResultLabel(count, collection) {
+  return count === 1 ? "1 product found" : `${count} ${collection.name.toLowerCase()} found`;
+}
+
+function hasActiveCollectionFilters(filters) {
+  return Object.values(filters).some((value) => value !== "all");
 }
 
 function primaryProductImage(product) {
@@ -1042,6 +1239,34 @@ function HomeHelpStrip({ onNavigate }) {
 
 function CollectionPage({ collection, onNavigate }) {
   const collectionProducts = productsForCollection(collection);
+  const [filters, setFilters] = useState(defaultCollectionFilters);
+  const [sortBy, setSortBy] = useState("popular");
+  const filterOptions = useMemo(() => getCollectionFilterOptions(collectionProducts), [collectionProducts]);
+  const filteredProducts = useMemo(
+    () => collectionProducts.filter((product) => productMatchesCollectionFilters(product, filters)),
+    [collectionProducts, filters],
+  );
+  const sortedProducts = useMemo(
+    () => sortCollectionProducts(filteredProducts, sortBy, collectionProducts),
+    [collectionProducts, filteredProducts, sortBy],
+  );
+  const activeFilters = hasActiveCollectionFilters(filters);
+
+  useEffect(() => {
+    setFilters(defaultCollectionFilters);
+    setSortBy("popular");
+  }, [collection.slug]);
+
+  function updateFilter(filterName, value) {
+    setFilters((currentFilters) => ({
+      ...currentFilters,
+      [filterName]: value,
+    }));
+  }
+
+  function resetFilters() {
+    setFilters(defaultCollectionFilters);
+  }
 
   return (
     <main>
@@ -1072,7 +1297,7 @@ function CollectionPage({ collection, onNavigate }) {
         <div className="section-heading">
           <div>
             <p className="eyebrow">Available options</p>
-            <h2>{collection.name} products</h2>
+            <h2>{collectionResultLabel(sortedProducts.length, collection)}</h2>
           </div>
           <p>
             These are starter products mapped to the closest furniture group. As you add real
@@ -1081,11 +1306,133 @@ function CollectionPage({ collection, onNavigate }) {
         </div>
 
         {collectionProducts.length > 0 ? (
-          <div className="product-grid">
-            {collectionProducts.map((product) => (
-              <ProductCard key={product.id} product={product} onNavigate={onNavigate} />
-            ))}
-          </div>
+          <>
+            <div className="collection-controls" aria-label={`${collection.name} filters and sorting`}>
+              <div className="collection-count">
+                <strong>{collectionResultLabel(sortedProducts.length, collection)}</strong>
+                {activeFilters && <span>Filtered from {collectionProducts.length} total</span>}
+              </div>
+
+              <div className="collection-control-grid">
+                <label className="filter-field">
+                  <span>Price</span>
+                  <select
+                    value={filters.price}
+                    onChange={(event) => updateFilter("price", event.target.value)}
+                  >
+                    {priceFilterOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                {filterOptions.seating.length > 0 && (
+                  <label className="filter-field">
+                    <span>Seating</span>
+                    <select
+                      value={filters.seating}
+                      onChange={(event) => updateFilter("seating", event.target.value)}
+                    >
+                      <option value="all">Any seating</option>
+                      {filterOptions.seating.map((seating) => (
+                        <option key={seating} value={String(seating)}>
+                          {seating} seater
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+
+                {filterOptions.colors.length > 0 && (
+                  <label className="filter-field">
+                    <span>Color</span>
+                    <select
+                      value={filters.color}
+                      onChange={(event) => updateFilter("color", event.target.value)}
+                    >
+                      <option value="all">Any color</option>
+                      {filterOptions.colors.map((color) => (
+                        <option key={color} value={color}>
+                          {color}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+
+                {filterOptions.materials.length > 0 && (
+                  <label className="filter-field">
+                    <span>Material</span>
+                    <select
+                      value={filters.material}
+                      onChange={(event) => updateFilter("material", event.target.value)}
+                    >
+                      <option value="all">Any material</option>
+                      {filterOptions.materials.map((material) => (
+                        <option key={material} value={material}>
+                          {material}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+
+                {filterOptions.availabilities.length > 0 && (
+                  <label className="filter-field">
+                    <span>Availability</span>
+                    <select
+                      value={filters.availability}
+                      onChange={(event) => updateFilter("availability", event.target.value)}
+                    >
+                      <option value="all">Any availability</option>
+                      {filterOptions.availabilities.map((availability) => (
+                        <option key={availability} value={availability}>
+                          {availability}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+
+                <label className="filter-field">
+                  <span>Sort</span>
+                  <select value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
+                    {collectionSortOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              {activeFilters && (
+                <button className="filter-reset" type="button" onClick={resetFilters}>
+                  <X size={16} aria-hidden="true" />
+                  Clear filters
+                </button>
+              )}
+            </div>
+
+            {sortedProducts.length > 0 ? (
+              <div className="product-grid">
+                {sortedProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} onNavigate={onNavigate} />
+                ))}
+              </div>
+            ) : (
+              <div className="empty-filter-state">
+                <h3>No matching products found.</h3>
+                <p>Try removing a filter or choosing a broader price, color, or material.</p>
+                <button className="button button-secondary" type="button" onClick={resetFilters}>
+                  <X size={17} aria-hidden="true" />
+                  Clear filters
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <p className="empty-state">Products for this collection will be added soon.</p>
         )}
@@ -1729,6 +2076,15 @@ function ContactPage({ onNavigate }) {
 
         <div className="contact-location-panel">
           <h2>Visit the store</h2>
+          <div className="contact-map-frame">
+            <iframe
+              title={`${business.name} location map`}
+              src={business.mapsEmbedUrl}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
+            />
+          </div>
           <p>
             <MapPin size={18} aria-hidden="true" />
             <span>{business.address}</span>

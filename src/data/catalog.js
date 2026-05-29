@@ -9,8 +9,8 @@ export const business = {
   address:
     "Shop No.4/5, Nilgiri Apartments, Swami Vivekanand Rd, Malad West, Mumbai, Maharashtra, India",
   hours: "Open daily: 10:00 AM - 9:00 PM",
-  mapsUrl:
-    "https://www.google.com/maps/search/?api=1&query=Lucky%20Interiors%20Furniture%20Malad%20West%20Mumbai",
+  mapsUrl: "https://maps.app.goo.gl/vYTMwEGrpCQwgADF8",
+  mapsEmbedUrl: "https://www.google.com/maps?q=19.194342,72.847006&z=17&output=embed",
 };
 
 export const categories = [
@@ -100,32 +100,21 @@ export const shopCategories = [
     slug: "recliners",
     filterCategory: "Living Room",
     description: "Comfort seating and recliner-inspired lounge furniture options.",
-    image:
-      "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=700&q=82",
-  },
-  {
-    name: "Sectional Sofas",
-    slug: "sectional-sofas",
-    filterCategory: "Living Room",
-    description: "Sectional sofa options for larger rooms and open-plan seating.",
-    image:
-      "https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?auto=format&fit=crop&w=700&q=82",
+    image: "/products/betterhomeindia/bh-202-single-seater-sofa-classic-leath/1.webp",
   },
   {
     name: "Wardrobes",
     slug: "wardrobes",
     filterCategory: "Bedroom",
     description: "Wardrobes, sliding storage, mirror options, and bedroom organization.",
-    image:
-      "https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=700&q=82",
+    image: "/products/betterhomeindia/bh-248-4-door-wooden-wardrobe-premium-b/1.webp",
   },
   {
-    name: "Cabinets & Sideboards",
+    name: "TV Unit & Cabinets",
     slug: "cabinets-sideboards",
     filterCategory: "Storage Furniture",
-    description: "Cabinets, sideboards, TV units, and practical storage furniture.",
-    image:
-      "https://images.unsplash.com/photo-1615874694520-474822394e73?auto=format&fit=crop&w=700&q=82",
+    description: "TV units, media cabinets, sideboards, and practical storage furniture.",
+    image: "/products/betterhomeindia/bh-055-walnut-tv-cabinet-wooden-tv-unit/1.webp",
   },
   {
     name: "Bookshelves",
@@ -148,15 +137,6 @@ export const shopCategories = [
     slug: "shoe-racks",
     filterCategory: "Bedroom",
     description: "Shoe racks and small-space storage options for organized homes.",
-    image:
-      "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=700&q=82",
-  },
-  {
-    name: "Bar Furniture",
-    slug: "bar-furniture",
-    filterCategory: "Dining",
-    description: "Bar counters, dining storage, and entertaining furniture ideas.",
-    image:
-      "https://images.unsplash.com/photo-1559329007-40df8a9345d8?auto=format&fit=crop&w=700&q=82",
+    image: "/products/categories/shoe-rack.jpg",
   },
 ];
