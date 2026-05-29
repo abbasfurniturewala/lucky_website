@@ -29,6 +29,11 @@ const urls = [
     changefreq: "weekly",
     priority: "1.0",
   },
+  {
+    loc: absoluteUrl("/contact"),
+    changefreq: "monthly",
+    priority: "0.7",
+  },
   ...shopCategories.map((category) => ({
     loc: absoluteUrl(`/collections/${category.slug}`),
     changefreq: "weekly",

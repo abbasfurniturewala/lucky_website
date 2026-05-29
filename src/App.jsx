@@ -3,7 +3,9 @@ import {
   ChevronLeft,
   ChevronRight,
   CheckCircle2,
+  Clock,
   Eye,
+  Mail,
   MapPin,
   MessageCircle,
   Phone,
@@ -73,6 +75,10 @@ function parseRoute(locationPath) {
       query: url.searchParams.get("q") || "",
       type: "search",
     };
+  }
+
+  if (path === "/contact") {
+    return { type: "contact" };
   }
 
   return { type: "not-found" };
@@ -224,6 +230,7 @@ function buildLocalBusinessJsonLd() {
     image: absoluteUrl(business.logo || site.defaultImage),
     url: site.origin,
     telephone: business.callNumber,
+    email: business.email,
     priceRange: "Rs. 10,000 - Rs. 100,000",
     address: {
       "@type": "PostalAddress",
@@ -233,6 +240,23 @@ function buildLocalBusinessJsonLd() {
       addressCountry: "IN",
     },
     openingHours: "Mo-Su 10:00-21:00",
+  };
+}
+
+function buildContactJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    name: `Contact ${business.name}`,
+    description: `Contact ${business.name} for furniture product queries, sales quotes, availability, and store visits.`,
+    url: absoluteUrl("/contact"),
+    mainEntity: {
+      "@type": "FurnitureStore",
+      name: business.name,
+      telephone: business.callNumber,
+      email: business.email,
+      address: business.address,
+    },
   };
 }
 
@@ -374,6 +398,24 @@ function buildSeoData(route, collection, product) {
       robots: "noindex,follow",
       type: "website",
       pageJsonLd: [],
+    };
+  }
+
+  if (route.type === "contact") {
+    return {
+      title: `Contact Us | ${business.name}`,
+      description: `Contact ${business.name} for furniture sales, product queries, quotes, availability, delivery details, and store visit support.`,
+      canonical: absoluteUrl("/contact"),
+      image: absoluteUrl(business.logo || site.defaultImage),
+      robots: "index,follow",
+      type: "website",
+      pageJsonLd: [
+        buildBreadcrumbJsonLd([
+          { name: "Home", href: "/" },
+          { name: "Contact us", href: "/contact" },
+        ]),
+        buildContactJsonLd(),
+      ],
     };
   }
 
@@ -580,6 +622,10 @@ function createWhatsappLink(productName) {
   return `https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent(text)}`;
 }
 
+function createEmailLink(subject = "Furniture enquiry") {
+  return `mailto:${business.email}?subject=${encodeURIComponent(subject)}`;
+}
+
 function WhatsAppIcon() {
   return (
     <svg aria-hidden="true" className="whatsapp-mark" viewBox="0 0 32 32" focusable="false">
@@ -752,7 +798,7 @@ function Header({ onNavigate }) {
     <>
       <header className="site-header">
         <div className="utility-bar">
-          <a className="contact-link" href="/#visit" onClick={(event) => onNavigate("/#visit", event)}>
+          <a className="contact-link" href="/contact" onClick={(event) => onNavigate("/contact", event)}>
             Contact us
           </a>
         </div>
@@ -1499,6 +1545,142 @@ function VisitSection() {
   );
 }
 
+function ContactPage({ onNavigate }) {
+  const enquiryGuides = [
+    "Product name or photo",
+    "Preferred size, color, and material",
+    "Delivery location and expected timeline",
+  ];
+
+  return (
+    <main className="contact-page">
+      <section className="contact-hero">
+        <nav className="breadcrumb" aria-label="Breadcrumb">
+          <a href="/" onClick={(event) => onNavigate("/", event)}>
+            Home
+          </a>
+          <span aria-hidden="true">/</span>
+          <span>Contact us</span>
+        </nav>
+
+        <div className="contact-hero-grid">
+          <div className="contact-hero-copy">
+            <p className="eyebrow">Contact Lucky Interiors</p>
+            <h1>Tell us what you are looking for.</h1>
+            <p>
+              For product availability, custom sizes, sales quotes, delivery details, or store
+              visits, reach us by email, WhatsApp, or phone. Share a product link or photo so we can
+              respond with the most useful details.
+            </p>
+            <div className="contact-hero-actions">
+              <a className="button" href={createWhatsappLink()} target="_blank" rel="noreferrer">
+                <MessageCircle size={18} aria-hidden="true" />
+                WhatsApp for quote
+              </a>
+              <a className="button button-secondary" href={`tel:${business.callNumber}`}>
+                <Phone size={18} aria-hidden="true" />
+                Call store
+              </a>
+            </div>
+          </div>
+
+          <aside className="contact-summary" aria-label="Contact summary">
+            <h2>Store contact</h2>
+            <div className="contact-summary-list">
+              <a href={createEmailLink("Furniture enquiry")}>
+                <Mail size={18} aria-hidden="true" />
+                <span>
+                  <strong>Email</strong>
+                  {business.email}
+                </span>
+              </a>
+              <a href={`tel:${business.callNumber}`}>
+                <Phone size={18} aria-hidden="true" />
+                <span>
+                  <strong>Phone</strong>
+                  {business.phoneDisplay}
+                </span>
+              </a>
+              <p>
+                <Clock size={18} aria-hidden="true" />
+                <span>
+                  <strong>Hours</strong>
+                  {business.hours}
+                </span>
+              </p>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section className="contact-detail-section">
+        <article className="contact-method-card">
+          <Mail size={24} aria-hidden="true" />
+          <h2>Email queries</h2>
+          <p>
+            Use email for general questions, product shortlists, quote requests, and follow-up
+            details.
+          </p>
+          <a href={createEmailLink("Furniture enquiry")}>{business.email}</a>
+        </article>
+
+        <article className="contact-method-card">
+          <MessageCircle size={24} aria-hidden="true" />
+          <h2>Sales and quotes</h2>
+          <p>
+            For faster pricing and availability, send the product name, photo, size requirement, and
+            delivery location on WhatsApp.
+          </p>
+          <a href={createWhatsappLink()} target="_blank" rel="noreferrer">
+            Message on WhatsApp
+          </a>
+        </article>
+
+        <article className="contact-method-card">
+          <Phone size={24} aria-hidden="true" />
+          <h2>Call the store</h2>
+          <p>
+            Call during store hours for urgent questions, visit planning, order discussion, and
+            delivery coordination.
+          </p>
+          <a href={`tel:${business.callNumber}`}>{business.phoneDisplay}</a>
+        </article>
+      </section>
+
+      <section className="contact-visit-section">
+        <div>
+          <p className="eyebrow">Before you contact us</p>
+          <h2>Helpful details to share</h2>
+          <ul className="feature-points">
+            {enquiryGuides.map((item) => (
+              <li key={item}>
+                <CheckCircle2 size={17} aria-hidden="true" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="contact-location-panel">
+          <h2>Visit the store</h2>
+          <p>
+            <MapPin size={18} aria-hidden="true" />
+            <span>{business.address}</span>
+          </p>
+          <p>
+            <Clock size={18} aria-hidden="true" />
+            <span>{business.hours}</span>
+          </p>
+          <a className="button button-secondary" href={business.mapsUrl} target="_blank" rel="noreferrer">
+            <MapPin size={18} aria-hidden="true" />
+            Open map
+          </a>
+        </div>
+      </section>
+    </main>
+  );
+}
+
 export default function App() {
   const [pathname, setPathname] = useState(currentPath);
   const [activeCategory, setActiveCategory] = useState(allCategory);
@@ -1558,6 +1740,8 @@ export default function App() {
     pageContent = <ProductDetailPage product={product} onNavigate={handleNavigate} />;
   } else if (route.type === "search") {
     pageContent = <SearchPage query={route.query} onNavigate={handleNavigate} />;
+  } else if (route.type === "contact") {
+    pageContent = <ContactPage onNavigate={handleNavigate} />;
   } else if (
     route.type === "not-found" ||
     (route.type === "collection" && !collection) ||

@@ -2,6 +2,7 @@ export const business = {
   name: "Lucky Interiors Furniture",
   tagline: "Furniture and home essentials in Mumbai",
   logo: "/lucky-interiors-logo.png",
+  email: "hello@luckyinteriorsfurniture.com",
   phoneDisplay: "+91 96195 78893",
   whatsappNumber: "919619578893",
   callNumber: "+919619578893",
