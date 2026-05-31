@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
+    "review": "node review-dashboard/server.mjs",
+    "import:approved": "node scripts/import-approved-products.mjs",
     "generate:seo": "node generate-seo.mjs",
     "build": "npm run generate:seo && vite build",
     "preview": "vite preview --host 127.0.0.1"

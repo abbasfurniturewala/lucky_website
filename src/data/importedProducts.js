@@ -1,5 +1,5 @@
-// Generated from import-review/betterhomeindia-product-review.csv.
-// Edit the review CSV and regenerate instead of hand-editing this imported batch.
+// Generated from reviewed import batches.
+// Use npm run import:approved after reviewing and exporting a batch.
 
 export const importedProducts = [
   {
@@ -9598,6 +9598,1377 @@ export const importedProducts = [
     "image": "/products/betterhomeindia/bh-269-truzo-sliding-cupboard-wardrobe/1.jpg",
     "images": [
       "/products/betterhomeindia/bh-269-truzo-sliding-cupboard-wardrobe/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "stellar-luxury-upholstered-storage-bed-with-side-tables",
+    "slug": "stellar-luxury-upholstered-storage-bed-with-side-tables",
+    "name": "Stellar Luxury Upholstered Storage Bed with Side Tables",
+    "category": "Bedroom",
+    "collectionSlug": "beds",
+    "badge": "New arrival",
+    "price": 60000,
+    "priceLabel": "Rs. 60,000",
+    "availability": "In stock",
+    "colors": [
+      "Black"
+    ],
+    "description": "Premium Stellar bed with upholstered headboard, storage base, and attached side tables. Perfect for modern luxury bedrooms.",
+    "details": [
+      "Beds",
+      "Material: Engineered wood with upholstery",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Engineered wood with upholstery",
+    "tags": [
+      "beds",
+      "stellar",
+      "luxury",
+      "upholstered",
+      "storage",
+      "bed",
+      "with",
+      "side",
+      "tables",
+      "black",
+      "engineered wood with upholstery"
+    ],
+    "image": "/products/betterhomeindia/bh-270-stellar-luxury-upholstered-storage-b/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-270-stellar-luxury-upholstered-storage-b/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "kingdom-luxury-bedroom-set-with-upholstered-king-bed-4-door-wardrobe",
+    "slug": "kingdom-luxury-bedroom-set-with-upholstered-king-bed-4-door-wardrobe",
+    "name": "Kingdom Luxury Bedroom Set with Upholstered King Bed & 4 Door Wardrobe",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 155000,
+    "priceLabel": "Rs. 1,55,000",
+    "availability": "In stock",
+    "colors": [
+      "White"
+    ],
+    "description": "Premium Kingdom bedroom set with upholstered king size bed and spacious 4-door wardrobe in elegant white finish. Ideal for modern homes.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Engineered wood with upholstery",
+      "Dimensions: King size upholstered bed (78” x 72”)",
+      "Availability: In stock"
+    ],
+    "dimensions": "King size upholstered bed (78” x 72”)",
+    "material": "Engineered wood with upholstery",
+    "tags": [
+      "bedroom sets",
+      "kingdom",
+      "luxury",
+      "bedroom",
+      "set",
+      "with",
+      "upholstered",
+      "king",
+      "bed",
+      "and",
+      "4",
+      "door",
+      "wardrobe",
+      "white",
+      "engineered wood with upholstery"
+    ],
+    "image": "/products/betterhomeindia/bh-271-kingdom-luxury-bedroom-set-with-upho/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-271-kingdom-luxury-bedroom-set-with-upho/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "king-luxury-bedroom-set-with-upholstered-bed-sliding-wardrobe",
+    "slug": "king-luxury-bedroom-set-with-upholstered-bed-sliding-wardrobe",
+    "name": "King Luxury Bedroom Set with Upholstered Bed & Sliding Wardrobe",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 160000,
+    "priceLabel": "Rs. 1,60,000",
+    "availability": "In stock",
+    "colors": [
+      "White"
+    ],
+    "description": "Elegant King bedroom set with upholstered storage bed and sliding wardrobe in white and beige finish. Perfect for modern homes.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Ask for material details",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Ask for material details",
+    "tags": [
+      "bedroom sets",
+      "king",
+      "luxury",
+      "bedroom",
+      "set",
+      "with",
+      "upholstered",
+      "bed",
+      "and",
+      "sliding",
+      "wardrobe",
+      "white",
+      "ask for material details"
+    ],
+    "image": "/products/betterhomeindia/bh-272-king-luxury-bedroom-set-with-upholst/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-272-king-luxury-bedroom-set-with-upholst/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "alwin-designer-bedroom-set-with-sliding-wardrobe-storage-bed",
+    "slug": "alwin-designer-bedroom-set-with-sliding-wardrobe-storage-bed",
+    "name": "Alwin Designer Bedroom Set with Sliding Wardrobe & Storage Bed",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 160000,
+    "priceLabel": "Rs. 1,60,000",
+    "availability": "In stock",
+    "colors": [
+      "Black"
+    ],
+    "description": "Stylish Alwin bedroom set featuring a modern storage bed and sliding wardrobe with elegant panel design. Perfect for premium homes.\ndouble bed queen size 60×78\nslider warddrob 6ft\nside table\ndresser",
+    "details": [
+      "Bedroom Sets",
+      "Material: Ask for material details",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Ask for material details",
+    "tags": [
+      "bedroom sets",
+      "alwin",
+      "designer",
+      "bedroom",
+      "set",
+      "with",
+      "sliding",
+      "wardrobe",
+      "and",
+      "storage",
+      "bed",
+      "black",
+      "ask for material details"
+    ],
+    "image": "/products/betterhomeindia/bh-273-alwin-designer-bedroom-set-with-slid/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-273-alwin-designer-bedroom-set-with-slid/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "v-stripe-modern-bedroom-set-with-sliding-wardrobe-storage-bed",
+    "slug": "v-stripe-modern-bedroom-set-with-sliding-wardrobe-storage-bed",
+    "name": "V-Stripe Modern Bedroom Set with Sliding Wardrobe & Storage Bed",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 160000,
+    "priceLabel": "Rs. 1,60,000",
+    "availability": "In stock",
+    "colors": [
+      "White"
+    ],
+    "description": "Stylish V-Stripe bedroom set featuring a modern storage bed and sliding wardrobe in white and wood finish. Perfect for contemporary homes.\ndouble bed queen size 60×78 hydraulic\nside table 1 nos.\nwarddrob 6ft slider\ndrersser 2’6″\nDelivery time mini 30 days.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Engineered wood",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Engineered wood",
+    "tags": [
+      "bedroom sets",
+      "v",
+      "stripe",
+      "modern",
+      "bedroom",
+      "set",
+      "with",
+      "sliding",
+      "wardrobe",
+      "and",
+      "storage",
+      "bed",
+      "white",
+      "engineered wood"
+    ],
+    "image": "/products/betterhomeindia/bh-274-v-stripe-modern-bedroom-set-with-sli/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-274-v-stripe-modern-bedroom-set-with-sli/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "modern-wooden-bedroom-set-with-sliding-wardrobe-storage-bed",
+    "slug": "modern-wooden-bedroom-set-with-sliding-wardrobe-storage-bed",
+    "name": "Modern Wooden Bedroom Set with Sliding Wardrobe & Storage Bed",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 75000,
+    "priceLabel": "Rs. 75,000",
+    "availability": "In stock",
+    "colors": [
+      "White"
+    ],
+    "description": "Stylish wooden bedroom set with storage bed, sliding wardrobe, and side tables. Perfect for modern homes.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Engineered wood",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Engineered wood",
+    "tags": [
+      "bedroom sets",
+      "modern",
+      "wooden",
+      "bedroom",
+      "set",
+      "with",
+      "sliding",
+      "wardrobe",
+      "and",
+      "storage",
+      "bed",
+      "white",
+      "engineered wood"
+    ],
+    "image": "/products/betterhomeindia/bh-275-modern-wooden-bedroom-set-with-slidi/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-275-modern-wooden-bedroom-set-with-slidi/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "classic-wooden-bedroom-set-with-dressing-table-3-door-wardrobe",
+    "slug": "classic-wooden-bedroom-set-with-dressing-table-3-door-wardrobe",
+    "name": "Classic Wooden Bedroom Set with Dressing Table & 3 Door Wardrobe",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 78000,
+    "priceLabel": "Rs. 78,000",
+    "availability": "In stock",
+    "colors": [],
+    "description": "Elegant wooden bedroom set with storage bed, 3-door wardrobe, and dressing table with mirror. Perfect for modern homes.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Engineered wood",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Engineered wood",
+    "tags": [
+      "bedroom sets",
+      "classic",
+      "wooden",
+      "bedroom",
+      "set",
+      "with",
+      "dressing",
+      "table",
+      "and",
+      "3",
+      "door",
+      "wardrobe",
+      "engineered wood"
+    ],
+    "image": "/products/betterhomeindia/bh-276-classic-wooden-bedroom-set-with-dres/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-276-classic-wooden-bedroom-set-with-dres/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "modern-wood-black-bedroom-set-with-dressing-table-3-door-wardrobe",
+    "slug": "modern-wood-black-bedroom-set-with-dressing-table-3-door-wardrobe",
+    "name": "Modern Wood & Black Bedroom Set with Dressing Table & 3 Door Wardrobe",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 85000,
+    "priceLabel": "Rs. 85,000",
+    "availability": "In stock",
+    "colors": [
+      "Black"
+    ],
+    "description": "Stylish wood and black bedroom set with storage bed, 3-door wardrobe, and dressing table. Perfect for modern homes.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Engineered wood",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Engineered wood",
+    "tags": [
+      "bedroom sets",
+      "modern",
+      "wood",
+      "and",
+      "black",
+      "bedroom",
+      "set",
+      "with",
+      "dressing",
+      "table",
+      "and",
+      "3",
+      "door",
+      "wardrobe",
+      "black",
+      "engineered wood"
+    ],
+    "image": "/products/betterhomeindia/bh-277-modern-wood-black-bedroom-set-with-d/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-277-modern-wood-black-bedroom-set-with-d/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "premium-wood-black-bedroom-set-with-4-door-wardrobe-dressing-unit",
+    "slug": "premium-wood-black-bedroom-set-with-4-door-wardrobe-dressing-unit",
+    "name": "Premium Wood & Black Bedroom Set with 4 Door Wardrobe & Dressing Unit",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 80000,
+    "priceLabel": "Rs. 80,000",
+    "availability": "In stock",
+    "colors": [
+      "Black"
+    ],
+    "description": "Modern wood and black bedroom set with storage bed, 4-door wardrobe, and dressing unit. Ideal for stylish homes.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Engineered wood",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Engineered wood",
+    "tags": [
+      "bedroom sets",
+      "premium",
+      "wood",
+      "and",
+      "black",
+      "bedroom",
+      "set",
+      "with",
+      "4",
+      "door",
+      "wardrobe",
+      "and",
+      "dressing",
+      "unit",
+      "black",
+      "engineered wood"
+    ],
+    "image": "/products/betterhomeindia/bh-278-premium-wood-black-bedroom-set-with/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-278-premium-wood-black-bedroom-set-with/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "modern-white-wood-bedroom-set-with-4-door-wardrobe-dressing-table",
+    "slug": "modern-white-wood-bedroom-set-with-4-door-wardrobe-dressing-table",
+    "name": "Modern White & Wood Bedroom Set with 4 Door Wardrobe & Dressing Table",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 120000,
+    "priceLabel": "Rs. 1,20,000",
+    "availability": "In stock",
+    "colors": [
+      "White"
+    ],
+    "description": "Elegant white and wood bedroom set with storage bed, 4-door wardrobe, and dressing table. Perfect for modern homes.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Engineered wood",
+      "Dimensions: The dressing table comes with a full-length mirror and storage drawers, providing both convenience and style for daily use.",
+      "Availability: In stock"
+    ],
+    "dimensions": "The dressing table comes with a full-length mirror and storage drawers, providing both convenience and style for daily use.",
+    "material": "Engineered wood",
+    "tags": [
+      "bedroom sets",
+      "modern",
+      "white",
+      "and",
+      "wood",
+      "bedroom",
+      "set",
+      "with",
+      "4",
+      "door",
+      "wardrobe",
+      "and",
+      "dressing",
+      "table",
+      "white",
+      "engineered wood"
+    ],
+    "image": "/products/betterhomeindia/bh-279-modern-white-wood-bedroom-set-with-4/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-279-modern-white-wood-bedroom-set-with-4/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "modern-wooden-bedroom-set-with-sliding-wardrobe-dressing-unit",
+    "slug": "modern-wooden-bedroom-set-with-sliding-wardrobe-dressing-unit",
+    "name": "Modern Wooden Bedroom Set with Sliding Wardrobe & Dressing Unit",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 90000,
+    "priceLabel": "Rs. 90,000",
+    "availability": "In stock",
+    "colors": [
+      "Black"
+    ],
+    "description": "Stylish wooden bedroom set with storage bed, sliding wardrobe, and dressing unit. Perfect for modern homes.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Engineered wood",
+      "Dimensions: The dressing unit comes with a full-length mirror and storage drawers, enhancing convenience while adding a stylish look to your bedroom.",
+      "Availability: In stock"
+    ],
+    "dimensions": "The dressing unit comes with a full-length mirror and storage drawers, enhancing convenience while adding a stylish look to your bedroom.",
+    "material": "Engineered wood",
+    "tags": [
+      "bedroom sets",
+      "modern",
+      "wooden",
+      "bedroom",
+      "set",
+      "with",
+      "sliding",
+      "wardrobe",
+      "and",
+      "dressing",
+      "unit",
+      "black",
+      "engineered wood"
+    ],
+    "image": "/products/betterhomeindia/bh-280-modern-wooden-bedroom-set-with-slidi/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-280-modern-wooden-bedroom-set-with-slidi/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "premium-imported-executive-office-table-with-led-panel-side-storage",
+    "slug": "premium-imported-executive-office-table-with-led-panel-side-storage",
+    "name": "Premium Imported Executive Office Table with LED Panel & Side Storage",
+    "category": "Office",
+    "collectionSlug": "office-furniture",
+    "badge": "New arrival",
+    "price": 68000,
+    "priceLabel": "Rs. 68,000",
+    "availability": "In stock",
+    "colors": [],
+    "description": "Stylish imported office table with LED panel design and side storage, available in 1.6m and 1.8m sizes. Ideal for modern offices.",
+    "details": [
+      "Office Furniture",
+      "Material: Wood finish",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Wood finish",
+    "tags": [
+      "office furniture",
+      "premium",
+      "imported",
+      "executive",
+      "office",
+      "table",
+      "with",
+      "led",
+      "panel",
+      "and",
+      "side",
+      "storage",
+      "wood finish"
+    ],
+    "image": "/products/betterhomeindia/bh-281-premium-imported-executive-office-ta/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-281-premium-imported-executive-office-ta/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "classic-wood-white-bedroom-set-with-3-door-wardrobe-dressing-table",
+    "slug": "classic-wood-white-bedroom-set-with-3-door-wardrobe-dressing-table",
+    "name": "Classic Wood & White Bedroom Set with 3 Door Wardrobe & Dressing Table",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 80000,
+    "priceLabel": "Rs. 80,000",
+    "availability": "In stock",
+    "colors": [
+      "White"
+    ],
+    "description": "Elegant wood and white bedroom set with storage bed, 3-door wardrobe, and dressing table. Perfect for modern homes.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Engineered wood",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Engineered wood",
+    "tags": [
+      "bedroom sets",
+      "classic",
+      "wood",
+      "and",
+      "white",
+      "bedroom",
+      "set",
+      "with",
+      "3",
+      "door",
+      "wardrobe",
+      "and",
+      "dressing",
+      "table",
+      "white",
+      "engineered wood"
+    ],
+    "image": "/products/betterhomeindia/bh-282-classic-wood-white-bedroom-set-with/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-282-classic-wood-white-bedroom-set-with/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "premium-wooden-bedroom-set-with-glossy-wardrobe-upholstered-bed",
+    "slug": "premium-wooden-bedroom-set-with-glossy-wardrobe-upholstered-bed",
+    "name": "Premium Wooden Bedroom Set with Glossy Wardrobe & Upholstered Bed",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 98000,
+    "priceLabel": "Rs. 98,000",
+    "availability": "In stock",
+    "colors": [],
+    "description": "Luxury wooden bedroom set with upholstered bed and glossy wardrobe. Perfect for modern and premium homes.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Engineered wood with upholstery",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Engineered wood with upholstery",
+    "tags": [
+      "bedroom sets",
+      "premium",
+      "wooden",
+      "bedroom",
+      "set",
+      "with",
+      "glossy",
+      "wardrobe",
+      "and",
+      "upholstered",
+      "bed",
+      "engineered wood with upholstery"
+    ],
+    "image": "/products/betterhomeindia/bh-283-premium-wooden-bedroom-set-with-glos/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-283-premium-wooden-bedroom-set-with-glos/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "premium-grey-bedroom-set-with-upholstered-bed-sliding-wardrobe-dressing-unit",
+    "slug": "premium-grey-bedroom-set-with-upholstered-bed-sliding-wardrobe-dressing-unit",
+    "name": "Premium Grey Bedroom Set with Upholstered Bed, Sliding Wardrobe & Dressing Unit",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 120000,
+    "priceLabel": "Rs. 1,20,000",
+    "availability": "In stock",
+    "colors": [
+      "White"
+    ],
+    "description": "Modern grey bedroom set with upholstered storage bed, sliding wardrobe, and dressing unit. Perfect for stylish homes.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Engineered wood with upholstery",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Engineered wood with upholstery",
+    "tags": [
+      "bedroom sets",
+      "premium",
+      "grey",
+      "bedroom",
+      "set",
+      "with",
+      "upholstered",
+      "bed",
+      "sliding",
+      "wardrobe",
+      "and",
+      "dressing",
+      "unit",
+      "white",
+      "engineered wood with upholstery"
+    ],
+    "image": "/products/betterhomeindia/bh-284-premium-grey-bedroom-set-with-uphols/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-284-premium-grey-bedroom-set-with-uphols/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "premium-wooden-bedroom-set-with-v-design-upholstered-bed-sliding-wardrobe",
+    "slug": "premium-wooden-bedroom-set-with-v-design-upholstered-bed-sliding-wardrobe",
+    "name": "Premium Wooden Bedroom Set with V-Design Upholstered Bed & Sliding Wardrobe",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 95000,
+    "priceLabel": "Rs. 95,000",
+    "availability": "In stock",
+    "colors": [
+      "White"
+    ],
+    "description": "Elegant wooden bedroom set with V-design upholstered bed, sliding wardrobe, and dressing unit. Perfect for modern homes.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Engineered wood with upholstery",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Engineered wood with upholstery",
+    "tags": [
+      "bedroom sets",
+      "premium",
+      "wooden",
+      "bedroom",
+      "set",
+      "with",
+      "v",
+      "design",
+      "upholstered",
+      "bed",
+      "and",
+      "sliding",
+      "wardrobe",
+      "white",
+      "engineered wood with upholstery"
+    ],
+    "image": "/products/betterhomeindia/bh-285-premium-wooden-bedroom-set-with-v-de/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-285-premium-wooden-bedroom-set-with-v-de/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "modern-wood-white-bedroom-set-with-sliding-wardrobe-dressing-unit",
+    "slug": "modern-wood-white-bedroom-set-with-sliding-wardrobe-dressing-unit",
+    "name": "Modern Wood & White Bedroom Set with Sliding Wardrobe & Dressing Unit",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 120000,
+    "priceLabel": "Rs. 1,20,000",
+    "availability": "In stock",
+    "colors": [
+      "White"
+    ],
+    "description": "Elegant wood and white bedroom set with storage bed, sliding wardrobe, and dressing unit. Ideal for modern homes.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Engineered wood",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Engineered wood",
+    "tags": [
+      "bedroom sets",
+      "modern",
+      "wood",
+      "and",
+      "white",
+      "bedroom",
+      "set",
+      "with",
+      "sliding",
+      "wardrobe",
+      "and",
+      "dressing",
+      "unit",
+      "white",
+      "engineered wood"
+    ],
+    "image": "/products/betterhomeindia/bh-286-modern-wood-white-bedroom-set-with-s/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-286-modern-wood-white-bedroom-set-with-s/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "designer-wooden-bedroom-set-with-sliding-wardrobe-upholstered-bed",
+    "slug": "designer-wooden-bedroom-set-with-sliding-wardrobe-upholstered-bed",
+    "name": "Designer Wooden Bedroom Set with Sliding Wardrobe & Upholstered Bed",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 116000,
+    "priceLabel": "Rs. 1,16,000",
+    "availability": "In stock",
+    "colors": [
+      "Black"
+    ],
+    "description": "Modern wooden bedroom set with upholstered bed, sliding wardrobe, and dressing unit. Ideal for stylish homes.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Wood finish",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Wood finish",
+    "tags": [
+      "bedroom sets",
+      "designer",
+      "wooden",
+      "bedroom",
+      "set",
+      "with",
+      "sliding",
+      "wardrobe",
+      "and",
+      "upholstered",
+      "bed",
+      "black",
+      "wood finish"
+    ],
+    "image": "/products/betterhomeindia/bh-287-designer-wooden-bedroom-set-with-sli/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-287-designer-wooden-bedroom-set-with-sli/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "luxury-cream-gloss-bedroom-set-with-designer-wardrobe-upholstered-bed",
+    "slug": "luxury-cream-gloss-bedroom-set-with-designer-wardrobe-upholstered-bed",
+    "name": "Luxury Cream Gloss Bedroom Set with Designer Wardrobe & Upholstered Bed",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 160000,
+    "priceLabel": "Rs. 1,60,000",
+    "availability": "In stock",
+    "colors": [],
+    "description": "Premium cream gloss bedroom set with upholstered bed, designer wardrobe with open shelves, and dressing unit. Ideal for luxury homes.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Engineered wood with upholstery",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Engineered wood with upholstery",
+    "tags": [
+      "bedroom sets",
+      "luxury",
+      "cream",
+      "gloss",
+      "bedroom",
+      "set",
+      "with",
+      "designer",
+      "wardrobe",
+      "and",
+      "upholstered",
+      "bed",
+      "engineered wood with upholstery"
+    ],
+    "image": "/products/betterhomeindia/bh-288-luxury-cream-gloss-bedroom-set-with/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-288-luxury-cream-gloss-bedroom-set-with/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "modern-teal-green-bedroom-set-with-designer-wardrobe-dressing-unit",
+    "slug": "modern-teal-green-bedroom-set-with-designer-wardrobe-dressing-unit",
+    "name": "Modern Teal Green Bedroom Set with Designer Wardrobe & Dressing Unit",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 105000,
+    "priceLabel": "Rs. 1,05,000",
+    "availability": "In stock",
+    "colors": [
+      "Green"
+    ],
+    "description": "Stylish teal green bedroom set with storage bed, designer wardrobe, and dressing unit. Perfect for modern homes.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Engineered wood",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Engineered wood",
+    "tags": [
+      "bedroom sets",
+      "modern",
+      "teal",
+      "green",
+      "bedroom",
+      "set",
+      "with",
+      "designer",
+      "wardrobe",
+      "and",
+      "dressing",
+      "unit",
+      "green",
+      "engineered wood"
+    ],
+    "image": "/products/betterhomeindia/bh-289-modern-teal-green-bedroom-set-with-d/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-289-modern-teal-green-bedroom-set-with-d/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "classic-wooden-bedroom-set-with-mirror-wardrobe-dressing-table",
+    "slug": "classic-wooden-bedroom-set-with-mirror-wardrobe-dressing-table",
+    "name": "Classic Wooden Bedroom Set with Mirror Wardrobe & Dressing Table",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 96000,
+    "priceLabel": "Rs. 96,000",
+    "availability": "In stock",
+    "colors": [
+      "Black"
+    ],
+    "description": "Elegant wooden bedroom set with storage bed, mirror wardrobe, dressing unit, and chest of drawers. Ideal for modern homes.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Engineered wood",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Engineered wood",
+    "tags": [
+      "bedroom sets",
+      "classic",
+      "wooden",
+      "bedroom",
+      "set",
+      "with",
+      "mirror",
+      "wardrobe",
+      "and",
+      "dressing",
+      "table",
+      "black",
+      "engineered wood"
+    ],
+    "image": "/products/betterhomeindia/bh-290-classic-wooden-bedroom-set-with-mirr/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-290-classic-wooden-bedroom-set-with-mirr/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "luxury-imported-executive-office-table-with-dual-side-storage",
+    "slug": "luxury-imported-executive-office-table-with-dual-side-storage",
+    "name": "Luxury Imported Executive Office Table with Dual Side Storage",
+    "category": "Office",
+    "collectionSlug": "office-furniture",
+    "badge": "New arrival",
+    "price": 65000,
+    "priceLabel": "Rs. 65,000",
+    "availability": "In stock",
+    "colors": [],
+    "description": "Premium imported executive office table with dual side storage, available in 1.6m, 1.8m, 2.2m, and 2.4m sizes. Perfect for modern offices.",
+    "details": [
+      "Office Furniture",
+      "Material: Wood finish",
+      "Dimensions: Available in multiple size options — 1.6m, 1.8m, 2.2m, and 2.4m, this office table is suitable for different office layouts and requirements.",
+      "Availability: In stock"
+    ],
+    "dimensions": "Available in multiple size options — 1.6m, 1.8m, 2.2m, and 2.4m, this office table is suitable for different office layouts and requirements.",
+    "material": "Wood finish",
+    "tags": [
+      "office furniture",
+      "luxury",
+      "imported",
+      "executive",
+      "office",
+      "table",
+      "with",
+      "dual",
+      "side",
+      "storage",
+      "wood finish"
+    ],
+    "image": "/products/betterhomeindia/bh-291-luxury-imported-executive-office-tab/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-291-luxury-imported-executive-office-tab/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "modern-imported-executive-office-table-with-side-cabinet",
+    "slug": "modern-imported-executive-office-table-with-side-cabinet",
+    "name": "Modern Imported Executive Office Table with Side Cabinet",
+    "category": "Office",
+    "collectionSlug": "office-furniture",
+    "badge": "New arrival",
+    "price": 70000,
+    "priceLabel": "Rs. 70,000",
+    "availability": "In stock",
+    "colors": [],
+    "description": "Premium imported office table with sleek design and side cabinet, available in 1.6m, 1.8m, 2.0m, and 2.2m sizes. Ideal for modern offices.",
+    "details": [
+      "Office Furniture",
+      "Material: Wood finish",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Wood finish",
+    "tags": [
+      "office furniture",
+      "modern",
+      "imported",
+      "executive",
+      "office",
+      "table",
+      "with",
+      "side",
+      "cabinet",
+      "wood finish"
+    ],
+    "image": "/products/betterhomeindia/bh-292-modern-imported-executive-office-tab/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-292-modern-imported-executive-office-tab/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "premium-imported-executive-office-table-with-side-storage-unit",
+    "slug": "premium-imported-executive-office-table-with-side-storage-unit",
+    "name": "Premium Imported Executive Office Table with Side Storage Unit",
+    "category": "Office",
+    "collectionSlug": "office-furniture",
+    "badge": "New arrival",
+    "price": 68000,
+    "priceLabel": "Rs. 68,000",
+    "availability": "In stock",
+    "colors": [],
+    "description": "Modern imported executive office table with side storage unit, available in 1.8m and 2.0m sizes. Perfect for premium offices.",
+    "details": [
+      "Office Furniture",
+      "Material: Wood finish",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Wood finish",
+    "tags": [
+      "office furniture",
+      "premium",
+      "imported",
+      "executive",
+      "office",
+      "table",
+      "with",
+      "side",
+      "storage",
+      "unit",
+      "wood finish"
+    ],
+    "image": "/products/betterhomeindia/bh-293-premium-imported-executive-office-ta/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-293-premium-imported-executive-office-ta/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "ultra-premium-imported-executive-office-table-with-curved-design",
+    "slug": "ultra-premium-imported-executive-office-table-with-curved-design",
+    "name": "Ultra Premium Imported Executive Office Table with Curved Design",
+    "category": "Office",
+    "collectionSlug": "office-furniture",
+    "badge": "New arrival",
+    "price": 65000,
+    "priceLabel": "Rs. 65,000",
+    "availability": "In stock",
+    "colors": [],
+    "description": "Luxury imported office table with sleek curved design and modern finish, available in 2.2m and 2.4m sizes. Perfect for premium offices.",
+    "details": [
+      "Office Furniture",
+      "Material: Ask for material details",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Ask for material details",
+    "tags": [
+      "office furniture",
+      "ultra",
+      "premium",
+      "imported",
+      "executive",
+      "office",
+      "table",
+      "with",
+      "curved",
+      "design",
+      "ask for material details"
+    ],
+    "image": "/products/betterhomeindia/bh-294-ultra-premium-imported-executive-off/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-294-ultra-premium-imported-executive-off/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "premium-imported-executive-office-table-with-designer-panel-side-cabinet",
+    "slug": "premium-imported-executive-office-table-with-designer-panel-side-cabinet",
+    "name": "Premium Imported Executive Office Table with Designer Panel & Side Cabinet",
+    "category": "Office",
+    "collectionSlug": "office-furniture",
+    "badge": "New arrival",
+    "price": 55000,
+    "priceLabel": "Rs. 55,000",
+    "availability": "In stock",
+    "colors": [],
+    "description": "Stylish imported executive office table with designer panel front and side cabinet, available in 1.8m size. Perfect for modern offices.",
+    "details": [
+      "Office Furniture",
+      "Material: Wood finish",
+      "Dimensions: Available in 1.8 meter size, this office table is perfect for medium to large office cabins.; Available size: 1.8m",
+      "Availability: In stock"
+    ],
+    "dimensions": "Available in 1.8 meter size, this office table is perfect for medium to large office cabins.; Available size: 1.8m",
+    "material": "Wood finish",
+    "tags": [
+      "office furniture",
+      "premium",
+      "imported",
+      "executive",
+      "office",
+      "table",
+      "with",
+      "designer",
+      "panel",
+      "and",
+      "side",
+      "cabinet",
+      "wood finish"
+    ],
+    "image": "/products/betterhomeindia/bh-295-premium-imported-executive-office-ta/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-295-premium-imported-executive-office-ta/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "premium-imported-conference-table-modern-boardroom-meeting-table",
+    "slug": "premium-imported-conference-table-modern-boardroom-meeting-table",
+    "name": "Premium Imported Conference Table – Modern Boardroom Meeting Table",
+    "category": "Office",
+    "collectionSlug": "office-furniture",
+    "badge": "New arrival",
+    "price": 75000,
+    "priceLabel": "Rs. 75,000",
+    "availability": "In stock",
+    "colors": [],
+    "description": "Spacious and modern conference table available in 3.2m and 6m sizes. Perfect for boardrooms and corporate offices.",
+    "details": [
+      "Office Furniture",
+      "Material: Ask for material details",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Ask for material details",
+    "tags": [
+      "office furniture",
+      "premium",
+      "imported",
+      "conference",
+      "table",
+      "modern",
+      "boardroom",
+      "meeting",
+      "table",
+      "ask for material details"
+    ],
+    "image": "/products/betterhomeindia/bh-296-premium-imported-conference-table-mo/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-296-premium-imported-conference-table-mo/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "premium-2-4m-conference-table-modern-meeting-room-table",
+    "slug": "premium-2-4m-conference-table-modern-meeting-room-table",
+    "name": "Premium 2.4m Conference Table – Modern Meeting Room Table",
+    "category": "Office",
+    "collectionSlug": "office-furniture",
+    "badge": "New arrival",
+    "price": 60000,
+    "priceLabel": "Rs. 60,000",
+    "availability": "In stock",
+    "colors": [],
+    "description": "Compact and stylish 2.4m conference table designed for modern offices and meeting rooms.",
+    "details": [
+      "Office Furniture",
+      "Material: Wood finish",
+      "Dimensions: Size: 2.4 meters",
+      "Availability: In stock"
+    ],
+    "dimensions": "Size: 2.4 meters",
+    "material": "Wood finish",
+    "tags": [
+      "office furniture",
+      "premium",
+      "2",
+      "4m",
+      "conference",
+      "table",
+      "modern",
+      "meeting",
+      "room",
+      "table",
+      "wood finish"
+    ],
+    "image": "/products/betterhomeindia/bh-297-premium-2-4m-conference-table-modern/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-297-premium-2-4m-conference-table-modern/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "premium-3-2m-executive-conference-table-modern-boardroom-table",
+    "slug": "premium-3-2m-executive-conference-table-modern-boardroom-table",
+    "name": "Premium 3.2m Executive Conference Table – Modern Boardroom Table",
+    "category": "Office",
+    "collectionSlug": "office-furniture",
+    "badge": "New arrival",
+    "price": 78000,
+    "priceLabel": "Rs. 78,000",
+    "availability": "In stock",
+    "colors": [],
+    "description": "Stylish 3.2m executive conference table with modern design, ideal for boardrooms and corporate offices.",
+    "details": [
+      "Office Furniture",
+      "Material: Ask for material details",
+      "Dimensions: Size: 3.2 meters",
+      "Availability: In stock"
+    ],
+    "dimensions": "Size: 3.2 meters",
+    "material": "Ask for material details",
+    "tags": [
+      "office furniture",
+      "premium",
+      "3",
+      "2m",
+      "executive",
+      "conference",
+      "table",
+      "modern",
+      "boardroom",
+      "table",
+      "ask for material details"
+    ],
+    "image": "/products/betterhomeindia/bh-298-premium-3-2m-executive-conference-ta/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-298-premium-3-2m-executive-conference-ta/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "modern-wood-white-bedroom-set-with-diamond-design-wardrobe-upholstered-bed",
+    "slug": "modern-wood-white-bedroom-set-with-diamond-design-wardrobe-upholstered-bed",
+    "name": "Modern Wood & White Bedroom Set with Diamond Design Wardrobe & Upholstered Bed",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 90000,
+    "priceLabel": "Rs. 90,000",
+    "availability": "In stock",
+    "colors": [
+      "Black"
+    ],
+    "description": "Stylish wood and white bedroom set with upholstered bed, sliding wardrobe, and dressing unit. Perfect for modern homes.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Engineered wood with upholstery",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Engineered wood with upholstery",
+    "tags": [
+      "bedroom sets",
+      "modern",
+      "wood",
+      "and",
+      "white",
+      "bedroom",
+      "set",
+      "with",
+      "diamond",
+      "design",
+      "wardrobe",
+      "and",
+      "upholstered",
+      "bed",
+      "black",
+      "engineered wood with upholstery"
+    ],
+    "image": "/products/betterhomeindia/bh-299-modern-wood-white-bedroom-set-with-d/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-299-modern-wood-white-bedroom-set-with-d/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "premium-grey-wood-bedroom-set-with-4-door-wardrobe-dressing-table",
+    "slug": "premium-grey-wood-bedroom-set-with-4-door-wardrobe-dressing-table",
+    "name": "Premium Grey & Wood Bedroom Set with 4 Door Wardrobe & Dressing Table",
+    "category": "Bedroom",
+    "collectionSlug": "bedroom-sets",
+    "badge": "New arrival",
+    "price": 160000,
+    "priceLabel": "Rs. 1,60,000",
+    "availability": "In stock",
+    "colors": [
+      "Grey"
+    ],
+    "description": "Stylish grey and wood bedroom set with storage bed, 4-door wardrobe, and dressing table. Ideal for modern homes.",
+    "details": [
+      "Bedroom Sets",
+      "Material: Engineered wood",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Engineered wood",
+    "tags": [
+      "bedroom sets",
+      "premium",
+      "grey",
+      "and",
+      "wood",
+      "bedroom",
+      "set",
+      "with",
+      "4",
+      "door",
+      "wardrobe",
+      "and",
+      "dressing",
+      "table",
+      "grey",
+      "engineered wood"
+    ],
+    "image": "/products/betterhomeindia/bh-300-premium-grey-wood-bedroom-set-with-4/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-300-premium-grey-wood-bedroom-set-with-4/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "glam-plastic-chair-set-of-4-steel-pearl-white",
+    "slug": "glam-plastic-chair-set-of-4-steel-pearl-white",
+    "name": "Glam Plastic Chair Set of 4 – Steel Pearl White",
+    "category": "Living Room",
+    "collectionSlug": "chairs",
+    "badge": "New arrival",
+    "price": 7500,
+    "priceLabel": "Rs. 7,500",
+    "availability": "In stock",
+    "colors": [
+      "White"
+    ],
+    "description": "A set of 4 Glam plastic chairs in Steel Pearl White color, designed with a sleek premium finish, durable structure, and comfortable seating, perfect for homes, events, and modern interiors.",
+    "details": [
+      "Chairs",
+      "Material: Durable plastic",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Durable plastic",
+    "tags": [
+      "chairs",
+      "glam",
+      "plastic",
+      "chair",
+      "set",
+      "of",
+      "4",
+      "steel",
+      "pearl",
+      "white",
+      "white",
+      "durable plastic"
+    ],
+    "image": "/products/betterhomeindia/bh-303-glam-plastic-chair-set-of-4-steel-pe/1.jpg",
+    "images": [
+      "/products/betterhomeindia/bh-303-glam-plastic-chair-set-of-4-steel-pe/1.jpg"
+    ],
+    "active": true
+  },
+  {
+    "id": "wooden-3-seater-sofa-premium-fabric-sofa-set",
+    "slug": "wooden-3-seater-sofa-premium-fabric-sofa-set",
+    "name": "Outdoor 3 Seater Sofa – Fabric Sofa Set",
+    "category": "Living Room",
+    "collectionSlug": "sofas",
+    "badge": "New arrival",
+    "price": 19500,
+    "priceLabel": "Rs. 19,500",
+    "availability": "In stock",
+    "colors": [],
+    "description": "Stylish wooden 3 seater sofa with soft fabric cushioning, perfect for living rooms and modern homes.",
+    "details": [
+      "Sofas",
+      "Material: Wood with fabric upholstery",
+      "Availability: In stock"
+    ],
+    "dimensions": "",
+    "material": "Wood with fabric upholstery",
+    "tags": [
+      "sofas",
+      "outdoor",
+      "3",
+      "seater",
+      "sofa",
+      "fabric",
+      "sofa",
+      "set",
+      "wood with fabric upholstery"
+    ],
+    "image": "/products/betterhomeindia/bh-304-wooden-3-seater-sofa-premium-fabric/1.webp",
+    "images": [
+      "/products/betterhomeindia/bh-304-wooden-3-seater-sofa-premium-fabric/1.webp"
     ],
     "active": true
   }

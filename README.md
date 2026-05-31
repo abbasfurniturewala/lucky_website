@@ -84,6 +84,36 @@ Then open the local URL shown in the terminal, usually:
 http://127.0.0.1:5173
 ```
 
+## Local Product Import Review Dashboard
+
+Use the private local dashboard to review scraped products with their images and details in one place:
+
+```powershell
+npm run review
+```
+
+Then open:
+
+```text
+http://127.0.0.1:4174
+```
+
+The dashboard reads the original scraper files from:
+
+```text
+C:\Users\furni\OneDrive\Documents\web scraper\data\betterhomeindia
+```
+
+It preserves local review edits in `import-review/review-state.json`. That file is intentionally ignored by Git. Use the dashboard's **Export approved** button to create `import-review/approved-products.json` for the next import batch.
+
+After reviewing the exported batch, import it into the public storefront with:
+
+```powershell
+npm run import:approved
+```
+
+The importer validates source images, skips products that were already imported, excludes exact duplicates within the approved batch, copies selected images into `public/products/betterhomeindia`, and appends clean storefront records to `src/data/importedProducts.js`.
+
 ## How to Put It Online With Cloudflare
 
 Use Cloudflare Pages:

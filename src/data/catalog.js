@@ -72,6 +72,14 @@ export const shopCategories = [
       "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=700&q=82",
   },
   {
+    name: "Bedroom Sets",
+    slug: "bedroom-sets",
+    filterCategory: "Bedroom",
+    description: "Complete bedroom sets with beds, wardrobes, dressing units, and storage options.",
+    image:
+      "/products/betterhomeindia/bh-271-kingdom-luxury-bedroom-set-with-upho/1.jpg",
+  },
+  {
     name: "Dining Sets",
     slug: "dining-sets",
     filterCategory: "Dining",
@@ -131,6 +139,14 @@ export const shopCategories = [
     description: "Office chairs, desks, and work-from-home furniture options.",
     image:
       "https://images.unsplash.com/photo-1580480055273-228ff5388ef8?auto=format&fit=crop&w=700&q=82",
+  },
+  {
+    name: "Chairs",
+    slug: "chairs",
+    filterCategory: "Living Room",
+    description: "Everyday chairs for flexible seating in homes, events, and casual spaces.",
+    image:
+      "/products/betterhomeindia/bh-303-glam-plastic-chair-set-of-4-steel-pe/1.jpg",
   },
   {
     name: "Shoe Racks",

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lucky Interiors Product Review</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Lucky Interiors</p>
+        <h1>Product import review</h1>
+      </div>
+      <div class="topbar-actions">
+        <span class="save-state" id="saveState">Local review workspace</span>
+        <button class="button secondary" id="exportButton" type="button">Export approved</button>
+      </div>
+    </header>
+
+    <section class="summary-strip" aria-label="Review progress">
+      <div><span>Total</span><strong id="totalCount">0</strong></div>
+      <div><span>Unreviewed</span><strong id="unreviewedCount">0</strong></div>
+      <div><span>Approved</span><strong id="approvedCount">0</strong></div>
+      <div><span>Review later</span><strong id="laterCount">0</strong></div>
+      <div><span>Rejected</span><strong id="rejectedCount">0</strong></div>
+      <div><span>Already imported</span><strong id="importedCount">0</strong></div>
+    </section>
+
+    <main class="workspace">
+      <aside class="queue-panel">
+        <div class="queue-tools">
+          <label>
+            <span>Search products</span>
+            <input id="searchInput" type="search" placeholder="Name, source category..." />
+          </label>
+          <div class="queue-filter-row">
+            <label>
+              <span>Status</span>
+              <select id="statusFilter">
+                <option value="unreviewed">Unreviewed</option>
+                <option value="approved">Approved</option>
+                <option value="later">Review later</option>
+                <option value="rejected">Rejected</option>
+                <option value="imported">Already imported</option>
+                <option value="all">All products</option>
+              </select>
+            </label>
+            <label>
+              <span>Category</span>
+              <select id="categoryFilter">
+                <option value="all">All categories</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div class="queue-heading">
+          <strong id="queueCount">0 products</strong>
+          <span>Choose an item to review</span>
+        </div>
+        <div class="product-queue" id="productQueue"></div>
+      </aside>
+
+      <section class="review-panel" id="reviewPanel">
+        <div class="empty-review">
+          <h2>Select a product</h2>
+          <p>Choose an item from the queue to inspect its photos and details together.</p>
+        </div>
+      </section>
+    </main>
+
+    <dialog class="category-dialog" id="categoryDialog">
+      <form method="dialog" id="categoryForm">
+        <div class="dialog-heading">
+          <div>
+            <p class="eyebrow">Catalog organization</p>
+            <h2>Add a category</h2>
+          </div>
+          <button class="icon-button" id="closeCategoryButton" aria-label="Close category dialog" type="button">
+            &times;
+          </button>
+        </div>
+        <p>Create a reusable category option for this review workspace.</p>
+        <label>
+          <span>Category name</span>
+          <input id="newCategoryName" required placeholder="Example: Bedroom Benches" />
+        </label>
+        <label>
+          <span>URL slug</span>
+          <input id="newCategorySlug" placeholder="bedroom-benches" />
+        </label>
+        <div class="dialog-actions">
+          <button class="button tertiary" id="cancelCategoryButton" type="button">Cancel</button>
+          <button class="button primary" id="createCategoryButton" value="default" type="submit">
+            Add category
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
