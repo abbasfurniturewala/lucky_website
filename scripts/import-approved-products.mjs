@@ -21,9 +21,18 @@ const sourceProductsPath = join(sourceRoot, "products.json");
 const categoryMetadata = {
   "bedroom-sets": { category: "Bedroom", label: "Bedroom Sets" },
   beds: { category: "Bedroom", label: "Beds" },
+  bookshelves: { category: "Storage Furniture", label: "Bookshelves" },
+  "cabinets-sideboards": { category: "Storage Furniture", label: "TV Unit & Cabinets" },
+  "centre-tables": { category: "Living Room", label: "Centre Tables" },
   chairs: { category: "Living Room", label: "Chairs" },
+  "dining-sets": { category: "Dining", label: "Dining Sets" },
+  "dressing-table": { category: "Bedroom", label: "Dressing Tables" },
   "office-furniture": { category: "Office", label: "Office Furniture" },
+  "outdoor-furniture": { category: "Outdoor Furniture", label: "Outdoor Furniture" },
+  recliners: { category: "Living Room", label: "Recliners" },
   sofas: { category: "Living Room", label: "Sofas" },
+  "study-tables": { category: "Office", label: "Study Tables" },
+  swings: { category: "Outdoor Furniture", label: "Swings" },
 };
 const retiredCategories = new Set(["outdoor-chair"]);
 
@@ -47,6 +56,10 @@ function slugify(value) {
     .replace(/&/g, " and ")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+function publicProductId(product) {
+  return slugify(cleanText(String(product.id || "").replaceAll("-", " ")));
 }
 
 function publicFolderName(sequence, slug) {
@@ -117,7 +130,7 @@ function detailsFor(product, collectionLabel, material) {
 function tagsFor(product, collectionLabel, colors, material) {
   return [
     slugify(collectionLabel).replaceAll("-", " "),
-    ...slugify(product.name).split("-"),
+    ...slugify(cleanText(product.name)).split("-"),
     ...colors.map((color) => color.toLowerCase()),
     material.toLowerCase(),
   ].filter(Boolean);
@@ -164,10 +177,11 @@ function importedRecord(product, sourceProduct, publicImages) {
 
   const material = materialFor(product);
   const colors = colorsFor(product);
+  const publicId = publicProductId(product);
 
   return {
-    id: product.id,
-    slug: product.id,
+    id: publicId,
+    slug: publicId,
     name: cleanText(product.name),
     category: metadata.category,
     collectionSlug: product.category,
@@ -204,7 +218,7 @@ for (const product of approvedProducts) {
     continue;
   }
 
-  if (existingIds.has(product.id)) {
+  if (existingIds.has(publicProductId(product))) {
     skipped.push({ id: product.id, reason: "already imported" });
     continue;
   }

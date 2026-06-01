@@ -149,6 +149,30 @@ export const shopCategories = [
       "/products/betterhomeindia/bh-303-glam-plastic-chair-set-of-4-steel-pe/1.jpg",
   },
   {
+    name: "Dressing Tables",
+    slug: "dressing-table",
+    filterCategory: "Bedroom",
+    description: "Dressing tables with mirrors, storage cabinets, and practical bedroom organization.",
+    image:
+      "/products/betterhomeindia/bh-360-premium-solid-wood-dressing-table-wi/1.jpg",
+  },
+  {
+    name: "Outdoor Furniture",
+    slug: "outdoor-furniture",
+    filterCategory: "Outdoor Furniture",
+    description: "Garden sets, balcony seating, and outdoor furniture for relaxed open-air spaces.",
+    image:
+      "/products/betterhomeindia/bh-324-4-seater-outdoor-garden-table-and-ch/1.jpg",
+  },
+  {
+    name: "Swings",
+    slug: "swings",
+    filterCategory: "Outdoor Furniture",
+    description: "Hanging chairs and garden swings for balconies, terraces, and outdoor corners.",
+    image:
+      "/products/betterhomeindia/bh-370-imported-couple-hanging-swing-chair/1.jpg",
+  },
+  {
     name: "Shoe Racks",
     slug: "shoe-racks",
     filterCategory: "Bedroom",
