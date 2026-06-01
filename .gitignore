@@ -6,3 +6,9 @@ dist/
 .env.local
 import-review/review-state.json
 import-review/approved-products.json
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
