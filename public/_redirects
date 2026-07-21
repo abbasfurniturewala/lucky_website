@@ -1,0 +1,8 @@
+/contact/ /contact 301
+/about/ /about 301
+/privacy/ /privacy 301
+/terms/ /terms 301
+/search/ /search 301
+/guides/:slug/ /guides/:slug 301
+/collections/:slug/ /collections/:slug 301
+/products/:slug/ /products/:slug 301

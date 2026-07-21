@@ -5,6 +5,15 @@ import { extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { importedProducts } from "../src/data/importedProducts.js";
+import {
+  IMAGE_RIGHTS_STATUS,
+  isImageRightsConfirmed,
+  normalizeImageRightsStatus,
+} from "../src/data/image-rights-policy.js";
+import {
+  hasPublishedOptionalValue,
+  hasSpecificAvailability,
+} from "../src/data/product-seo-policy.js";
 
 const projectRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const reviewRoot = join(projectRoot, "import-review");
@@ -104,26 +113,20 @@ function colorsFor(product) {
 }
 
 function materialFor(product) {
-  const searchText = [product.material, product.description, product.name].join(" ").toLowerCase();
-  if (searchText.includes("plastic")) return "Durable plastic";
-  if (searchText.includes("engineered wood") && searchText.includes("upholster")) {
-    return "Engineered wood with upholstery";
-  }
-  if (searchText.includes("engineered wood")) return "Engineered wood";
-  if (searchText.includes("wood") && searchText.includes("fabric")) return "Wood with fabric upholstery";
-  if (searchText.includes("leatherette")) return "Leatherette upholstery";
-  if (searchText.includes("fabric")) return "Fabric upholstery";
-  if (searchText.includes("metal")) return "Metal";
-  if (searchText.includes("wood")) return "Wood finish";
-  return "Ask for material details";
+  const material = cleanText(product.material);
+  return hasPublishedOptionalValue(material) ? material : "";
 }
 
 function detailsFor(product, collectionLabel, material) {
   return [
     collectionLabel,
-    `Material: ${material}`,
-    product.dimensions ? `Dimensions: ${cleanText(product.dimensions)}` : "",
-    `Availability: ${cleanText(product.availability || "Ask store")}`,
+    material ? `Material: ${material}` : "",
+    hasPublishedOptionalValue(product.dimensions)
+      ? `Dimensions: ${cleanText(product.dimensions)}`
+      : "",
+    product.availabilityVerified === true && hasSpecificAvailability(product.availability)
+      ? `Availability: ${cleanText(product.availability)}`
+      : "",
   ].filter(Boolean);
 }
 
@@ -178,6 +181,15 @@ function importedRecord(product, sourceProduct, publicImages) {
   const material = materialFor(product);
   const colors = colorsFor(product);
   const publicId = publicProductId(product);
+  const price = Number(product.price) > 0 ? Number(product.price) : null;
+  const dimensions = cleanText(product.dimensions || sourceProduct.dimensions);
+  const availability =
+    product.availabilityVerified === true && hasSpecificAvailability(product.availability)
+      ? cleanText(product.availability)
+      : "";
+  const imageRightsStatus = product.imageRightsConfirmed === true
+    ? IMAGE_RIGHTS_STATUS.confirmed
+    : normalizeImageRightsStatus(product.imageRightsStatus, IMAGE_RIGHTS_STATUS.pending);
 
   return {
     id: publicId,
@@ -186,18 +198,31 @@ function importedRecord(product, sourceProduct, publicImages) {
     category: metadata.category,
     collectionSlug: product.category,
     badge: "New arrival",
-    price: Number(product.price || 0),
-    priceLabel: `Rs. ${Number(product.price || 0).toLocaleString("en-IN")}`,
-    availability: cleanText(product.availability || "Ask store"),
+    price,
+    priceLabel: price ? `Rs. ${price.toLocaleString("en-IN")}` : "Price on request",
+    availability,
     colors,
     description: cleanText(product.description),
     details: detailsFor(product, metadata.label, material),
-    dimensions: cleanText(sourceProduct.dimensions),
+    dimensions: hasPublishedOptionalValue(dimensions) ? dimensions : "",
     material,
     tags: tagsFor(product, metadata.label, colors, material),
     image: publicImages[0],
     images: publicImages,
+    imageAlts: publicImages.map((_, index) =>
+      index === 0 && product.imageAlt
+        ? cleanText(product.imageAlt)
+        : `${cleanText(product.name)}, product view ${index + 1}`,
+    ),
+    imageRightsSource: cleanText(product.imageRightsSource),
+    imageRightsStatus,
     active: true,
+    seoStatus: product.seoStatus || "review",
+    offerVerified: product.offerVerified === true,
+    availabilityVerified: product.availabilityVerified === true,
+    detailsVerified: product.detailsVerified === true,
+    imageRightsConfirmed: isImageRightsConfirmed(imageRightsStatus),
+    updatedAt: product.updatedAt || "",
   };
 }
 
@@ -205,21 +230,22 @@ const approvedExport = loadJson(approvedPath);
 const reviewState = loadJson(reviewStatePath);
 const sourceProducts = loadJson(sourceProductsPath);
 const sourceById = new Map(sourceProducts.map((product) => [product.id, product]));
-const existingIds = new Set(importedProducts.map((product) => product.id));
-const approvedProducts = approvedExport.products.filter((product) => product.status === "approved");
+const existingById = new Map(importedProducts.map((product) => [product.id, product]));
+const approvedProducts = approvedExport.products.filter(
+  (product) =>
+    product.status === "approved" ||
+    (product.status === "imported" && product.seoStatus === "approved"),
+);
 const duplicateIds = exactDuplicateKeys(approvedProducts, sourceById);
 const records = [];
+const updatedRecords = [];
+const processedReviews = [];
 const skipped = [];
 let nextSequence = maxImportedSequence() + 1;
 
 for (const product of approvedProducts) {
   if (retiredCategories.has(product.category)) {
     skipped.push({ id: product.id, reason: "retired category" });
-    continue;
-  }
-
-  if (existingIds.has(publicProductId(product))) {
-    skipped.push({ id: product.id, reason: "already imported" });
     continue;
   }
 
@@ -230,6 +256,17 @@ for (const product of approvedProducts) {
 
   const sourceProduct = sourceById.get(product.id);
   if (!sourceProduct) throw new Error(`Source product not found: ${product.id}`);
+
+  const existingProduct = existingById.get(publicProductId(product));
+  if (existingProduct) {
+    const publicImages = existingProduct.images?.length
+      ? existingProduct.images
+      : [existingProduct.image].filter(Boolean);
+    const record = importedRecord(product, sourceProduct, publicImages);
+    updatedRecords.push(record);
+    processedReviews.push({ sourceId: product.id, record });
+    continue;
+  }
 
   const sourceImages = sourceImagePaths(sourceProduct);
   if (!sourceImages.length) throw new Error(`No source images found: ${product.id}`);
@@ -250,20 +287,25 @@ for (const product of approvedProducts) {
     publicImages.push(publicImage);
   }
 
-  records.push(importedRecord(product, sourceProduct, publicImages));
+  const record = importedRecord(product, sourceProduct, publicImages);
+  records.push(record);
+  processedReviews.push({ sourceId: product.id, record });
   nextSequence += 1;
 }
 
+const replacementsById = new Map(updatedRecords.map((product) => [product.id, product]));
 const updatedProducts = [
-  ...importedProducts.filter((product) => !retiredCategories.has(product.collectionSlug)),
+  ...importedProducts
+    .filter((product) => !retiredCategories.has(product.collectionSlug))
+    .map((product) => replacementsById.get(product.id) || product),
   ...records,
 ];
 const generatedFile = `// Generated from reviewed import batches.\n// Use npm run import:approved after reviewing and exporting a batch.\n\nexport const importedProducts = ${JSON.stringify(updatedProducts, null, 2)};\n`;
 await writeFile(importedProductsPath, generatedFile, "utf8");
 
 const importedAt = new Date().toISOString();
-for (const record of records) {
-  const review = reviewState.reviews[record.id];
+for (const { sourceId, record } of processedReviews) {
+  const review = reviewState.reviews[sourceId];
   if (!review) continue;
   review.status = "imported";
   review.updatedAt = importedAt;
@@ -272,9 +314,7 @@ for (const item of skipped) {
   const review = reviewState.reviews[item.id];
   if (!review) continue;
 
-  if (item.reason === "already imported") {
-    review.status = "imported";
-  } else if (item.reason === "exact duplicate within approved batch") {
+  if (item.reason === "exact duplicate within approved batch") {
     review.status = "rejected";
     review.notes = [review.notes, "Skipped during import: exact duplicate product."]
       .filter(Boolean)
@@ -290,7 +330,8 @@ for (const item of skipped) {
 reviewState.updatedAt = importedAt;
 await writeFile(reviewStatePath, `${JSON.stringify(reviewState, null, 2)}\n`, "utf8");
 
-console.log(`Imported ${records.length} approved products.`);
+console.log(`Imported ${records.length} new approved products.`);
+console.log(`Updated ${updatedRecords.length} existing approved products.`);
 if (skipped.length) {
   console.log(`Skipped ${skipped.length} products:`);
   for (const item of skipped) console.log(`- ${item.id}: ${item.reason}`);

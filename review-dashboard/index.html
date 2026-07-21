@@ -25,6 +25,9 @@
       <div><span>Review later</span><strong id="laterCount">0</strong></div>
       <div><span>Rejected</span><strong id="rejectedCount">0</strong></div>
       <div><span>Already imported</span><strong id="importedCount">0</strong></div>
+      <div class="seo-summary"><span>SEO review</span><strong id="seoReviewCount">0</strong></div>
+      <div class="seo-summary"><span>SEO approved</span><strong id="seoApprovedCount">0</strong></div>
+      <div class="seo-summary"><span>SEO noindex</span><strong id="seoNoindexCount">0</strong></div>
     </section>
 
     <main class="workspace">
@@ -52,7 +55,28 @@
                 <option value="all">All categories</option>
               </select>
             </label>
+            <label>
+              <span>SEO status</span>
+              <select id="seoStatusFilter">
+                <option value="review">SEO review</option>
+                <option value="approved">SEO approved</option>
+                <option value="noindex">SEO noindex</option>
+                <option value="all">All SEO states</option>
+              </select>
+            </label>
+            <label>
+              <span>Queue</span>
+              <select id="batchSizeFilter">
+                <option value="10">Next 10</option>
+                <option value="25">Next 25</option>
+                <option value="all">All matches</option>
+              </select>
+            </label>
           </div>
+          <label class="priority-filter">
+            <input id="priorityFilter" type="checkbox" checked />
+            <span>Only five priority categories</span>
+          </label>
         </div>
         <div class="queue-heading">
           <strong id="queueCount">0 products</strong>

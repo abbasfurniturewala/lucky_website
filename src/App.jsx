@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Clock,
   Eye,
+  Instagram,
   Mail,
   MapPin,
   MessageCircle,
@@ -14,9 +15,19 @@ import {
   Truck,
   X,
 } from "lucide-react";
-import { business, categories, promoBanner, shopCategories } from "./data/catalog.js";
+import {
+  business,
+  categories,
+  homepageSeoContent,
+  promoBanner,
+  shopCategories,
+} from "./data/catalog.js";
 import { products } from "./data/products.js";
 import { site } from "./data/site.js";
+import { trackEvent } from "./analytics.js";
+import { findGuide, guidePath, guides } from "./data/guides.js";
+import { MISSING_DIMENSIONS_MESSAGE } from "./data/product-seo-policy.js";
+import { buildProductSchema } from "./data/product-schema.js";
 
 const menuItems = [
   { label: "Home", href: "/" },
@@ -41,6 +52,90 @@ const featuredProductIds = [
 ];
 
 const popularSearchTerms = ["sofas", "2 seater sofa", "wardrobes", "dining set", "centre table", "storage"];
+
+const informationPages = {
+  about: {
+    eyebrow: "About the catalog",
+    title: "About Lucky Interiors Furniture",
+    description:
+      "Learn how to use the Lucky Interiors Furniture catalog to explore furniture options and make an informed enquiry in Mumbai.",
+    intro:
+      "Lucky Interiors Furniture is an enquiry-based furniture catalog for customers exploring options for homes and workspaces in Mumbai.",
+    sections: [
+      {
+        heading: "Explore before you enquire",
+        paragraphs: [
+          "The website brings product photos, categories, available specifications, and enquiry options into one place. Category filters and search help narrow the catalog by details such as seating, price, color, material, and availability where those fields are present.",
+          "Product information can change. Current price, dimensions, finish, availability, delivery details, and access requirements should be confirmed directly before making a decision.",
+        ],
+      },
+      {
+        heading: "Furniture planning for Mumbai homes",
+        paragraphs: [
+          "Room size and building access matter as much as the product style. Measure the intended space, entrance, doors, corridors, stairs, and lift before enquiring about a large item.",
+        ],
+      },
+    ],
+  },
+  privacy: {
+    eyebrow: "Website information",
+    title: "Privacy policy",
+    description:
+      "Read how Lucky Interiors Furniture handles enquiry information, technical data, external services, and privacy requests.",
+    intro:
+      "This policy explains the information that may be handled when you browse this website or contact Lucky Interiors Furniture. It was last updated on 11 July 2026.",
+    sections: [
+      {
+        heading: "Information you choose to share",
+        paragraphs: [
+          "If you contact us by phone, email, WhatsApp, or another linked service, you may share your name, contact details, delivery locality, product preferences, measurements, photographs, and enquiry messages. That information is used to respond to the enquiry and discuss the requested product or service.",
+        ],
+      },
+      {
+        heading: "Technical and third-party services",
+        paragraphs: [
+          "Hosting and security providers may process technical information such as IP address, browser details, request time, and requested pages to deliver and protect the website. Links or embedded services from Google Maps, WhatsApp, email, and telephone providers are governed by their own privacy terms when used.",
+          "If measurement tools are added in the future, this policy should be updated before they are activated. The current site does not provide customer accounts or an online checkout.",
+        ],
+      },
+      {
+        heading: "Your choices",
+        paragraphs: [
+          "You can avoid sending personal information through the website and contact us only with the details needed for your enquiry. For a privacy question or request relating to information shared directly with us, use the email address on the Contact page.",
+        ],
+      },
+    ],
+  },
+  terms: {
+    eyebrow: "Website information",
+    title: "Website terms",
+    description:
+      "Read the terms for using the Lucky Interiors Furniture product catalog, enquiry links, images, and external services.",
+    intro:
+      "These terms apply to use of the Lucky Interiors Furniture website and were last updated on 11 July 2026.",
+    sections: [
+      {
+        heading: "Catalog information",
+        paragraphs: [
+          "The website is an enquiry catalog, not an online checkout. Product photos, descriptions, prices, dimensions, materials, colors, and availability are provided for initial comparison and may be incomplete or change over time.",
+          "Confirm the current product specification, total price, availability, delivery scope, access requirements, and any other purchase terms directly before placing an order or making a payment.",
+        ],
+      },
+      {
+        heading: "Website use and external links",
+        paragraphs: [
+          "Do not misuse the website, attempt unauthorized access, or reproduce catalog content for commercial use without permission. External links such as WhatsApp and Google Maps are provided for convenience and are operated under the third party's own terms.",
+        ],
+      },
+      {
+        heading: "Updates and questions",
+        paragraphs: [
+          "Website content and these terms may be updated as the catalog and services change. Questions about a product or these terms can be sent through the Contact page.",
+        ],
+      },
+    ],
+  },
+};
 
 const defaultCollectionFilters = {
   availability: "all",
@@ -78,14 +173,19 @@ function searchPath(query) {
 }
 
 function currentPath() {
+  if (typeof window === "undefined") {
+    return "/";
+  }
+
   return `${window.location.pathname}${window.location.search}` || "/";
 }
 
 function parseRoute(locationPath) {
-  const url = new URL(locationPath, window.location.origin);
+  const url = new URL(locationPath, site.origin);
   const path = url.pathname.replace(/\/+$/, "") || "/";
   const collectionMatch = path.match(/^\/collections\/([^/]+)$/);
   const productMatch = path.match(/^\/products\/([^/]+)$/);
+  const guideMatch = path.match(/^\/guides\/([^/]+)$/);
 
   if (collectionMatch) {
     return {
@@ -98,6 +198,13 @@ function parseRoute(locationPath) {
     return {
       slug: decodeURIComponent(productMatch[1]),
       type: "product",
+    };
+  }
+
+  if (guideMatch) {
+    return {
+      slug: decodeURIComponent(guideMatch[1]),
+      type: "guide",
     };
   }
 
@@ -114,6 +221,10 @@ function parseRoute(locationPath) {
 
   if (path === "/contact") {
     return { type: "contact" };
+  }
+
+  if (["/about", "/privacy", "/terms"].includes(path)) {
+    return { slug: path.slice(1), type: "information" };
   }
 
   return { type: "not-found" };
@@ -323,6 +434,10 @@ function primaryProductImage(product) {
   return productImages(product)[0];
 }
 
+function productImageAlt(product, index = 0) {
+  return product.imageAlts?.[index] || `${product.name}, product view ${index + 1}`;
+}
+
 function absoluteUrl(path = "/") {
   return new URL(path || "/", site.origin).toString();
 }
@@ -415,40 +530,35 @@ function removeJsonLd(id) {
   document.getElementById(id)?.remove();
 }
 
-function schemaAvailability(availability = "") {
-  const normalized = normalizeSearchText(availability);
-
-  if (normalized.includes("in stock")) {
-    return "https://schema.org/InStock";
-  }
-
-  if (normalized.includes("made to order")) {
-    return "https://schema.org/PreOrder";
-  }
-
-  return "https://schema.org/LimitedAvailability";
-}
-
-function buildLocalBusinessJsonLd() {
+export function buildOrganizationJsonLd() {
   return {
     "@context": "https://schema.org",
-    "@type": "FurnitureStore",
-    "@id": `${site.origin}/#store`,
+    "@type": "Organization",
+    "@id": `${site.origin}/#organization`,
     name: business.name,
-    description: business.tagline,
-    image: absoluteUrl(business.logo || site.defaultImage),
     url: site.origin,
-    telephone: business.callNumber,
+    logo: absoluteUrl(business.logo || site.defaultImage),
     email: business.email,
-    priceRange: "Rs. 10,000 - Rs. 100,000",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: business.address,
-      addressLocality: "Mumbai",
-      addressRegion: "Maharashtra",
-      addressCountry: "IN",
+    telephone: business.callNumber,
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer service",
+      email: business.email,
+      telephone: business.callNumber,
     },
-    openingHours: "Mo-Su 10:00-21:00",
+  };
+}
+
+export function buildWebsiteJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${site.origin}/#website`,
+    name: business.name,
+    url: site.origin,
+    publisher: {
+      "@id": `${site.origin}/#organization`,
+    },
   };
 }
 
@@ -457,14 +567,50 @@ function buildContactJsonLd() {
     "@context": "https://schema.org",
     "@type": "ContactPage",
     name: `Contact ${business.name}`,
-    description: `Contact ${business.name} for furniture product queries, sales quotes, availability, and store visits.`,
+    description: `Contact ${business.name} for furniture product queries, sales quotes, availability, and location information.`,
     url: absoluteUrl("/contact"),
     mainEntity: {
-      "@type": "FurnitureStore",
-      name: business.name,
-      telephone: business.callNumber,
-      email: business.email,
-      address: business.address,
+      "@id": `${site.origin}/#organization`,
+    },
+  };
+}
+
+function buildWebPageJsonLd({ description, name, path, type = "WebPage" }) {
+  return {
+    "@context": "https://schema.org",
+    "@type": type,
+    name,
+    description,
+    url: absoluteUrl(path),
+    isPartOf: {
+      "@id": `${site.origin}/#website`,
+    },
+    about: {
+      "@id": `${site.origin}/#organization`,
+    },
+  };
+}
+
+function buildArticleJsonLd(guide) {
+  const path = guidePath(guide);
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: guide.title,
+    name: guide.title,
+    description: guide.description,
+    url: absoluteUrl(path),
+    mainEntityOfPage: absoluteUrl(path),
+    inLanguage: "en-IN",
+    isPartOf: {
+      "@id": `${site.origin}/#website`,
+    },
+    author: {
+      "@id": `${site.origin}/#organization`,
+    },
+    publisher: {
+      "@id": `${site.origin}/#organization`,
     },
   };
 }
@@ -483,34 +629,13 @@ function buildBreadcrumbJsonLd(items) {
 }
 
 function buildProductJsonLd(product) {
-  const numericPrice = typeof product.price === "number" ? product.price : undefined;
-
-  return {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.name,
-    description: product.description,
-    image: productImages(product).map(absoluteUrl),
-    brand: {
-      "@type": "Brand",
-      name: business.name,
-    },
-    category: collectionForProduct(product)?.name || product.category,
-    material: product.material,
-    color: product.colors?.join(", "),
-    sku: product.id,
-    offers: {
-      "@type": "Offer",
-      url: absoluteUrl(productPath(product)),
-      priceCurrency: "INR",
-      price: numericPrice,
-      availability: schemaAvailability(product.availability),
-      seller: {
-        "@type": "FurnitureStore",
-        name: business.name,
-      },
-    },
-  };
+  return buildProductSchema({
+    product,
+    url: absoluteUrl(productPath(product)),
+    imageUrls: productImages(product).map(absoluteUrl),
+    categoryName: collectionForProduct(product)?.name || product.category,
+    organizationId: `${site.origin}/#organization`,
+  });
 }
 
 function buildCollectionJsonLd(collection) {
@@ -547,42 +672,48 @@ function productSeoDescription(product) {
   );
 }
 
-function buildSeoData(route, collection, product) {
+function buildSeoData(route, collection, product, routePath = "/") {
   if (route.type === "product" && product) {
     const productCollection = collectionForProduct(product);
     const description = productSeoDescription(product);
     const canonical = absoluteUrl(productPath(product));
+
+    const pageJsonLd = [
+      buildBreadcrumbJsonLd([
+        { name: "Home", href: "/" },
+        { name: productCollection?.name || product.category, href: productCollection ? collectionPath(productCollection.slug) : "/#catalog" },
+        { name: product.name, href: productPath(product) },
+      ]),
+    ];
+
+    if (product.seoStatus === "approved") {
+      pageJsonLd.push(buildProductJsonLd(product));
+    }
 
     return {
       title: `${product.name} | ${business.name}`,
       description,
       canonical,
       image: absoluteUrl(primaryProductImage(product) || site.defaultImage),
-      robots: "index,follow",
+      robots: product.seoStatus === "approved" ? "index,follow" : "noindex,follow",
       type: "product",
-      pageJsonLd: [
-        buildBreadcrumbJsonLd([
-          { name: "Home", href: "/" },
-          { name: productCollection?.name || product.category, href: productCollection ? collectionPath(productCollection.slug) : "/#catalog" },
-          { name: product.name, href: productPath(product) },
-        ]),
-        buildProductJsonLd(product),
-      ],
+      pageJsonLd,
     };
   }
 
   if (route.type === "collection" && collection) {
+    const collectionHasProducts = productsForCollection(collection).length > 0;
     const description = truncateText(
       `${collection.description} Browse ${collection.name.toLowerCase()} and enquire with ${business.name} in Mumbai.`,
     );
     const canonical = absoluteUrl(collectionPath(collection.slug));
 
     return {
-      title: `${collection.name} | ${business.name}`,
-      description,
+      title: collection.seoTitle || `${collection.name} | ${business.name}`,
+      description: collection.seoDescription || description,
       canonical,
       image: absoluteUrl(collection.image || site.defaultImage),
-      robots: "index,follow",
+      robots: collectionHasProducts ? "index,follow" : "noindex,follow",
       type: "website",
       pageJsonLd: [
         buildBreadcrumbJsonLd([
@@ -613,7 +744,7 @@ function buildSeoData(route, collection, product) {
   if (route.type === "contact") {
     return {
       title: `Contact Us | ${business.name}`,
-      description: `Contact ${business.name} for furniture sales, product queries, quotes, availability, delivery details, and store visit support.`,
+      description: `Contact ${business.name} for furniture product queries, quotes, availability, delivery questions, and location information.`,
       canonical: absoluteUrl("/contact"),
       image: absoluteUrl(business.logo || site.defaultImage),
       robots: "index,follow",
@@ -628,11 +759,71 @@ function buildSeoData(route, collection, product) {
     };
   }
 
-  if (route.type === "not-found" || (route.type === "collection" && !collection) || (route.type === "product" && !product)) {
+  if (route.type === "guide") {
+    const guide = findGuide(route.slug);
+
+    if (guide) {
+      const path = guidePath(guide);
+
+      return {
+        title: `${guide.title} | ${business.name}`,
+        description: guide.description,
+        canonical: absoluteUrl(path),
+        image: absoluteUrl(site.defaultImage),
+        robots: "index,follow",
+        type: "article",
+        pageJsonLd: [
+          buildBreadcrumbJsonLd([
+            { name: "Home", href: "/" },
+            { name: guide.title, href: path },
+          ]),
+          buildArticleJsonLd(guide),
+        ],
+      };
+    }
+  }
+
+  if (route.type === "information") {
+    const informationPage = informationPages[route.slug];
+
+    if (informationPage) {
+      const path = `/${route.slug}`;
+      const schemaType = route.slug === "about" ? "AboutPage" : "WebPage";
+
+      return {
+        title: `${informationPage.title} | ${business.name}`,
+        description: informationPage.description,
+        canonical: absoluteUrl(path),
+        image: absoluteUrl(business.logo || site.defaultImage),
+        robots: "index,follow",
+        type: "website",
+        pageJsonLd: [
+          buildBreadcrumbJsonLd([
+            { name: "Home", href: "/" },
+            { name: informationPage.title, href: path },
+          ]),
+          buildWebPageJsonLd({
+            description: informationPage.description,
+            name: informationPage.title,
+            path,
+            type: schemaType,
+          }),
+        ],
+      };
+    }
+  }
+
+  if (
+    route.type === "not-found" ||
+    (route.type === "collection" && !collection) ||
+    (route.type === "product" && !product) ||
+    (route.type === "guide" && !findGuide(route.slug)) ||
+    (route.type === "information" && !informationPages[route.slug])
+  ) {
     return {
       title: `Page not found | ${business.name}`,
       description: "This page could not be found. Browse Lucky Interiors Furniture collections and products.",
-      canonical: absoluteUrl(window.location.pathname),
+      canonical: absoluteUrl(new URL(routePath, site.origin).pathname),
       image: absoluteUrl(site.defaultImage),
       robots: "noindex,follow",
       type: "website",
@@ -651,6 +842,14 @@ function buildSeoData(route, collection, product) {
   };
 }
 
+export function getSeoData(locationPath = "/") {
+  const route = parseRoute(locationPath);
+  const collection = route.type === "collection" ? findCollection(route.slug) : null;
+  const product = route.type === "product" ? findProduct(route.slug) : null;
+
+  return buildSeoData(route, collection, product, locationPath);
+}
+
 function applySeo(seo) {
   document.title = seo.title;
   upsertMeta("name", "description", seo.description);
@@ -666,7 +865,9 @@ function applySeo(seo) {
   upsertMeta("name", "twitter:description", seo.description);
   upsertMeta("name", "twitter:image", seo.image);
   upsertCanonical(seo.canonical);
-  setJsonLd("local-business-jsonld", buildLocalBusinessJsonLd());
+  setJsonLd("organization-jsonld", buildOrganizationJsonLd());
+  setJsonLd("website-jsonld", buildWebsiteJsonLd());
+  removeJsonLd("local-business-jsonld");
 
   ["page-jsonld-0", "page-jsonld-1", "page-jsonld-2"].forEach((id, index) => {
     const data = seo.pageJsonLd[index];
@@ -823,9 +1024,12 @@ function buildSearchResults(query) {
   };
 }
 
-function createWhatsappLink(productName) {
+function createWhatsappLink(productOrName) {
+  const product = productOrName && typeof productOrName === "object" ? productOrName : null;
+  const productName = product?.name || productOrName;
+  const productUrl = product ? absoluteUrl(productPath(product)) : "";
   const text = productName
-    ? `Hi ${business.name}, I am interested in ${productName}. Please share price, availability, and delivery details.`
+    ? `Hi ${business.name}, I am interested in ${productName}. Please share the current price, availability, dimensions, and delivery details.${productUrl ? ` Product page: ${productUrl}` : ""}`
     : `Hi ${business.name}, I would like to know more about your furniture catalog.`;
 
   return `https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent(text)}`;
@@ -833,6 +1037,28 @@ function createWhatsappLink(productName) {
 
 function createEmailLink(subject = "Furniture enquiry") {
   return `mailto:${business.email}?subject=${encodeURIComponent(subject)}`;
+}
+
+function trackWhatsappClick(parameters = {}) {
+  trackEvent("whatsapp_click", parameters);
+
+  if (parameters.product_id) {
+    trackEvent("product_enquiry", {
+      ...parameters,
+      channel: "whatsapp",
+    });
+  }
+}
+
+function trackPhoneClick(parameters = {}) {
+  trackEvent("phone_click", parameters);
+
+  if (parameters.product_id) {
+    trackEvent("product_enquiry", {
+      ...parameters,
+      channel: "phone",
+    });
+  }
 }
 
 function WhatsAppIcon() {
@@ -932,7 +1158,7 @@ function HeaderSearch({ onNavigate }) {
                       key={collection.slug}
                       onClick={(event) => handleResultClick(collectionPath(collection.slug), event)}
                     >
-                      <img src={collection.image} alt="" />
+                      <img src={collection.image} alt={`${collection.name} furniture collection`} />
                       <span>
                         <strong>{collection.name}</strong>
                         <small>{collection.description}</small>
@@ -952,7 +1178,7 @@ function HeaderSearch({ onNavigate }) {
                       key={product.id}
                       onClick={(event) => handleResultClick(productPath(product), event)}
                     >
-                      <img src={primaryProductImage(product)} alt="" />
+                      <img src={primaryProductImage(product)} alt={productImageAlt(product)} />
                       <span>
                         <strong>{product.name}</strong>
                         <small>
@@ -1007,9 +1233,23 @@ function Header({ onNavigate }) {
     <>
       <header className="site-header">
         <div className="utility-bar">
-          <a className="contact-link" href="/contact" onClick={(event) => onNavigate("/contact", event)}>
-            Contact us
-          </a>
+          <div className="utility-actions">
+            <a className="contact-link" href="/contact" onClick={(event) => onNavigate("/contact", event)}>
+              Contact us
+            </a>
+            {business.instagramEnabled && (
+              <a
+                className="social-link"
+                href={business.instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Follow Lucky Interiors on Instagram"
+                title="Instagram"
+              >
+                <Instagram aria-hidden="true" size={16} strokeWidth={2.2} />
+              </a>
+            )}
+          </div>
         </div>
 
         <div className="logo-row">
@@ -1020,7 +1260,21 @@ function Header({ onNavigate }) {
             aria-label={`${business.name} home`}
             onClick={(event) => onNavigate("/", event)}
           >
-            <img className="logo-image" src={business.logo} alt={business.name} />
+            <picture>
+              <source
+                type="image/webp"
+                srcSet={business.logoSrcSet}
+                sizes="(max-width: 760px) 70vw, 320px"
+              />
+              <img
+                className="logo-image"
+                src={business.logo}
+                alt={business.name}
+                width="1672"
+                height="941"
+                decoding="async"
+              />
+            </picture>
           </a>
           <div className="logo-row-spacer" aria-hidden="true" />
         </div>
@@ -1059,13 +1313,27 @@ function PromoBanner() {
   return (
     <section className="promo-section" id="home">
       <div className="promo-banner">
-        <img src={promoBanner.image} alt="Living room furniture set" />
+        <img
+          src={promoBanner.image}
+          alt="Living room furniture set"
+          decoding="async"
+          fetchPriority="high"
+        />
         <div className="promo-copy">
           <p>{promoBanner.eyebrow}</p>
           <h1>{promoBanner.title}</h1>
           <span>{promoBanner.text}</span>
         </div>
       </div>
+    </section>
+  );
+}
+
+function HomeSeoIntro() {
+  return (
+    <section className="home-seo-intro" aria-labelledby="home-seo-title">
+      <h2 id="home-seo-title">{homepageSeoContent.title}</h2>
+      <p>{homepageSeoContent.text}</p>
     </section>
   );
 }
@@ -1086,7 +1354,12 @@ function CategoryShowcase({ onNavigate }) {
             onClick={(event) => onNavigate(collectionPath(category.slug), event)}
           >
             <span className="category-image-frame">
-              <img src={category.image} alt="" loading="lazy" />
+              <img
+                src={category.image}
+                alt={`${category.name} furniture`}
+                loading="lazy"
+                decoding="async"
+              />
             </span>
             <strong>{category.name}</strong>
           </a>
@@ -1108,7 +1381,12 @@ function ProductCard({ product, onNavigate }) {
           onClick={(event) => onNavigate(detailsPath, event)}
           aria-label={`View ${product.name}`}
         >
-          <img src={primaryProductImage(product)} alt={product.name} loading="lazy" />
+          <img
+            src={primaryProductImage(product)}
+            alt={productImageAlt(product)}
+            loading="lazy"
+            decoding="async"
+          />
         </a>
         <span className="product-badge">{product.badge}</span>
       </div>
@@ -1126,7 +1404,21 @@ function ProductCard({ product, onNavigate }) {
         </a>
         <p>{product.description}</p>
         <div className="product-actions">
-          <a className="button" href={createWhatsappLink(product.name)} target="_blank" rel="noreferrer">
+          <a
+            className="button"
+            href={createWhatsappLink(product)}
+            target="_blank"
+            rel="noreferrer"
+            onClick={() =>
+              trackWhatsappClick({
+                category: collectionForProduct(product)?.slug || product.collectionSlug,
+                cta_location: "product_card",
+                page_type: "product_card",
+                product_id: product.id,
+                product_path: productPath(product),
+              })
+            }
+          >
             <MessageCircle size={17} aria-hidden="true" />
             Enquire
           </a>
@@ -1217,10 +1509,18 @@ function HomeHelpStrip({ onNavigate }) {
     <section className="home-help-strip" aria-label="Furniture buying help">
       <div>
         <p className="eyebrow">Need help choosing?</p>
-        <h2>Send us a photo, size, or budget and we will help shortlist options.</h2>
+        <h2>Include a photo, space measurements, or budget in your enquiry.</h2>
       </div>
       <div className="home-help-actions">
-        <a className="button" href={createWhatsappLink()} target="_blank" rel="noreferrer">
+        <a
+          className="button"
+          href={createWhatsappLink()}
+          target="_blank"
+          rel="noreferrer"
+          onClick={() =>
+            trackWhatsappClick({ cta_location: "home_help", page_type: "homepage" })
+          }
+        >
           <MessageCircle size={18} aria-hidden="true" />
           WhatsApp us
         </a>
@@ -1232,6 +1532,52 @@ function HomeHelpStrip({ onNavigate }) {
           <Mail size={18} aria-hidden="true" />
           Contact page
         </a>
+      </div>
+    </section>
+  );
+}
+
+function relatedCollectionsFor(collection) {
+  const preferred = (collection.relatedSlugs || [])
+    .map((slug) => shopCategories.find((category) => category.slug === slug))
+    .filter(Boolean);
+  const remaining = shopCategories.filter(
+    (category) => category.slug !== collection.slug && !preferred.some((item) => item.slug === category.slug),
+  );
+
+  return [...preferred, ...remaining].slice(0, 6);
+}
+
+function CollectionSeoGuide({ collection }) {
+  if (!collection.seoContent) {
+    return null;
+  }
+
+  return (
+    <section className="collection-guide" aria-labelledby={`${collection.slug}-buying-guide`}>
+      <div className="collection-guide-intro">
+        <p className="eyebrow">Buying guide</p>
+        <h2 id={`${collection.slug}-buying-guide`}>{collection.seoContent.buyingTitle}</h2>
+        <p>{collection.seoContent.intro}</p>
+      </div>
+
+      <ul className="collection-guide-points">
+        {collection.seoContent.buyingPoints.map((point) => (
+          <li key={point}>
+            <CheckCircle2 size={18} aria-hidden="true" />
+            <span>{point}</span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="collection-faqs">
+        <h2>Frequently asked questions</h2>
+        {collection.seoContent.faqs.map((faq) => (
+          <details key={faq.question}>
+            <summary>{faq.question}</summary>
+            <p>{faq.answer}</p>
+          </details>
+        ))}
       </div>
     </section>
   );
@@ -1280,12 +1626,29 @@ function CollectionPage({ collection, onNavigate }) {
         </nav>
 
         <div className="collection-hero-panel">
-          <img src={collection.image} alt="" />
+          <img
+            src={collection.image}
+            alt={`${collection.name} furniture collection`}
+            decoding="async"
+            fetchPriority="high"
+          />
           <div>
             <p className="eyebrow">Collection</p>
-            <h1>{collection.name}</h1>
+            <h1>{collection.heading || collection.name}</h1>
             <p>{collection.description}</p>
-            <a className="button" href={createWhatsappLink(collection.name)} target="_blank" rel="noreferrer">
+            <a
+              className="button"
+              href={createWhatsappLink(collection.name)}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() =>
+                trackWhatsappClick({
+                  category: collection.slug,
+                  cta_location: "collection_hero",
+                  page_type: "category",
+                })
+              }
+            >
               <MessageCircle size={18} aria-hidden="true" />
               Ask about {collection.name}
             </a>
@@ -1299,10 +1662,7 @@ function CollectionPage({ collection, onNavigate }) {
             <p className="eyebrow">Available options</p>
             <h2>{collectionResultLabel(sortedProducts.length, collection)}</h2>
           </div>
-          <p>
-            These are starter products mapped to the closest furniture group. As you add real
-            products, each collection can become more specific.
-          </p>
+          <p>Use the available filters to compare products, then open a product page for its current details.</p>
         </div>
 
         {collectionProducts.length > 0 ? (
@@ -1438,15 +1798,14 @@ function CollectionPage({ collection, onNavigate }) {
         )}
       </section>
 
+      <CollectionSeoGuide collection={collection} />
+
       <section className="section related-collections">
         <div className="compact-heading">
           <h2>More Categories</h2>
         </div>
         <div className="related-grid">
-          {shopCategories
-            .filter((category) => category.slug !== collection.slug)
-            .slice(0, 6)
-            .map((category) => (
+          {relatedCollectionsFor(collection).map((category) => (
               <a
                 className="related-link"
                 href={collectionPath(category.slug)}
@@ -1520,7 +1879,7 @@ function SearchPage({ query, onNavigate }) {
                     key={collection.slug}
                     onClick={(event) => onNavigate(collectionPath(collection.slug), event)}
                   >
-                    <img src={collection.image} alt="" />
+                    <img src={collection.image} alt={`${collection.name} furniture collection`} />
                     <span>
                       <strong>{collection.name}</strong>
                       <small>{collection.description}</small>
@@ -1558,7 +1917,7 @@ function SearchPage({ query, onNavigate }) {
                       key={collection.slug}
                       onClick={(event) => onNavigate(collectionPath(collection.slug), event)}
                     >
-                      <img src={collection.image} alt="" />
+                      <img src={collection.image} alt={`${collection.name} furniture collection`} />
                       <span>
                         <strong>{collection.name}</strong>
                         <small>{collection.description}</small>
@@ -1613,6 +1972,26 @@ function SearchPage({ query, onNavigate }) {
   );
 }
 
+function planningGuidesForProduct(product) {
+  const measurementGuide = findGuide("measure-for-furniture-delivery");
+  const categoryGuides = guides.filter((guide) =>
+    guide.relatedCollections.includes(product.collectionSlug),
+  );
+
+  return [measurementGuide, ...categoryGuides]
+    .filter(Boolean)
+    .filter((guide, index, allGuides) => allGuides.findIndex((item) => item.slug === guide.slug) === index);
+}
+
+function planningCollectionsForProduct(collection) {
+  if (!collection) return [];
+
+  return [collection, ...(collection.relatedSlugs || []).map(findCollection)]
+    .filter(Boolean)
+    .filter((item, index, allItems) => allItems.findIndex((candidate) => candidate.slug === item.slug) === index)
+    .slice(0, 4);
+}
+
 function ProductDetailPage({ product, onNavigate }) {
   const images = productImages(product);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -1637,6 +2016,20 @@ function ProductDetailPage({ product, onNavigate }) {
         (item.collectionSlug === product.collectionSlug || item.category === product.category),
     )
     .slice(0, 4);
+  const planningGuides = planningGuidesForProduct(product);
+  const planningCollections = planningCollectionsForProduct(collection);
+  const dimensionsGuidance = product.detailsVerified
+    ? product.dimensions
+      ? `Compare the listed dimensions (${product.dimensions}) with the room and access route.`
+      : MISSING_DIMENSIONS_MESSAGE
+    : product.dimensions
+      ? `Confirm the listed dimensions (${product.dimensions}) for the exact item, then compare them with the room and access route.`
+      : MISSING_DIMENSIONS_MESSAGE;
+  const materialGuidance = product.material
+    ? product.detailsVerified
+      ? `Review the listed material and finish (${product.material}) for the intended use and care routine.`
+      : `Confirm the listed material and finish (${product.material}) for the exact item before making a decision.`
+    : "Material and finish details are not currently published for this product. Please contact us to confirm them before ordering.";
 
   useEffect(() => {
     setActiveImageIndex(0);
@@ -1672,7 +2065,13 @@ function ProductDetailPage({ product, onNavigate }) {
         <div className="product-detail-layout">
           <div className="product-detail-media">
             <div className="product-gallery-main">
-              <img src={activeImage} alt={product.name} />
+              <img
+                src={activeImage}
+                alt={productImageAlt(product, activeImageIndex)}
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+              />
 
               {hasMultipleImages && (
                 <>
@@ -1709,7 +2108,12 @@ function ProductDetailPage({ product, onNavigate }) {
                     onClick={() => setActiveImageIndex(index)}
                     aria-label={`Show product image ${index + 1}`}
                   >
-                    <img src={image} alt="" />
+                    <img
+                      src={image}
+                      alt={productImageAlt(product, index)}
+                      loading="lazy"
+                      decoding="async"
+                    />
                   </button>
                 ))}
               </div>
@@ -1724,13 +2128,39 @@ function ProductDetailPage({ product, onNavigate }) {
             <div className="product-detail-price">{displayPrice(product)}</div>
 
             <div className="product-detail-actions">
-              <a className="button" href={createWhatsappLink(product.name)} target="_blank" rel="noreferrer">
+              <a
+                className="button"
+                href={createWhatsappLink(product)}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() =>
+                  trackWhatsappClick({
+                    category: collection?.slug || product.collectionSlug,
+                    cta_location: "product_detail",
+                    page_type: "product",
+                    product_id: product.id,
+                    product_path: productPath(product),
+                  })
+                }
+              >
                 <MessageCircle size={18} aria-hidden="true" />
                 Ask on WhatsApp
               </a>
-              <a className="button button-secondary" href={`tel:${business.callNumber}`}>
+              <a
+                className="button button-secondary"
+                href={`tel:${business.callNumber}`}
+                onClick={() =>
+                  trackPhoneClick({
+                    category: collection?.slug || product.collectionSlug,
+                    cta_location: "product_detail",
+                    page_type: "product",
+                    product_id: product.id,
+                    product_path: productPath(product),
+                  })
+                }
+              >
                 <Phone size={18} aria-hidden="true" />
-                Call store
+                Call us
               </a>
             </div>
 
@@ -1753,8 +2183,8 @@ function ProductDetailPage({ product, onNavigate }) {
             <h2>Details and specifications</h2>
           </div>
           <p>
-            Confirm exact finish, size, and availability with the store before ordering. Product
-            information can vary by stock and customization.
+            Confirm exact finish, size, and availability with us before ordering. Product
+            information can vary by the exact variant and latest catalog details.
           </p>
         </div>
 
@@ -1783,9 +2213,56 @@ function ProductDetailPage({ product, onNavigate }) {
                 ))}
               </ul>
             ) : (
-              <p>{product.material}</p>
+              <p>{product.material || "Material and finish details are not currently published for this product. Please contact us to confirm them before ordering."}</p>
             )}
           </article>
+        </div>
+      </section>
+
+      <section className="section product-planning-section" aria-labelledby="product-planning-title">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Plan before ordering</p>
+            <h2 id="product-planning-title">Room fit, finish, and delivery access</h2>
+          </div>
+          <p>Use these checks when enquiring so the exact product and access requirements can be reviewed.</p>
+        </div>
+
+        <div className="product-planning-grid">
+          <article className="detail-panel">
+            <h3>Dimensions and room fit</h3>
+            <p>{dimensionsGuidance}</p>
+          </article>
+          <article className="detail-panel">
+            <h3>Material and finish</h3>
+            <p>{materialGuidance}</p>
+          </article>
+          <article className="detail-panel">
+            <h3>Delivery access</h3>
+            <p>
+              Measure the building entrance, home entrance, doors, corridors, stairs, and lift.
+              Share the narrowest measurements and photos of tight turns with the enquiry.
+            </p>
+          </article>
+        </div>
+
+        <div className="product-resource-links">
+          <div>
+            <strong>Planning guides</strong>
+            {planningGuides.map((guide) => (
+              <a href={guidePath(guide)} key={guide.slug} onClick={(event) => onNavigate(guidePath(guide), event)}>
+                {guide.shortTitle}
+              </a>
+            ))}
+          </div>
+          <div>
+            <strong>Related collections</strong>
+            {planningCollections.map((item) => (
+              <a href={collectionPath(item.slug)} key={item.slug} onClick={(event) => onNavigate(collectionPath(item.slug), event)}>
+                {item.name}
+              </a>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -1807,6 +2284,109 @@ function ProductDetailPage({ product, onNavigate }) {
   );
 }
 
+function ContentSections({ sections }) {
+  return sections.map((section) => (
+    <section className="content-section" key={section.heading}>
+      <h2>{section.heading}</h2>
+      {section.paragraphs?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+      {section.bullets?.length ? (
+        <ul>
+          {section.bullets.map((bullet) => (
+            <li key={bullet}>
+              <CheckCircle2 aria-hidden="true" size={18} />
+              <span>{bullet}</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </section>
+  ));
+}
+
+function GuidePage({ guide, onNavigate }) {
+  const relatedCollections = guide.relatedCollections
+    .map((slug) => findCollection(slug))
+    .filter(Boolean);
+
+  return (
+    <main className="content-page">
+      <article className="content-shell">
+        <nav className="breadcrumb" aria-label="Breadcrumb">
+          <a href="/" onClick={(event) => onNavigate("/", event)}>Home</a>
+          <span aria-hidden="true">/</span>
+          <span>Guide</span>
+        </nav>
+        <header className="content-header">
+          <p className="eyebrow">Furniture planning guide</p>
+          <h1>{guide.title}</h1>
+          <p>{guide.intro}</p>
+        </header>
+
+        <div className="content-body">
+          <ContentSections sections={guide.sections} />
+        </div>
+
+        <aside className="content-related" aria-labelledby="related-collections-title">
+          <div>
+            <p className="eyebrow">Continue planning</p>
+            <h2 id="related-collections-title">Browse related furniture</h2>
+          </div>
+          <div className="content-link-row">
+            {relatedCollections.map((collection) => (
+              <a
+                href={collectionPath(collection.slug)}
+                key={collection.slug}
+                onClick={(event) => onNavigate(collectionPath(collection.slug), event)}
+              >
+                {collection.name}
+              </a>
+            ))}
+            <a href="/contact" onClick={(event) => onNavigate("/contact", event)}>Contact us</a>
+          </div>
+        </aside>
+      </article>
+    </main>
+  );
+}
+
+function InformationPage({ page, pageKey, onNavigate }) {
+  return (
+    <main className="content-page">
+      <article className="content-shell">
+        <nav className="breadcrumb" aria-label="Breadcrumb">
+          <a href="/" onClick={(event) => onNavigate("/", event)}>Home</a>
+          <span aria-hidden="true">/</span>
+          <span>{page.title}</span>
+        </nav>
+        <header className="content-header">
+          <p className="eyebrow">{page.eyebrow}</p>
+          <h1>{page.title}</h1>
+          <p>{page.intro}</p>
+        </header>
+
+        <div className="content-body">
+          <ContentSections sections={page.sections} />
+        </div>
+
+        <aside className="content-related" aria-labelledby={`${pageKey}-next-title`}>
+          <div>
+            <p className="eyebrow">Useful links</p>
+            <h2 id={`${pageKey}-next-title`}>Continue on the website</h2>
+          </div>
+          <div className="content-link-row">
+            <a href="/contact" onClick={(event) => onNavigate("/contact", event)}>Contact us</a>
+            {guides.map((guide) => (
+              <a href={guidePath(guide)} key={guide.slug} onClick={(event) => onNavigate(guidePath(guide), event)}>
+                {guide.shortTitle}
+              </a>
+            ))}
+          </div>
+        </aside>
+      </article>
+    </main>
+  );
+}
+
 function NotFoundPage({ onNavigate }) {
   return (
     <main>
@@ -1823,6 +2403,12 @@ function NotFoundPage({ onNavigate }) {
 }
 
 function ProductModal({ product, onClose }) {
+  const modalDetails = [
+    ["Price", displayPrice(product)],
+    ["Dimensions", product.dimensions],
+    ["Material", product.material],
+  ].filter(([, value]) => value);
+
   return (
     <div className="modal-backdrop" role="presentation" onClick={onClose}>
       <section
@@ -1835,24 +2421,23 @@ function ProductModal({ product, onClose }) {
         <button className="modal-close" type="button" onClick={onClose} aria-label="Close details">
           <X size={20} aria-hidden="true" />
         </button>
-        <img src={primaryProductImage(product)} alt={product.name} />
+        <img
+          src={primaryProductImage(product)}
+          alt={productImageAlt(product)}
+          loading="lazy"
+          decoding="async"
+        />
         <div className="modal-content">
           <p className="eyebrow">{product.category}</p>
           <h2 id="product-modal-title">{product.name}</h2>
           <p>{product.description}</p>
           <dl className="detail-list">
-            <div>
-              <dt>Price</dt>
-              <dd>{displayPrice(product)}</dd>
-            </div>
-            <div>
-              <dt>Dimensions</dt>
-              <dd>{product.dimensions}</dd>
-            </div>
-            <div>
-              <dt>Material</dt>
-              <dd>{product.material}</dd>
-            </div>
+            {modalDetails.map(([label, value]) => (
+              <div key={label}>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
           </dl>
           <ul className="feature-points">
             {product.details.map((detail) => (
@@ -1863,13 +2448,39 @@ function ProductModal({ product, onClose }) {
             ))}
           </ul>
           <div className="modal-actions">
-            <a className="button" href={createWhatsappLink(product.name)} target="_blank" rel="noreferrer">
+            <a
+              className="button"
+              href={createWhatsappLink(product)}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() =>
+                trackWhatsappClick({
+                  category: product.collectionSlug,
+                  cta_location: "product_modal",
+                  page_type: "product_modal",
+                  product_id: product.id,
+                  product_path: productPath(product),
+                })
+              }
+            >
               <MessageCircle size={18} aria-hidden="true" />
               Ask on WhatsApp
             </a>
-            <a className="button button-secondary" href={`tel:${business.callNumber}`}>
+            <a
+              className="button button-secondary"
+              href={`tel:${business.callNumber}`}
+              onClick={() =>
+                trackPhoneClick({
+                  category: product.collectionSlug,
+                  cta_location: "product_modal",
+                  page_type: "product_modal",
+                  product_id: product.id,
+                  product_path: productPath(product),
+                })
+              }
+            >
               <Phone size={18} aria-hidden="true" />
-              Call store
+              Call us
             </a>
           </div>
         </div>
@@ -1882,26 +2493,26 @@ function ServiceBand() {
   const items = [
     {
       icon: Truck,
-      title: "Delivery support",
-      text: "Ask about delivery and installation options for your area in Mumbai.",
+      title: "Delivery questions",
+      text: "Share your Mumbai locality and building access details, then confirm what is available for the product.",
     },
     {
       icon: ShieldCheck,
-      title: "Practical selection",
-      text: "Get guidance on size, fabric, storage, and finish before you visit.",
+      title: "Product checks",
+      text: "Confirm exact dimensions, material, finish, and available options for the item shown.",
     },
     {
       icon: MessageCircle,
-      title: "WhatsApp ordering",
-      text: "Every product enquiry opens with the product name already filled in.",
+      title: "Linked enquiries",
+      text: "Product enquiries include the product name and page link for clear reference.",
     },
   ];
 
   return (
     <section className="service-band" id="why-us">
       <div className="service-heading">
-        <p className="eyebrow">Store experience</p>
-        <h2>Designed for customers who want to browse first and confirm personally.</h2>
+        <p className="eyebrow">Before you enquire</p>
+        <h2>Browse first, then confirm the details that affect your decision.</h2>
       </div>
       <div className="service-grid">
         {items.map((item) => {
@@ -1924,11 +2535,11 @@ function VisitSection() {
   return (
     <section className="section visit-section" id="visit">
       <div className="visit-copy">
-        <p className="eyebrow">Visit the store</p>
-        <h2>See materials, sizes, and finishes in person.</h2>
+        <p className="eyebrow">Location and directions</p>
+        <h2>Contact us before planning a visit.</h2>
         <p>
-          Send a product enquiry first, or visit the shop to compare furniture options and discuss
-          delivery details.
+          Share the product you are considering and confirm current opening hours, visit
+          arrangements, and available product details before travelling.
         </p>
       </div>
 
@@ -1936,19 +2547,36 @@ function VisitSection() {
         <h3>{business.name}</h3>
         <p>
           <MapPin size={18} aria-hidden="true" />
-          <span>{business.address}</span>
+          <span>{business.locationLabel}</span>
         </p>
         <p>
           <Phone size={18} aria-hidden="true" />
-          <a href={`tel:${business.callNumber}`}>{business.phoneDisplay}</a>
+          <a
+            href={`tel:${business.callNumber}`}
+            onClick={() => trackPhoneClick({ cta_location: "visit_section", page_type: "shared" })}
+          >
+            {business.phoneDisplay}
+          </a>
         </p>
         <p>{business.hours}</p>
         <div className="contact-actions">
-          <a className="button" href={createWhatsappLink()} target="_blank" rel="noreferrer">
+          <a
+            className="button"
+            href={createWhatsappLink()}
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => trackWhatsappClick({ cta_location: "visit_section", page_type: "shared" })}
+          >
             <MessageCircle size={18} aria-hidden="true" />
             WhatsApp now
           </a>
-          <a className="button button-secondary" href={business.mapsUrl} target="_blank" rel="noreferrer">
+          <a
+            className="button button-secondary"
+            href={business.mapsUrl}
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => trackEvent("map_click", { cta_location: "visit_section", page_type: "shared" })}
+          >
             <MapPin size={18} aria-hidden="true" />
             Open map
           </a>
@@ -1981,33 +2609,49 @@ function ContactPage({ onNavigate }) {
             <p className="eyebrow">Contact Lucky Interiors</p>
             <h1>Tell us what you are looking for.</h1>
             <p>
-              For product availability, custom sizes, sales quotes, delivery details, or store
-              visits, reach us by email, WhatsApp, or phone. Share a product link or photo so we can
+              For product details, current prices, size options, availability, or location
+              questions, reach us by email, WhatsApp, or phone. Share a product link or photo so we can
               respond with the most useful details.
             </p>
             <div className="contact-hero-actions">
-              <a className="button" href={createWhatsappLink()} target="_blank" rel="noreferrer">
+              <a
+                className="button"
+                href={createWhatsappLink()}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => trackWhatsappClick({ cta_location: "contact_hero", page_type: "contact" })}
+              >
                 <MessageCircle size={18} aria-hidden="true" />
                 WhatsApp for quote
               </a>
-              <a className="button button-secondary" href={`tel:${business.callNumber}`}>
+              <a
+                className="button button-secondary"
+                href={`tel:${business.callNumber}`}
+                onClick={() => trackPhoneClick({ cta_location: "contact_hero", page_type: "contact" })}
+              >
                 <Phone size={18} aria-hidden="true" />
-                Call store
+                Call us
               </a>
             </div>
           </div>
 
           <aside className="contact-summary" aria-label="Contact summary">
-            <h2>Store contact</h2>
+            <h2>Contact details</h2>
             <div className="contact-summary-list">
-              <a href={createEmailLink("Furniture enquiry")}>
+              <a
+                href={createEmailLink("Furniture enquiry")}
+                onClick={() => trackEvent("email_click", { cta_location: "contact_summary", page_type: "contact" })}
+              >
                 <Mail size={18} aria-hidden="true" />
                 <span>
                   <strong>Email</strong>
                   {business.email}
                 </span>
               </a>
-              <a href={`tel:${business.callNumber}`}>
+              <a
+                href={`tel:${business.callNumber}`}
+                onClick={() => trackPhoneClick({ cta_location: "contact_summary", page_type: "contact" })}
+              >
                 <Phone size={18} aria-hidden="true" />
                 <span>
                   <strong>Phone</strong>
@@ -2034,7 +2678,12 @@ function ContactPage({ onNavigate }) {
             Use email for general questions, product shortlists, quote requests, and follow-up
             details.
           </p>
-          <a href={createEmailLink("Furniture enquiry")}>{business.email}</a>
+          <a
+            href={createEmailLink("Furniture enquiry")}
+            onClick={() => trackEvent("email_click", { cta_location: "contact_email", page_type: "contact" })}
+          >
+            {business.email}
+          </a>
         </article>
 
         <article className="contact-method-card">
@@ -2044,19 +2693,29 @@ function ContactPage({ onNavigate }) {
             For faster pricing and availability, send the product name, photo, size requirement, and
             delivery location on WhatsApp.
           </p>
-          <a href={createWhatsappLink()} target="_blank" rel="noreferrer">
+          <a
+            href={createWhatsappLink()}
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => trackWhatsappClick({ cta_location: "contact_sales", page_type: "contact" })}
+          >
             Message on WhatsApp
           </a>
         </article>
 
         <article className="contact-method-card">
           <Phone size={24} aria-hidden="true" />
-          <h2>Call the store</h2>
+          <h2>Call us</h2>
           <p>
-            Call during store hours for urgent questions, visit planning, order discussion, and
-            delivery coordination.
+            Call to confirm opening hours or discuss a product, a planned visit, an order, or
+            available delivery information.
           </p>
-          <a href={`tel:${business.callNumber}`}>{business.phoneDisplay}</a>
+          <a
+            href={`tel:${business.callNumber}`}
+            onClick={() => trackPhoneClick({ cta_location: "contact_call", page_type: "contact" })}
+          >
+            {business.phoneDisplay}
+          </a>
         </article>
       </section>
 
@@ -2075,7 +2734,7 @@ function ContactPage({ onNavigate }) {
         </div>
 
         <div className="contact-location-panel">
-          <h2>Visit the store</h2>
+          <h2>Location map</h2>
           <div className="contact-map-frame">
             <iframe
               title={`${business.name} location map`}
@@ -2087,13 +2746,19 @@ function ContactPage({ onNavigate }) {
           </div>
           <p>
             <MapPin size={18} aria-hidden="true" />
-            <span>{business.address}</span>
+            <span>{business.locationLabel}</span>
           </p>
           <p>
             <Clock size={18} aria-hidden="true" />
             <span>{business.hours}</span>
           </p>
-          <a className="button button-secondary" href={business.mapsUrl} target="_blank" rel="noreferrer">
+          <a
+            className="button button-secondary"
+            href={business.mapsUrl}
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => trackEvent("map_click", { cta_location: "contact_map", page_type: "contact" })}
+          >
             <MapPin size={18} aria-hidden="true" />
             Open map
           </a>
@@ -2103,11 +2768,89 @@ function ContactPage({ onNavigate }) {
   );
 }
 
-export default function App() {
-  const [pathname, setPathname] = useState(currentPath);
+function Footer({ onNavigate }) {
+  const footerCategories = ["sofas", "beds", "dining-sets", "wardrobes", "centre-tables", "cabinets-sideboards"]
+    .map((slug) => shopCategories.find((category) => category.slug === slug))
+    .filter(Boolean);
+
+  return (
+    <footer className="site-footer">
+      <div className="footer-main">
+        <div className="footer-brand">
+          <strong>{business.name}</strong>
+          <p>Browse furniture online and contact us to confirm the latest product details.</p>
+        </div>
+
+        <nav className="footer-links" aria-label="Footer product categories">
+          <strong>Browse</strong>
+          {footerCategories.map((category) => (
+            <a
+              href={collectionPath(category.slug)}
+              key={category.slug}
+              onClick={(event) => onNavigate(collectionPath(category.slug), event)}
+            >
+              {category.name}
+            </a>
+          ))}
+        </nav>
+
+        <nav className="footer-links" aria-label="Furniture guides and website information">
+          <strong>Resources</strong>
+          <a href="/about" onClick={(event) => onNavigate("/about", event)}>About</a>
+          {guides.map((guide) => (
+            <a href={guidePath(guide)} key={guide.slug} onClick={(event) => onNavigate(guidePath(guide), event)}>
+              {guide.shortTitle}
+            </a>
+          ))}
+          <a href="/privacy" onClick={(event) => onNavigate("/privacy", event)}>Privacy</a>
+          <a href="/terms" onClick={(event) => onNavigate("/terms", event)}>Terms</a>
+        </nav>
+
+        <div className="footer-links">
+          <strong>Contact</strong>
+          <a href="/contact" onClick={(event) => onNavigate("/contact", event)}>
+            Contact us
+          </a>
+          <a
+            href={`mailto:${business.email}`}
+            onClick={() => trackEvent("email_click", { cta_location: "footer", page_type: "shared" })}
+          >
+            {business.email}
+          </a>
+          <a
+            href={`tel:${business.callNumber}`}
+            onClick={() => trackPhoneClick({ cta_location: "footer", page_type: "shared" })}
+          >
+            {business.phoneDisplay}
+          </a>
+        </div>
+      </div>
+
+      <div className="footer-bottom">
+        <p>
+          &copy; {new Date().getFullYear()} {business.name}. All rights reserved.
+        </p>
+        <a href="#home">Back to top</a>
+      </div>
+    </footer>
+  );
+}
+
+export default function App({ initialPath = "" }) {
+  const [pathname, setPathname] = useState(() => initialPath || currentPath());
   const route = parseRoute(pathname);
   const collection = route.type === "collection" ? findCollection(route.slug) : null;
   const product = route.type === "product" ? findProduct(route.slug) : null;
+  const guide = route.type === "guide" ? findGuide(route.slug) : null;
+  const informationPage = route.type === "information" ? informationPages[route.slug] : null;
+
+  useEffect(() => {
+    const browserPath = currentPath();
+
+    if (browserPath !== pathname) {
+      setPathname(browserPath);
+    }
+  }, []);
 
   useEffect(() => {
     function handlePopState() {
@@ -2119,8 +2862,15 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    applySeo(buildSeoData(route, collection, product));
-  }, [collection, product, route.type, route.query, route.slug]);
+    applySeo(buildSeoData(route, collection, product, pathname));
+  }, [collection, pathname, product, route.type, route.query, route.slug]);
+
+  useEffect(() => {
+    trackEvent("page_view", {
+      page_path: new URL(pathname, site.origin).pathname,
+      page_type: route.type,
+    });
+  }, [pathname, route.type]);
 
   function handleNavigate(href, event) {
     if (
@@ -2163,16 +2913,23 @@ export default function App() {
     pageContent = <SearchPage query={route.query} onNavigate={handleNavigate} />;
   } else if (route.type === "contact") {
     pageContent = <ContactPage onNavigate={handleNavigate} />;
+  } else if (route.type === "guide" && guide) {
+    pageContent = <GuidePage guide={guide} onNavigate={handleNavigate} />;
+  } else if (route.type === "information" && informationPage) {
+    pageContent = <InformationPage page={informationPage} pageKey={route.slug} onNavigate={handleNavigate} />;
   } else if (
     route.type === "not-found" ||
     (route.type === "collection" && !collection) ||
-    (route.type === "product" && !product)
+    (route.type === "product" && !product) ||
+    (route.type === "guide" && !guide) ||
+    (route.type === "information" && !informationPage)
   ) {
     pageContent = <NotFoundPage onNavigate={handleNavigate} />;
   } else {
     pageContent = (
       <main>
         <PromoBanner />
+        <HomeSeoIntro />
         <CategoryShowcase onNavigate={handleNavigate} />
         <FeaturedProducts onNavigate={handleNavigate} />
         <ServiceBand />
@@ -2192,15 +2949,11 @@ export default function App() {
         target="_blank"
         rel="noreferrer"
         aria-label="Chat on WhatsApp"
+        onClick={() => trackWhatsappClick({ cta_location: "floating_button", page_type: route.type })}
       >
         <WhatsAppIcon />
       </a>
-      <footer className="site-footer">
-        <p>
-          &copy; {new Date().getFullYear()} {business.name}. All rights reserved.
-        </p>
-        <a href="#home">Back to top</a>
-      </footer>
+      <Footer onNavigate={handleNavigate} />
     </>
   );
 }

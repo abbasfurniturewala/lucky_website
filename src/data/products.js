@@ -1,4 +1,10 @@
 import { importedProducts } from "./importedProducts.js";
+import {
+  IMAGE_RIGHTS_STATUS,
+  isImageRightsConfirmed,
+  normalizeImageRightsStatus,
+} from "./image-rights-policy.js";
+import { legacyCatalogProductIds } from "./legacy-catalog-product-ids.js";
 
 /*
   How to add a product:
@@ -6,7 +12,7 @@ import { importedProducts } from "./importedProducts.js";
   1. Put the product photo inside the public folder, for example:
      public/products/sofas/new-sofa.jpg
 
-  2. Copy PRODUCT_TEMPLATE below, paste it inside the products array,
+  2. Copy PRODUCT_TEMPLATE below, paste it inside the newProducts array,
      and replace the example values.
 
   3. Keep id and slug unique. Use lowercase letters, numbers, and hyphens.
@@ -31,24 +37,124 @@ export const PRODUCT_TEMPLATE = {
   category: "Living Room",
   collectionSlug: "sofas",
   badge: "New arrival",
-  price: 0,
-  priceLabel: "Rs. 0",
-  availability: "In stock",
+  price: null,
+  priceLabel: "Price on request",
+  availability: "",
   seating: 2,
   colors: ["Brown"],
   style: "Modern",
-  description: "Short customer-friendly description shown on the product card.",
+  description:
+    "Write a unique customer-friendly description of at least 80 characters that explains the visible product without unsupported claims.",
   details: ["Highlight one", "Highlight two", "Highlight three"],
-  dimensions: "H 00 x W 00 x D 00 inches",
-  material: "Main material or finish",
-  materialDetails: ["Frame material: Example", "Upholstery: Example"],
+  dimensions: "",
+  material: "",
+  materialDetails: [],
   tags: ["sofa", "2 seater", "brown", "living room"],
   image: "/products/sofas/example-product-slug.jpg",
   images: ["/products/sofas/example-product-slug.jpg"],
+  imageAlts: ["Describe the visible product, color, form, and camera view"],
+  imageRightsStatus: IMAGE_RIGHTS_STATUS.pending,
+  imageRightsSource: "",
   active: true,
+  seoStatus: "review",
+  offerVerified: false,
+  availabilityVerified: false,
+  detailsVerified: false,
+  imageRightsConfirmed: false,
+  updatedAt: "",
 };
 
-export const products = [
+const unverifiedClaimPattern =
+  /pepperfry|woodsworth|better home india|product rating|\brating\b|\bwarranty\b|customi[sz]|custom size|made to order|delivery support|free delivery|installation|\bimported\b|made in india|local manufacturing|hydraulic lift|synchropush/i;
+
+const unpublishedOptionalValuePattern =
+  /ask for|confirm(?: the| exact| current)?|not provided|model-dependent|refer to image|customi[sz]|custom siz|available on request|sizes vary|standard .* sizing|fits standard|\bimported\b/i;
+
+function publishedOptionalValue(value) {
+  const normalized = String(value || "").trim();
+  return normalized && !unpublishedOptionalValuePattern.test(normalized) ? normalized : "";
+}
+
+function applyImageRightsPolicy(product) {
+  const isLegacyImageProduct = legacyCatalogProductIds.has(product.id);
+  const fallback = isLegacyImageProduct
+    ? IMAGE_RIGHTS_STATUS.legacyUnverified
+    : IMAGE_RIGHTS_STATUS.pending;
+  const imageRightsStatus = product.imageRightsConfirmed === true
+    ? IMAGE_RIGHTS_STATUS.confirmed
+    : normalizeImageRightsStatus(product.imageRightsStatus, fallback);
+
+  return {
+    ...product,
+    isLegacyImageProduct,
+    imageRightsStatus,
+    imageRightsConfirmed: isImageRightsConfirmed(imageRightsStatus),
+  };
+}
+
+function safeProductName(product) {
+  return String(product.name || "")
+    .replace(/\b(?:customizable|customized|imported)\b/gi, "")
+    .replace(/\s*\(made in india\)/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .replace(/\s+-\s+-\s+/g, " - ")
+    .trim();
+}
+
+function safeProductDescription(product, name) {
+  if (!unverifiedClaimPattern.test(String(product.description || ""))) {
+    return product.description;
+  }
+
+  const seating = product.seating ? `${product.seating}-seat ` : "";
+  const productType = String(product.category || "furniture").toLowerCase();
+
+  return `${name} is shown as a ${seating}${productType} option in the catalog. Confirm current dimensions, material, finish, price, availability, and delivery details before ordering.`;
+}
+
+function sanitizeProduct(product) {
+  const detailsVerified = product.detailsVerified === true;
+  const name = safeProductName(product);
+  const safeDetails = (product.details || []).filter(
+    (detail) =>
+      !unverifiedClaimPattern.test(String(detail)) &&
+      !unpublishedOptionalValuePattern.test(String(detail)),
+  );
+  const safeMaterialDetails = (product.materialDetails || []).filter(
+    (detail) =>
+      !unverifiedClaimPattern.test(String(detail)) &&
+      !unpublishedOptionalValuePattern.test(String(detail)),
+  );
+
+  return {
+    ...product,
+    name,
+    badge:
+      detailsVerified || !unverifiedClaimPattern.test(String(product.badge || ""))
+        ? product.badge
+        : "Catalog option",
+    description: safeProductDescription(product, name),
+    details: safeDetails.filter((detail) => !/^Availability\s*:/i.test(detail)),
+    materialDetails: safeMaterialDetails,
+    dimensions: publishedOptionalValue(product.dimensions),
+    material: publishedOptionalValue(product.material),
+    seoStatus: product.seoStatus || "review",
+    offerVerified: product.offerVerified === true,
+    availabilityVerified: product.availabilityVerified === true,
+    detailsVerified,
+    imageRightsStatus: product.imageRightsStatus,
+    imageRightsConfirmed: isImageRightsConfirmed(product.imageRightsStatus),
+    imageRightsSource: product.imageRightsSource || "",
+    imageAlts: Array.isArray(product.imageAlts) ? product.imageAlts : [],
+    updatedAt: product.updatedAt || "",
+    availability:
+      product.availabilityVerified === true
+        ? publishedOptionalValue(product.availability)
+        : "",
+  };
+}
+
+const existingCatalogProducts = [
   {
     id: "brown-2-seater-sofa",
     slug: "brown-2-seater-sofa",
@@ -83,15 +189,11 @@ export const products = [
     seating: 2,
     colors: ["Dark Brown", "Brown"],
     style: "Classic",
-    description:
-      "A premium dark brown leatherette 2-seater sofa with carpenter assembly and sturdy construction.",
+    description: "A dark brown leatherette 2-seater sofa with cushioned seating and a compact footprint.",
     details: [
-      "Brand: Woodsworth from Pepperfry",
-      "Collection: Bari",
-      "Carpenter assembly",
-      "36 months warranty",
-      "Product rating: 4.5",
-      "Weight: 56 kg",
+      "2-seater sofa",
+      "Dark brown leatherette upholstery",
+      "Confirm current assembly requirements before ordering",
     ],
     dimensions: "H 37 x W 60 x D 37 inches",
     material: "Premium leatherette upholstery",
@@ -156,14 +258,9 @@ export const products = [
     description:
       "A solid sheesham wood dining table set with one table and four matching chairs.",
     details: [
-      "Brand: Woodsworth from Pepperfry",
-      "Carpenter assembly",
       "Set contents: 1 table and 4 chairs",
       "Room type: Dining room",
-      "60 months warranty",
-      "Product rating: 4.5",
-      "Weight: 64 kg",
-      "SKU: FM1861104-S-PM8695",
+      "Confirm current assembly requirements before ordering",
     ],
     dimensions: "Table: H 30 x W 45 x D 35 inches; Chair: H 34 x W 17 x D 17 inches",
     material: "Sheesham wood",
@@ -293,3 +390,11 @@ export const products = [
   },
   ...importedProducts,
 ];
+
+// Add every future manually created product here using PRODUCT_TEMPLATE.
+// New products default to pending image-rights review and are not legacy-exempt.
+export const newProducts = [];
+
+export const products = [...existingCatalogProducts, ...newProducts]
+  .map(applyImageRightsPolicy)
+  .map(sanitizeProduct);

@@ -6,13 +6,17 @@ const state = {
   imageIndex: 0,
   filters: {
     search: "",
-    status: "unreviewed",
+    status: "imported",
     category: "all",
+    seoStatus: "review",
+    priorityOnly: true,
+    batchSize: "10",
   },
 };
 
 const elements = {
   approvedCount: document.querySelector("#approvedCount"),
+  batchSizeFilter: document.querySelector("#batchSizeFilter"),
   categoryDialog: document.querySelector("#categoryDialog"),
   categoryFilter: document.querySelector("#categoryFilter"),
   categoryForm: document.querySelector("#categoryForm"),
@@ -24,11 +28,16 @@ const elements = {
   newCategoryName: document.querySelector("#newCategoryName"),
   newCategorySlug: document.querySelector("#newCategorySlug"),
   productQueue: document.querySelector("#productQueue"),
+  priorityFilter: document.querySelector("#priorityFilter"),
   queueCount: document.querySelector("#queueCount"),
   rejectedCount: document.querySelector("#rejectedCount"),
   reviewPanel: document.querySelector("#reviewPanel"),
   saveState: document.querySelector("#saveState"),
   searchInput: document.querySelector("#searchInput"),
+  seoApprovedCount: document.querySelector("#seoApprovedCount"),
+  seoNoindexCount: document.querySelector("#seoNoindexCount"),
+  seoReviewCount: document.querySelector("#seoReviewCount"),
+  seoStatusFilter: document.querySelector("#seoStatusFilter"),
   statusFilter: document.querySelector("#statusFilter"),
   toast: document.querySelector("#toast"),
   totalCount: document.querySelector("#totalCount"),
@@ -41,6 +50,12 @@ const statusLabels = {
   later: "Review later",
   rejected: "Rejected",
   unreviewed: "Unreviewed",
+};
+
+const seoStatusLabels = {
+  approved: "SEO approved",
+  noindex: "SEO noindex",
+  review: "SEO review",
 };
 
 function escapeHtml(value) {
@@ -64,21 +79,39 @@ function categoryName(slug) {
   return state.categories.find((category) => category.slug === slug)?.name || slug || "Unassigned";
 }
 
-function filteredProducts() {
+function matchingProducts() {
   const search = state.filters.search.toLowerCase().trim();
-  return state.products.filter((product) => {
-    const matchesStatus =
-      state.filters.status === "all" || product.status === state.filters.status;
-    const matchesCategory =
-      state.filters.category === "all" || product.category === state.filters.category;
-    const matchesSearch =
-      !search ||
-      [product.name, product.sourceCategory, product.category]
-        .join(" ")
-        .toLowerCase()
-        .includes(search);
-    return matchesStatus && matchesCategory && matchesSearch;
-  });
+  return state.products
+    .filter((product) => {
+      const matchesStatus =
+        state.filters.status === "all" || product.status === state.filters.status;
+      const matchesCategory =
+        state.filters.category === "all" || product.category === state.filters.category;
+      const matchesSeoStatus =
+        state.filters.seoStatus === "all" || product.seoStatus === state.filters.seoStatus;
+      const matchesPriority = !state.filters.priorityOnly || product.prioritySeo;
+      const matchesSearch =
+        !search ||
+        [product.name, product.sourceCategory, product.category]
+          .join(" ")
+          .toLowerCase()
+          .includes(search);
+      return matchesStatus && matchesCategory && matchesSeoStatus && matchesPriority && matchesSearch;
+    })
+    .sort(
+      (first, second) =>
+        Number(second.prioritySeo) - Number(first.prioritySeo) ||
+        first.seoRequiredMissing.length - second.seoRequiredMissing.length ||
+        first.seoRecommendedMissing.length - second.seoRecommendedMissing.length ||
+        first.name.localeCompare(second.name),
+    );
+}
+
+function filteredProducts() {
+  const products = matchingProducts();
+  return state.filters.batchSize === "all"
+    ? products
+    : products.slice(0, Number(state.filters.batchSize));
 }
 
 function renderCounts() {
@@ -94,6 +127,16 @@ function renderCounts() {
   elements.laterCount.textContent = counts.later;
   elements.rejectedCount.textContent = counts.rejected;
   elements.importedCount.textContent = counts.imported;
+  const importedProducts = state.products.filter((product) => product.status === "imported");
+  elements.seoReviewCount.textContent = importedProducts.filter(
+    (product) => product.seoStatus === "review",
+  ).length;
+  elements.seoApprovedCount.textContent = importedProducts.filter(
+    (product) => product.seoStatus === "approved",
+  ).length;
+  elements.seoNoindexCount.textContent = importedProducts.filter(
+    (product) => product.seoStatus === "noindex",
+  ).length;
 }
 
 function renderCategoryOptions() {
@@ -108,8 +151,9 @@ function renderCategoryOptions() {
 }
 
 function renderQueue() {
+  const matchingCount = matchingProducts().length;
   const products = filteredProducts();
-  elements.queueCount.textContent = `${products.length} product${products.length === 1 ? "" : "s"}`;
+  elements.queueCount.textContent = `Showing ${products.length} of ${matchingCount} product${matchingCount === 1 ? "" : "s"}`;
   elements.productQueue.innerHTML = products.length
     ? products
         .map(
@@ -124,8 +168,17 @@ function renderQueue() {
               </span>
               <span class="queue-copy">
                 <strong>${escapeHtml(product.name)}</strong>
-                <small>${escapeHtml(categoryName(product.category))} · ${escapeHtml(currency(product.price))}</small>
-                <em class="status ${escapeHtml(product.status)}">${escapeHtml(statusLabels[product.status])}</em>
+                <small>${escapeHtml(categoryName(product.category))} &middot; ${escapeHtml(currency(product.price))}</small>
+                <span class="queue-statuses">
+                  <em class="status ${escapeHtml(product.status)}">${escapeHtml(statusLabels[product.status])}</em>
+                  <em class="seo-status ${escapeHtml(product.seoStatus)}">${escapeHtml(seoStatusLabels[product.seoStatus])}</em>
+                </span>
+                <small class="seo-missing-count">${
+                  product.seoRequiredMissing.length
+                    ? `${product.seoRequiredMissing.length} approval blocker${product.seoRequiredMissing.length === 1 ? "" : "s"}`
+                    : "SEO approval requirements complete"
+                }</small>
+                <small class="seo-recommended-count">${product.seoRecommendedMissing.length} recommended improvement${product.seoRecommendedMissing.length === 1 ? "" : "s"}</small>
               </span>
             </button>
           `,
@@ -163,7 +216,9 @@ function renderReview() {
         <h2>${escapeHtml(product.name)}</h2>
         <div class="review-meta">
           <span class="status ${escapeHtml(product.status)}">${escapeHtml(statusLabels[product.status])}</span>
-          <span>Suggested: ${escapeHtml(product.suggestedAction || "manual review")} → ${escapeHtml(categoryName(product.suggestedCategory))}</span>
+          <span class="seo-status ${escapeHtml(product.seoStatus)}">${escapeHtml(seoStatusLabels[product.seoStatus])}</span>
+          <span class="product-policy ${product.isLegacyImageProduct ? "legacy" : "new"}">${product.isLegacyImageProduct ? "Legacy product" : "New product - image evidence required"}</span>
+          <span>Suggested: ${escapeHtml(product.suggestedAction || "manual review")} &rarr; ${escapeHtml(categoryName(product.suggestedCategory))}</span>
         </div>
       </div>
       <a class="source-link" href="${escapeHtml(product.sourceUrl)}" target="_blank" rel="noreferrer">Open source page</a>
@@ -180,8 +235,8 @@ function renderReview() {
           ${
             product.images.length > 1
               ? `
-                <button class="gallery-arrow previous" id="previousImage" aria-label="Previous image" type="button">‹</button>
-                <button class="gallery-arrow next" id="nextImage" aria-label="Next image" type="button">›</button>
+                <button class="gallery-arrow previous" id="previousImage" aria-label="Previous image" type="button">&lsaquo;</button>
+                <button class="gallery-arrow next" id="nextImage" aria-label="Next image" type="button">&rsaquo;</button>
               `
               : ""
           }
@@ -214,20 +269,24 @@ function renderReview() {
           </label>
           <button class="inline-action" id="addCategoryButton" type="button">+ Add category</button>
           <label>
-            <span>Price</span>
+            <span>Price <small>Recommended</small></span>
             <input name="price" min="0" step="1" type="number" value="${escapeHtml(product.price)}" />
           </label>
           <label>
-            <span>Availability</span>
+            <span>Availability <small>Recommended</small></span>
             <input name="availability" value="${escapeHtml(product.availability)}" />
           </label>
           <label>
-            <span>Color</span>
+            <span>Color <small>Recommended</small></span>
             <input name="color" value="${escapeHtml(product.color)}" />
           </label>
           <label>
-            <span>Material</span>
+            <span>Material <small>Recommended</small></span>
             <input name="material" value="${escapeHtml(product.material)}" />
+          </label>
+          <label class="full-width">
+            <span>Dimensions <small>Recommended; use exact overall dimensions and units</small></span>
+            <input name="dimensions" value="${escapeHtml(product.dimensions)}" />
           </label>
           <label class="full-width">
             <span>Search tags <small>Separate with commas</small></span>
@@ -238,9 +297,61 @@ function renderReview() {
             <textarea name="description" rows="4">${escapeHtml(product.description)}</textarea>
           </label>
           <label class="full-width">
+            <span>Primary image description <small>Describe what is visibly shown</small></span>
+            <input name="imageAlt" value="${escapeHtml(product.imageAlt)}" placeholder="Example: Brown two-seater sofa photographed from the front" />
+          </label>
+          <label class="full-width">
+            <span>Image rights source <small>${product.isLegacyImageProduct ? "Recommended for this legacy product" : "Required for this new product"}; internal only</small></span>
+            <input name="imageRightsSource" value="${escapeHtml(product.imageRightsSource)}" placeholder="Example: Original showroom photo taken by owner" />
+          </label>
+          <label class="full-width">
             <span>Internal review notes</span>
             <textarea name="notes" rows="3">${escapeHtml(product.notes)}</textarea>
           </label>
+          <fieldset class="seo-review full-width">
+            <legend>SEO publishing review</legend>
+            <p>Catalog import and Google indexing are separate decisions. Only the required checks block approval.</p>
+            <div class="policy-note ${product.isLegacyImageProduct ? "legacy" : "new"}">
+              <strong>${product.isLegacyImageProduct ? "Legacy image policy" : "New-product image policy"}</strong>
+              <span>${
+                product.isLegacyImageProduct
+                  ? "Legacy product image - rights have not been reviewed. Replace or verify it when practical. This warning does not block SEO approval, and the status remains legacy-unverified until evidence is recorded."
+                  : "Confirmed image rights and an internal source note are required before this product can be approved for SEO."
+              }</span>
+            </div>
+            <label>
+              <span>SEO status</span>
+              <select name="seoStatus">
+                <option value="review" ${product.seoStatus === "review" ? "selected" : ""}>Review - keep out of Google</option>
+                <option value="approved" ${product.seoStatus === "approved" ? "selected" : ""}>Approved - allow indexing</option>
+                <option value="noindex" ${product.seoStatus === "noindex" ? "selected" : ""}>Noindex - do not index</option>
+              </select>
+            </label>
+            <div class="verification-checks required-checks">
+              <label><input name="detailsVerified" type="checkbox" ${product.detailsVerified ? "checked" : ""} /> Product details checked</label>
+              <label><input name="imageRightsConfirmed" type="checkbox" ${product.imageRightsConfirmed ? "checked" : ""} /> Image rights confirmed${product.isLegacyImageProduct ? " (recommended)" : " (required)"}</label>
+            </div>
+            <div class="seo-requirements ${product.seoRequiredMissing.length ? "incomplete" : "complete"}">
+              <strong>Required for SEO approval</strong>
+              ${
+                product.seoRequiredMissing.length
+                  ? `<ul>${product.seoRequiredMissing.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+                  : "<p>All required checks are complete. This product can be approved even when recommended fields below are unavailable.</p>"
+              }
+            </div>
+            <div class="verification-checks recommended-checks">
+              <label><input name="offerVerified" type="checkbox" ${product.offerVerified ? "checked" : ""} /> Current price verified</label>
+              <label><input name="availabilityVerified" type="checkbox" ${product.availabilityVerified ? "checked" : ""} /> Current availability verified</label>
+            </div>
+            <div class="seo-recommendations ${product.seoRecommendedMissing.length ? "open" : "complete"}">
+              <strong>${product.seoRecommendedMissing.length ? "Recommended product information" : "Recommended information complete"}</strong>
+              ${
+                product.seoRecommendedMissing.length
+                  ? `<ul>${product.seoRecommendedMissing.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+                  : ""
+              }
+            </div>
+          </fieldset>
         </div>
         <div class="save-row">
           <button class="button secondary" id="saveButton" type="submit">Save edits</button>
@@ -275,11 +386,13 @@ function renderReview() {
 
   document.querySelector("#productForm").addEventListener("submit", (event) => {
     event.preventDefault();
-    saveProduct(product.status, false);
+    saveProduct(product.status, false).catch((error) => showToast(error.message));
   });
   document.querySelector("#addCategoryButton").addEventListener("click", openCategoryDialog);
   document.querySelectorAll("[data-decision]").forEach((button) => {
-    button.addEventListener("click", () => saveProduct(button.dataset.decision, true));
+    button.addEventListener("click", () => {
+      saveProduct(button.dataset.decision, true).catch((error) => showToast(error.message));
+    });
   });
   document.querySelectorAll("[data-image-index]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -317,9 +430,23 @@ function editorPayload(status) {
     availability: form.get("availability"),
     color: form.get("color"),
     material: form.get("material"),
+    dimensions: form.get("dimensions"),
     tags: form.get("tags"),
     description: form.get("description"),
+    imageAlt: form.get("imageAlt"),
+    imageRightsSource: form.get("imageRightsSource"),
+    imageRightsStatus:
+      form.get("imageRightsConfirmed") === "on"
+        ? "confirmed"
+        : state.product.isLegacyImageProduct
+          ? "legacy-unverified"
+          : "pending",
     notes: form.get("notes"),
+    seoStatus: form.get("seoStatus"),
+    detailsVerified: form.get("detailsVerified") === "on",
+    imageRightsConfirmed: form.get("imageRightsConfirmed") === "on",
+    offerVerified: form.get("offerVerified") === "on",
+    availabilityVerified: form.get("availabilityVerified") === "on",
     status,
   };
 }
@@ -402,14 +529,32 @@ function bindEvents() {
     state.filters.category = elements.categoryFilter.value;
     renderQueue();
   });
+  elements.seoStatusFilter.addEventListener("change", () => {
+    state.filters.seoStatus = elements.seoStatusFilter.value;
+    renderQueue();
+  });
+  elements.priorityFilter.addEventListener("change", () => {
+    state.filters.priorityOnly = elements.priorityFilter.checked;
+    renderQueue();
+  });
+  elements.batchSizeFilter.addEventListener("change", () => {
+    state.filters.batchSize = elements.batchSizeFilter.value;
+    renderQueue();
+  });
   elements.categoryForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-    await createCategory();
-    elements.categoryDialog.close();
+    try {
+      await createCategory();
+      elements.categoryDialog.close();
+    } catch (error) {
+      showToast(error.message);
+    }
   });
   elements.cancelCategoryButton.addEventListener("click", () => elements.categoryDialog.close());
   elements.closeCategoryButton.addEventListener("click", () => elements.categoryDialog.close());
-  elements.exportButton.addEventListener("click", exportApproved);
+  elements.exportButton.addEventListener("click", () => {
+    exportApproved().catch((error) => showToast(error.message));
+  });
 }
 
 async function bootstrap() {
@@ -421,6 +566,10 @@ async function bootstrap() {
     ? "Local edits saved"
     : "Ready for first review";
   bindEvents();
+  elements.statusFilter.value = state.filters.status;
+  elements.seoStatusFilter.value = state.filters.seoStatus;
+  elements.priorityFilter.checked = state.filters.priorityOnly;
+  elements.batchSizeFilter.value = state.filters.batchSize;
   renderCategoryOptions();
   renderCounts();
   renderQueue();

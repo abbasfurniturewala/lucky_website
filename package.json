@@ -7,8 +7,17 @@
     "dev": "vite --host 127.0.0.1",
     "review": "node review-dashboard/server.mjs",
     "import:approved": "node scripts/import-approved-products.mjs",
+    "audit:products": "node scripts/audit-product-quality.mjs",
+    "verify:product-policy": "node scripts/verify-product-approval-policy.mjs",
+    "verify:analytics": "node scripts/verify-analytics.mjs",
+    "audit:site": "node scripts/audit-prerendered-site.mjs",
+    "audit:claims": "node scripts/audit-rendered-claims.mjs",
     "generate:seo": "node generate-seo.mjs",
-    "build": "npm run generate:seo && vite build",
+    "build:client": "vite build",
+    "build:server": "vite build --ssr src/entry-server.jsx --outDir dist-server",
+    "prerender": "node scripts/prerender.mjs",
+    "verify:seo": "node scripts/verify-seo-build.mjs",
+    "build": "npm run verify:product-policy && npm run audit:products && npm run verify:analytics && npm run generate:seo && npm run build:client && npm run build:server && npm run prerender && npm run audit:claims && npm run audit:site && npm run verify:seo",
     "preview": "vite preview --host 127.0.0.1"
   },
   "dependencies": {

@@ -88,7 +88,7 @@ h3 {
 
 .summary-strip {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(9, minmax(0, 1fr));
   border-bottom: 1px solid #dce2df;
   background: #ffffff;
 }
@@ -128,12 +128,35 @@ label span {
 }
 
 .queue-filter-row {
+  flex-wrap: wrap;
   margin-top: 10px;
 }
 
 .queue-filter-row label {
+  flex-basis: 120px;
   min-width: 0;
   flex: 1;
+}
+
+.priority-filter {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+  color: #33413c;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.priority-filter input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.priority-filter span {
+  margin: 0;
+  color: inherit;
 }
 
 input,
@@ -271,6 +294,71 @@ textarea {
 .status.later {
   background: #fff0cc;
   color: #7a5a07;
+}
+
+.queue-statuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.seo-status {
+  display: inline-flex;
+  width: fit-content;
+  border-radius: 3px;
+  padding: 4px 7px;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.seo-status.review {
+  background: #e8edf2;
+  color: #425a70;
+}
+
+.seo-status.approved {
+  background: #d9f3e5;
+  color: #176440;
+}
+
+.seo-status.noindex {
+  background: #eee8f2;
+  color: #634773;
+}
+
+.seo-missing-count {
+  margin-top: 5px;
+  color: #9d3f35;
+  font-weight: 750;
+}
+
+.seo-recommended-count {
+  color: #6f6758;
+}
+
+.product-policy {
+  display: inline-flex;
+  width: fit-content;
+  border-radius: 3px;
+  padding: 4px 7px;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.product-policy.legacy {
+  background: #f2eee4;
+  color: #695c3d;
+}
+
+.product-policy.new {
+  background: #e4eef6;
+  color: #315b7b;
 }
 
 .review-panel {
@@ -533,6 +621,131 @@ details li {
   padding: 12px 20px;
 }
 
+.seo-review {
+  margin: 4px 0 0;
+  border: 1px solid #ccd5d1;
+  border-radius: 6px;
+  padding: 14px;
+  background: #f7f9f8;
+}
+
+.seo-review legend {
+  padding: 0 6px;
+  font-weight: 800;
+}
+
+.seo-review > p {
+  margin: 0 0 12px;
+  color: #53605b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.policy-note {
+  display: grid;
+  gap: 4px;
+  border-left: 3px solid #6d756f;
+  padding: 10px 12px;
+  background: #ffffff;
+  color: #4f5a56;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.policy-note.legacy {
+  border-left-color: #9a7a38;
+  background: #fffaf0;
+}
+
+.policy-note.new {
+  border-left-color: #3c708f;
+  background: #f2f8fb;
+}
+
+.verification-checks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px 16px;
+  margin-top: 12px;
+}
+
+.verification-checks label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #26332e;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.verification-checks input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.seo-requirements {
+  margin-top: 14px;
+  border-left: 3px solid #bd8622;
+  padding: 10px 12px;
+  background: #fff8e8;
+}
+
+.seo-requirements.complete {
+  border-left-color: #23714f;
+  background: #edf8f2;
+}
+
+.seo-requirements strong {
+  font-size: 13px;
+}
+
+.seo-requirements ul {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: #59645f;
+  font-size: 12px;
+}
+
+.seo-requirements p {
+  margin: 7px 0 0;
+  color: #53605b;
+  font-size: 12px;
+}
+
+.recommended-checks {
+  margin-top: 16px;
+  border-top: 1px solid #dce2df;
+  padding-top: 13px;
+}
+
+.seo-recommendations {
+  margin-top: 10px;
+  border-left: 3px solid #8b7c5e;
+  padding: 10px 12px;
+  background: #f7f4ee;
+}
+
+.seo-recommendations.complete {
+  border-left-color: #23714f;
+  background: #edf8f2;
+}
+
+.seo-recommendations strong {
+  font-size: 13px;
+}
+
+.seo-recommendations ul {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: #625c50;
+  font-size: 12px;
+}
+
 .category-dialog {
   width: min(460px, calc(100vw - 32px));
   border: 1px solid #dce2df;
@@ -620,6 +833,10 @@ details li {
   .decision-bar {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .verification-checks {
+    grid-template-columns: 1fr;
   }
 
   .summary-strip {
