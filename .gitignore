@@ -8,3 +8,4 @@ dist-server/
 .env.local
 import-review/review-state.json
 import-review/approved-products.json
+tmp/

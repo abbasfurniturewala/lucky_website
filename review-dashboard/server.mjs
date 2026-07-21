@@ -21,12 +21,13 @@ const projectRoot = resolve(dashboardRoot, "..");
 const reviewRoot = join(projectRoot, "import-review");
 const sourceRoot = resolve(
   process.env.BETTERHOME_SOURCE ||
-    "C:/Users/furni/OneDrive/Documents/web scraper/data/betterhomeindia",
+    join(projectRoot, "..", "web scraper", "data", "betterhomeindia"),
 );
 const sourceImagesRoot = join(sourceRoot, "images");
 const sourceProductsPath = join(sourceRoot, "products.json");
 const reviewCsvPath = join(reviewRoot, "betterhomeindia-product-review.csv");
 const statePath = resolve(process.env.REVIEW_STATE_PATH || join(reviewRoot, "review-state.json"));
+const seedStatePath = join(reviewRoot, "review-state.seed.json");
 const exportPath = resolve(
   process.env.REVIEW_EXPORT_PATH || join(reviewRoot, "approved-products.json"),
 );
@@ -192,12 +193,12 @@ const sourceProducts = loadJson(sourceProductsPath, []);
 const sourceById = new Map(sourceProducts.map((product) => [product.id, product]));
 const csvRows = parseCsv(readFileSync(reviewCsvPath, "utf8"));
 const csvById = new Map(csvRows.map((row) => [row.id, row]));
-let reviewState = loadJson(statePath, {
+let reviewState = loadJson(statePath, loadJson(seedStatePath, {
   version: 1,
   updatedAt: "",
   categories: [],
   reviews: {},
-});
+}));
 
 function categories() {
   const mappedCategories = [
