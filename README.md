@@ -1,154 +1,55 @@
-# Lucky Interiors Furniture Website
+# Lucky Interiors Furniture
 
-This is a React + Vite website for a home goods / furniture store in India. It includes:
+Existing React/Vite furniture catalog and enquiry website for Mumbai, with WhatsApp/phone/email enquiries, product search/filtering, prerendered SEO pages and a private local product-review dashboard.
 
-- Product catalog
-- Global header search
-- Category filters
-- Product search
-- WhatsApp enquiry buttons
-- Call-to-order buttons
-- Product detail pages
-- Store contact section
+Read `AGENTS.md`, `PROJECT_CONTEXT.md` and `HANDOFF.md` before editing. Synchronize development through `dev`; `main` is production. Update the handoff before switching devices. The latter records the verified local paths, exact installed dependency versions, current build results, policies and outstanding work.
 
-## Files
-
-- `src/data/catalog.js` controls business details, homepage categories, and collection pages.
-- `src/data/products.js` controls product data and includes a `PRODUCT_TEMPLATE` copy/paste example.
-- `src/data/site.js` controls the live domain and default SEO text.
-- `src/App.jsx` controls the website layout and catalog behavior.
-- `src/styles.css` controls the design.
-- `generate-seo.mjs` generates `public/sitemap.xml` and `public/robots.txt`.
-- `index.html` is the Vite entry file.
-
-## What to Replace First
-
-1. In `src/data/catalog.js`, update the `business` object with your real name, phone number, WhatsApp number, address, and hours.
-2. In `src/data/products.js`, add, remove, or edit products inside the `products` array.
-3. Replace the Unsplash image URLs with your own product photos when ready.
-
-Example:
-
-```js
-const business = {
-  name: "Your Store Name",
-  phoneDisplay: "+91 98765 43210",
-  whatsappNumber: "919876543210",
-  callNumber: "+919876543210",
-  address: "Your shop address",
-  hours: "Open daily: 10:00 AM - 8:30 PM",
-};
-```
-
-`phoneDisplay` is what customers see on the page.
-
-`whatsappNumber` is used for WhatsApp links. It should have country code `91`, with no `+`, spaces, or dashes.
-
-`callNumber` is used for call buttons. It should include `+91`, with no spaces.
-
-## How to Add Products
-
-1. Add the product image inside `public/products/<category-folder>/`.
-   Example: `public/products/sofas/grey-3-seater-sofa.jpg`
-2. Open `src/data/products.js`.
-3. Copy the `PRODUCT_TEMPLATE` object.
-4. Paste the copy inside the `products` array.
-5. Change the fields such as `id`, `slug`, `name`, `priceLabel`, `colors`, `seating`, `tags`, and `image`.
-
-Important fields:
-
-- `id` and `slug`: unique product URL name, such as `grey-3-seater-sofa`.
-- `collectionSlug`: decides which page shows it, such as `sofas` or `beds`.
-- `priceLabel`: text shown to customers, such as `Rs. 40,000` or `Price on request`.
-- `tags`: search/filter labels, such as `sofa`, `2 seater`, `brown`, `leatherette`.
-- `images`: optional list of multiple product photos for the product detail gallery.
-- `active`: set to `false` to hide a product without deleting it.
-
-## How to Preview Locally
-
-Install dependencies once:
+## Local development
 
 ```powershell
-npm install
-```
-
-Start the local development server:
-
-```powershell
+Set-Location -LiteralPath 'C:\Users\furni\Documents\lucky website'
 npm run dev
 ```
 
-Then open the local URL shown in the terminal, usually:
-
-```text
-http://127.0.0.1:5173
-```
-
-## Local Product Import Review Dashboard
-
-Use the private local dashboard to review scraped products with their images and details in one place:
+Usually `http://127.0.0.1:5173/`. Node must satisfy Vite's `^20.19.0 || >=22.12.0` requirement; Node 22.19.0 was verified. Existing installed packages match `package-lock.json`. Use `npm ci` only when restoring missing/broken dependencies; preserve the lockfile and avoid incidental upgrades.
 
 ```powershell
+npm run build
+npm run preview -- --port 4176
+```
+
+Build runs product/policy/analytics checks, SEO generation, client and server builds, prerendering, rendered-claims/crawl audits and SEO verification. `dist/` and `dist-server/` are generated and ignored. Vite preview is a local visual check, not verification of Cloudflare redirects/status handling.
+
+## Product review and import
+
+```powershell
+$env:BETTERHOME_SOURCE = 'C:\Users\furni\Documents\web scraper\data\betterhomeindia'
 npm run review
 ```
 
-Then open:
+Open `http://127.0.0.1:4174/`. The dashboard/importer default source is `../web scraper/data/betterhomeindia` relative to the project; the explicit override is preferred. There is no automatic `.env` loading.
 
-```text
-http://127.0.0.1:4174
-```
+Preserve `import-review/review-state.json`, `review-state.seed.json` and `approved-products.json`. Runtime state and exports are ignored by Git; a clone does not preserve them. Keep the external source and transfer ZIP separately and privately.
 
-The dashboard reads the original scraper files from:
+Review products individually. Export an intentionally reviewed batch, then run `npm run import:approved` and `npm run build`. The importer can add new approved products or update existing imported records; it mutates public images/data and runtime review state. Do not run it as a startup test. Import approval and SEO approval are separate.
 
-```text
-C:\Users\furni\OneDrive\Documents\web scraper\data\betterhomeindia
-```
+## Catalogs
 
-It preserves local review edits in `import-review/review-state.json`. That file is intentionally ignored by Git. Use the dashboard's **Export approved** button to create `import-review/approved-products.json` for the next import batch.
+The 74 generated catalog files are local-only for the first checkpoint; `CATALOG_OUTPUT_INVENTORY.tsv` records their paths, sizes and hashes. They are not included in a new checkout. Transfer them separately or regenerate a fresh edition using the commands in the catalog documentation.
 
-After reviewing the exported batch, import it into the public storefront with:
+Open `output/pdf/catalogs-2026-10-editorial/index.html` for the current editorial general highlights and 15 category catalogs: A4 landscape spreads and individual WhatsApp product pages, without repeated buttons. See `CATALOGS_EDITORIAL.md` for generation and QA commands. The earlier grid edition remains in `output/pdf/catalogs-2026-10/`. The original PDFs and tools are preserved; the old metal-bed generator uses private scraper images and reference prices and is unsuitable for distributable output under the current policy.
 
-```powershell
-npm run import:approved
-```
+## Data and SEO policies
 
-The importer validates source images, skips products that were already imported, excludes exact duplicates within the approved batch, copies selected images into `public/products/betterhomeindia`, and appends clean storefront records to `src/data/importedProducts.js`.
+- `src/data/catalog.js`: business/category data; `src/data/site.js`: canonical domain.
+- `src/data/products.js` and `src/data/importedProducts.js`: public products.
+- `src/App.jsx` and `src/styles.css`: interface and styling.
+- `review-dashboard/` and `scripts/import-approved-products.mjs`: review/import workflows.
+- Product pages stay `noindex,follow` until explicitly SEO-approved. Product schema is gated by approval; Offer and availability require separate verified facts.
+- Never guess price, availability, dimensions, materials, supplier/warranty/delivery/customization facts, address or hours. Never mass-approve products or mark image rights confirmed without evidence. Future products require image-rights confirmation and an internal source note before SEO approval; legacy rights remain unverified.
 
-## How to Put It Online With Cloudflare
+See `PROJECT_CONTEXT.md` and the SEO policy/evidence documents for complete requirements. July implementation/deployment statements are historical; verify the current files and build.
 
-Use Cloudflare Pages:
+## Hosting
 
-1. Push changes to GitHub.
-2. In Cloudflare, go to `Workers & Pages`.
-3. Select your Pages project.
-4. Build settings:
-   - Framework preset: `Vite`
-   - Build command: `npm run build`
-   - Build output directory: `dist`
-5. Deploy.
-6. In the Cloudflare Pages project, add your custom domain.
-
-## SEO Basics
-
-The site now updates SEO information for each route:
-
-- Homepage, collection pages, and product pages are indexable.
-- Search result pages use `noindex,follow`, because Google should not index every search query.
-- Product pages include Product structured data.
-- Collection and product pages include breadcrumb structured data.
-- `npm run build` regenerates `public/sitemap.xml` and `public/robots.txt`.
-
-After deploying, submit this sitemap in Google Search Console:
-
-```text
-https://luckyinteriorsfurniture.com/sitemap.xml
-```
-
-## Next Features Later
-
-- Real product photos from your shop
-- Google Maps embed
-- Customer reviews
-- Separate product pages
-- Admin-friendly catalog using Google Sheets or a small CMS
-- Online payment and checkout
+`wrangler.jsonc` configures Cloudflare Worker/static assets from `dist`, trailing-slash normalization and real 404-page handling. The recorded workflow builds with `npm run build` and deploys with `npx wrangler deploy`. Do not push or deploy without the owner's request; pushing `main` is documented as a deployment trigger. Current live hosting settings/status were not checked during local recovery.

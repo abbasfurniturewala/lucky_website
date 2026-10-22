@@ -23,7 +23,7 @@ const reviewStatePath = join(reviewRoot, "review-state.json");
 const importedProductsPath = join(projectRoot, "src", "data", "importedProducts.js");
 const sourceRoot = resolve(
   process.env.BETTERHOME_SOURCE ||
-    "C:/Users/furni/OneDrive/Documents/web scraper/data/betterhomeindia",
+    join(projectRoot, "..", "web scraper", "data", "betterhomeindia"),
 );
 const sourceProductsPath = join(sourceRoot, "products.json");
 

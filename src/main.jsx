@@ -8,7 +8,7 @@ const initialPath = rootElement.dataset.prerenderPath || `${window.location.path
 const app = (
   <StrictMode>
     <App initialPath={initialPath} />
-  </StrictMode>,
+  </StrictMode>
 );
 
 if (rootElement.childElementCount > 0) {

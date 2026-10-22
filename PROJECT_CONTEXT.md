@@ -1,251 +1,169 @@
 # Lucky Interiors Furniture Project Context
 
-Updated: 21 July 2026
+Updated: 22 October 2026. Read `AGENTS.md`, this document, then `HANDOFF.md` when continuing the project.
 
-Read this document first when opening the repository on a new device or in a new Codex task.
+## Shared Development Workflow (22 October 2026)
 
-## Project Summary
+Development checkpoints synchronize through `dev`. `main` is production; pushing it triggers the recorded Cloudflare deployment workflow. This first checkpoint is authorized for source/documentation on `dev` only. Do not push/merge into `main` or run deployment commands without a separate explicit owner request. Read and update `HANDOFF.md` before changing devices.
 
-Lucky Interiors Furniture is a Mumbai-focused furniture catalog and enquiry website. Customers browse products and contact the business by WhatsApp, phone, or email. It is not an online checkout system yet.
+At checkpoint preparation, local `main` and fetched `origin/main` both pointed to `5c75da381085d496c2f2e0e379a0cb40fc193521`; no `dev` existed, so `dev` was created from that unchanged base retaining all working files. The separate `cloudflare/workers-autoconfig` branch was not merged. The other device confirmed the same JSX fix, no substantive roadmap change, and an equivalent 670-decision seed after LF/CRLF normalization.
 
-- Live domain: https://luckyinteriorsfurniture.com
-- GitHub repository: https://github.com/abbasfurniturewala/lucky_website
-- Production branch: `main`
-- Hosting: Cloudflare Workers/static assets
-- Customer-facing name in code: `Lucky Interiors Furniture`
-- Email: `hello@luckyinteriorsfurniture.com`
-- Phone/WhatsApp: `+91 96195 78893`
-- Primary target market: Mumbai
+Generated catalog libraries are **local-only** for this checkpoint: 74 files / 64 PDFs / two ZIP packs plus library metadata. `CATALOG_OUTPUT_INVENTORY.tsv` records every repository-relative path, byte size and SHA-256. These output files are deliberately excluded from the commit. On another device, transfer them separately or regenerate into a new directory; a checkout alone will not contain these editions. Review state and the private source archive also require separate preservation.
 
-The exact legal name, public postal address, visit model, opening hours, delivery policies, warranty policies, and some other business facts still require owner confirmation. Do not invent or strengthen these claims.
+This device currently has 948 private source products and 1,251 images under the active Documents path. The missing 50,160-byte image is present in the old OneDrive source path and the preserved transfer ZIP; its hash matches the ZIP entry. No archive files were restored or moved for the checkpoint. The other device reports a complete 948-product / 1,252-image archive. Always set `BETTERHOME_SOURCE` to that device's actual private source root; never commit scraper images/archives.
 
-## Technology and Architecture
+Checkpoint validation on 22 October 2026 passed: full production build (549 routes plus 404 / 22 sitemap URLs), Vite main-module smoke check, public-only export, both complete PDF generators and verification of 64 PDFs / 1,445 pages, and overwrite-refusal checks. All 702 protected project files remained byte-identical. Full commands/results and the next-device checklist are in `HANDOFF.md`. Earlier recovery/redesign no-push statements below describe those historical sessions; the current owner request authorizes this development checkpoint on `dev`, not production publication.
 
-- React 19 and Vite 7
-- Client-side routing implemented in `src/App.jsx`
-- Build-time server rendering/prerendering through `src/entry-server.jsx` and `scripts/prerender.mjs`
-- Product data in `src/data/products.js` and `src/data/importedProducts.js`
-- Category/business data in `src/data/catalog.js`
-- SEO sitemap generation in `generate-seo.mjs`
-- Cloudflare configuration in `wrangler.jsonc`, `public/_headers`, and `public/_redirects`
-- Product review dashboard in `review-dashboard/`
-- Product import workflow in `scripts/import-approved-products.mjs`
+## Current Catalog Edition: Editorial Redesign (19 October 2026)
 
-The production build creates `dist/` and `dist-server/`. Both are generated and intentionally ignored by Git.
+The owner requested a substantial improvement in style and explicitly rejected the repeated WhatsApp/View Product controls. The new default catalog design is in `output/pdf/catalogs-2026-10-editorial/index.html`; full ZIP: `lucky-interiors-editorial-catalog-pack.zip` in that folder. The earlier grid edition and both original PDFs are preserved.
 
-## New Device Setup
+- 32 PDFs: general highlights plus 15 categories, each in print and WhatsApp formats. Category coverage remains 517 public products; the general selection remains 56, with sofa highlights curated from clear staged public photographs. No product data or stable references changed.
+- Print is now A4 landscape: an asymmetric photo-led cover, a large opening feature in each category edition, then two products per page. WhatsApp is portrait, one product per page. Larger photography trades increased page counts/file sizes for presentation: general print 32 pages; general WhatsApp 59 pages; sofa print 33 pages; sofa WhatsApp 62 pages.
+- Bodoni headings, Baskerville product names, Corbel navigation, warm ivory/charcoal/bronze palette. No product cards, CTA buttons, visible link borders or repeated product disclaimers. Product photos/names link invisibly to product pages; discreet references link to prefilled WhatsApp enquiries. Contact information/QR are prominent only on the closing page.
+- All 32 PDFs passed full name/reference/link/pagination/geometry checks, zero-button/border checks and raster rendering of all 937 pages. Complete covers, directory, feature/paired pages, long names, small categories and contact pages were visually inspected. Verification is included in the library/ZIP. Existing source photography still limits print quality; the manifest records resolution warnings.
+- New tools: `scripts/create-editorial-catalogs.py` and `scripts/verify-editorial-catalogs.py`; instructions in `CATALOGS_EDITORIAL.md`. Both reuse the existing public-only export and bundled PDF dependencies; Windows Bodoni/Baskerville/Corbel fonts are embedded when available, with base-font fallbacks.
+- New generation: `node scripts/export-share-catalog.mjs`, then `python scripts/create-editorial-catalogs.py --output output/pdf/catalogs-editorial-next`. Verification: `python scripts/verify-editorial-catalogs.py --output output/pdf/catalogs-editorial-next`. Existing output directories are refused. Print A4 landscape at 100% / Actual size.
+- The redesign did not change website code, public assets, product/category data, review state, approvals, dependency manifests/lock, private archives or Git history. No push/deployment was performed. The older catalog section below describes the preserved 18 October edition, not the current design.
 
-```powershell
-git clone https://github.com/abbasfurniturewala/lucky_website.git
-Set-Location lucky_website
-npm clean-install
+
+## Project and Verified Local Paths
+
+Lucky Interiors Furniture is a Mumbai furniture catalog and WhatsApp/phone/email enquiry website, without checkout.
+
+- Working repository: `C:\Users\furni\Documents\lucky website`
+- Private scraper source: `C:\Users\furni\Documents\web scraper\data\betterhomeindia`
+- Separate private transfer archive: `C:\Users\furni\Documents\Lucky Interiors transfer\betterhomeindia-transfer-20260721-1541.zip`
+- Domain configured in code: `https://luckyinteriorsfurniture.com`
+- Origin configured in Git: `https://github.com/abbasfurniturewala/lucky_website.git`
+- Development branch: `dev`; production branch: `main`. This checkpoint starts from `5c75da3` (21 July 2026, portable handoff/supporting files).
+- Customer-facing name in code: `Lucky Interiors Furniture`.
+- Enquiry email/phone recorded in code: `hello@luckyinteriorsfurniture.com`, `+91 96195 78893`.
+
+The former `C:\Users\furni\OneDrive\Documents\lucky website` checkout path is obsolete. The old OneDrive scraper path is not the active archive, but retains the single missing image noted in the handoff. Continue in the existing checkout; a fresh clone does not preserve ignored review state or external dependencies.
+
+The old chat's Bad Request/systemError is historical context, not evidence of source corruption. Recovery reused the current code. The local Git tree was clean before recovery; neither current remote deployment nor remote branch state was queried. Do not push or deploy unless the owner requests it. Pushing `main` is documented as a deployment trigger. Use `dev` for shared development checkpoints.
+
+## Architecture and Dependencies
+
+| Part | Files |
+| --- | --- |
+| Frontend/routing | `src/App.jsx`, `src/main.jsx`, `src/styles.css` |
+| Prerender/SSR | `src/entry-server.jsx`, `scripts/prerender.mjs` |
+| Public product data | `src/data/products.js`, `src/data/importedProducts.js` |
+| Business/categories/domain | `src/data/catalog.js`, `src/data/site.js` |
+| Product/rights/schema policy | `src/data/product-seo-policy.js`, `src/data/image-rights-policy.js`, `src/data/product-schema.js` |
+| Private review UI/API | `review-dashboard/` |
+| Import workflow | `scripts/import-approved-products.mjs`, `import-review/` |
+| SEO generation/audits | `generate-seo.mjs`, `scripts/verify-*.mjs`, `scripts/audit-*.mjs` |
+| Cloudflare static assets | `wrangler.jsonc`, `public/_headers`, `public/_redirects` |
+| Current PDF tools | `scripts/export-share-catalog.mjs`, `scripts/create-share-catalogs.py`, `CATALOGS.md` |
+
+Installed packages match the lockfile: React and React DOM **19.2.6**, Vite **7.3.3**, `@vitejs/plugin-react` **5.2.0**, `lucide-react` **0.555.0**. Verified runtime: Node **22.19.0**, npm **11.5.2**. Vite/plugin require Node `^20.19.0 || >=22.12.0`. No dependencies were upgraded or reinstalled during recovery; preserve `package-lock.json`. If packages are actually missing/broken, use `npm ci` to restore the lockfile, rather than regenerating it with an upgrade.
+
+PDF generation uses Python, Pillow and ReportLab, separate from npm dependencies. Verified bundled Python environment: Pillow **12.3.0**, ReportLab **4.4.9**, pypdf **6.10.0**; pdfplumber and Poppler `pdftoppm` were also available for QA. The bundled interpreter used here is:
+
+```text
+C:\Users\furni\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe
 ```
 
-Run the development website:
+`python` on PATH may refer to a different interpreter. Use one with Pillow/ReportLab installed. The PDF generator embeds Segoe UI/Georgia from Windows when available and falls back to PDF base fonts elsewhere. Source images limit print sharpness; the generator never invents higher resolution.
+
+## Commands From the Existing Repository
 
 ```powershell
+Set-Location -LiteralPath 'C:\Users\furni\Documents\lucky website'
+$env:BETTERHOME_SOURCE = 'C:\Users\furni\Documents\web scraper\data\betterhomeindia'
 npm run dev
 ```
 
-Run the full production build and all SEO checks:
+Development: `http://127.0.0.1:5173/` (Vite may choose another port if occupied).
 
 ```powershell
 npm run build
-```
-
-Preview the production build:
-
-```powershell
 npm run preview -- --port 4176
 ```
 
-Run the product review dashboard:
+Production preview: `http://127.0.0.1:4176/`. The build runs product-policy, quality and analytics checks, regenerates SEO files, builds client/SSR output, prerenders routes, then checks rendered claims, links, metadata, schema, sitemap and 404 output. `dist/` and `dist-server/` are generated/ignored.
+
+In a separate terminal, set the source variable again before the dashboard:
 
 ```powershell
+$env:BETTERHOME_SOURCE = 'C:\Users\furni\Documents\web scraper\data\betterhomeindia'
 npm run review
 ```
 
-The dashboard normally opens at `http://127.0.0.1:4174/`.
+Review dashboard: `http://127.0.0.1:4174/`. It binds to loopback. The dashboard and importer now share a project-relative fallback of `../web scraper/data/betterhomeindia`; the environment override remains preferred. No automatic `.env` loading is implemented.
 
-## Product Review Data and External Source Dependency
+Do not run `npm run import:approved` as a recovery/startup check: it changes public data, images and review state. Run it only for an intentionally reviewed import batch, then build and preview.
 
-The Git repository contains:
+## Recovery Verification on 18 October 2026
 
-- The full public catalog and its imported public images.
-- `import-review/betterhomeindia-product-review.csv`.
-- `import-review/betterhomeindia-category-summary.md`.
-- `import-review/review-state.seed.json`, a portable snapshot of the saved dashboard decisions.
+- Fixed the actual development startup error: an invalid trailing comma after the parenthesized `<StrictMode>` expression in `src/main.jsx`. Babel rejected the original with `Unexpected token (12:0)` and returned a 500 for the main module; the production bundler had accepted it. A successful build alone did not establish development health.
+- Browser checks after the fix passed for development homepage/category/product navigation and WhatsApp links, production-preview homepage/category, and the review dashboard. No JavaScript page exceptions or horizontal overflow at 390 px width were observed. The checks used temporary ports 5187 (dev), 4178 (review), and 4176 (preview) and stopped their own servers afterward.
+- Review bootstrap read 948 source records. Only GET endpoints were used; no review/export/import actions were performed.
+- Full production build passed: **525** active products, **549** prerendered public routes plus `404.html`, **550** HTML files passing claims/crawl checks, **22** indexable pages/sitemap URLs, **0** SEO-approved products.
+- Quality backlog verified: **350** missing recommended dimensions, **192** missing recommended material values, **9** short descriptions, **525** without verified offers/availability. These did not fail the build.
+- All 525 current products remain `legacy-unverified` for image rights; none was marked confirmed by recovery.
+- SHA-256 preservation checks cover the original public assets, product/category data, package lock, three review files, original PDFs, extracted source archive and transfer ZIP.
 
-At runtime, dashboard edits are saved to `import-review/review-state.json`. That file is intentionally ignored so ordinary reviews do not constantly alter Git history. If it is missing on a new device, the dashboard automatically loads `review-state.seed.json` as its starting state and creates the runtime file when the first edit is saved.
+Historical statements in `SEO_SIMPLE_ROADMAP.md` (such as the older `bfde3d3` commit and uncommitted July SEO batch) and the other July SEO reports are snapshots, not current Git/deployment evidence. This context takes precedence for the verified local state. Hosting account configuration, Cloudflare redirects and live deployment remain unverified in this recovery.
 
-The dashboard also uses a separate OneDrive-synced scraper archive for all 948 source products, including products not imported into the public catalog:
+## Review State and Private Archives: Preserve Separately
 
-```text
-C:\Users\furni\OneDrive\Documents\web scraper\data\betterhomeindia
-```
+- Tracked review seed: `import-review/review-state.seed.json`.
+- Ignored runtime decisions: `import-review/review-state.json`.
+- Ignored exported approvals: `import-review/approved-products.json`.
+- Runtime and seed were byte-identical at recovery start: **670 stored decisions** = 245 imported, 423 rejected, 2 approved. The pending approved records are `alpha-2-door-wardrobe` and `aura-2-door-wardrobe`, both `seoStatus: review`.
+- The dashboard derives additional statuses by matching current public products; its displayed totals are not the raw stored-decision counts. Do not rewrite state merely to reconcile these totals.
+- If runtime state is absent, the dashboard loads the seed and writes runtime state on the first edit. Do not replace the seed without an explicit owner request to save a newer checkpoint.
+- Extracted private archive verified: **948 records**, **1,255 files**, **79,770,602 bytes**.
+- Transfer ZIP verified: **70,556,225 bytes**, **1,256 file entries**, SHA-256 `4816A7F7B3EA7AB231B9BB4FC5864E0E9A451F9DDD37C8E116FB87A473350B15`.
+- The ZIP retains one 50,160-byte image missing from the extracted folder (a 321-character Eeezy-Go baby-chair path). Preserve both; no restoration or source-archive changes were made. Long-path handling remains a possible explanation, not an established cause.
+- Private scraper files are reference material with unconfirmed image rights. Never publish them automatically or include them in public/catalog exports. Public legacy images remain unverified; reusing an existing public asset does not establish rights.
 
-That archive contains approximately 76 MB across 1,256 files. It was not uploaded to GitHub because it contains scraped reference images whose rights are not confirmed. Sync or transfer that OneDrive folder separately on the new device.
+When transferring this project, preserve the whole folder including `.git`, public assets, product data, scripts, ignored review decisions/approval exports, context and `output/pdf`. Keep the external extracted archive and transfer ZIP separately and privately. A Git clone alone is incomplete. Generated `node_modules`, `dist`, `dist-server`, `.wrangler`, logs and `tmp/` can be recreated.
 
-If its path changes, set the source path before starting the dashboard:
+## Product, SEO and Business Policies
 
-```powershell
-$env:BETTERHOME_SOURCE="D:\path\to\betterhomeindia"
-npm run review
-```
+- Catalog import approval is separate from SEO approval. Do not mass-approve, import pending records for recovery, or treat an import as SEO evidence.
+- SEO approval requires a clear name, valid category, unique customer-facing description of at least 80 characters, usable image, descriptive primary-image alt text, manually checked details, and no unsupported claims.
+- Exact dimensions, material/finish, current price, availability and color are recommended. Unknown values stay omitted; do not invent them.
+- Existing legacy image-rights review is recommended and non-blocking for SEO, but `legacy-unverified` is not permission. Future products default to `pending` and require confirmed image rights and an internal source/licence/permission note before SEO approval.
+- Product schema is gated by SEO approval. Offer requires `offerVerified: true` and a positive maintained price; availability requires its own verified recognized value. Unknown availability is never `InStock` by default. Internal image-rights notes/status must not appear in public schema or catalog output.
+- Do not strengthen supplier, rating, warranty, stock, delivery, installation, customization, origin, address, hours or legal-name claims without evidence. Exact legal name, public postal address/postcode, visit model, maintained hours and detailed operational policies remain owner-confirmation work.
+- No GA4/GTM vendor is connected. Owner must choose one and approve privacy/consent before activation.
 
-Do not replace the tracked review seed with a new snapshot unless the owner explicitly wants to preserve a newer review checkpoint.
+Detailed policy/evidence documents: `SEO_OWNER_CHECKLIST.md`, `SEO_IMPLEMENTATION_STATUS.md`, `SEO_BUSINESS_CONFIRMATION.md`, `SEO_EXTERNAL_ACTIONS.md`, `SEO_SIMPLE_ROADMAP.md`, `SEO_AUDIT_2026-07-11.md`, `CLOUDFLARE_SEO_SETUP.md`. Preserve their policies while treating dated completion claims as historical.
 
-The portable review snapshot currently contains 670 decisions: 245 imported, 423 rejected, and 2 approved but not yet imported. The pending approved records are `alpha-2-door-wardrobe` and `aura-2-door-wardrobe`; both still have `seoStatus: review`, so importing them must not be treated as SEO approval.
+## Earlier Grid Catalog Edition (18 October 2026)
 
-## Current Product and SEO State
+Owner preference confirmed in this chat: **compact general highlights plus full category catalogs**, with separate WhatsApp and printing layouts.
 
-At the last verified production build:
+- New library: `output/pdf/catalogs-2026-10/index.html`.
+- Full downloadable pack: `output/pdf/catalogs-2026-10/lucky-interiors-catalog-pack.zip`.
+- **32 PDFs**: general highlights plus 15 nonempty categories, each in `whatsapp/` and `print/`.
+- General: **56 selected highlights**. Categories: **517** public products with local images. **8** products with remote stock photos are explicitly excluded and listed in `manifest.json`; Shoe Racks has no products. No deduplication removes catalog records from the category exports.
+- Phone format: 420 x 700 pt, two products per page, compressed images. Print: A4, four products per page, white backgrounds, embedded fonts where available, image resolution up to 300 dpi without upscaling.
+- Both use uncropped photos, full names, stable ID-derived codes, product/WhatsApp links, contact QR codes and an internally linked general directory. Only verified optional specs/prices may be exported; none are currently verified.
+- `manifest.json` records exclusions, code-to-product mappings, counts, sizes and low-resolution print warnings. Do not claim print masters are available for low-resolution originals.
+- All 32 PDFs were checked for product names/codes, link targets, page counts, page/text/link bounds and raster rendering. Representative complete pages and contact sheets were visually inspected.
+- Existing `output/pdf/lucky-interiors-whatsapp-catalog.pdf` (**18 pages**, 3,153,633 bytes) and `lucky-interiors-metal-beds-catalog.pdf` (**7 pages**, 1,279,800 bytes) were inspected and preserved without replacement.
+- Legacy tools remain: `scripts/export-catalog-data.mjs`, `scripts/create-product-catalog.py`, `scripts/create-metal-beds-catalog.py`. The old general generator is a four-products-per-category layout and does not safely paginate larger exports. The old metal-bed script reads private scraper images/reference prices; do not use it to create distributable catalogs. No metal-bed products currently exist in the public bed category, so no new metal-bed catalog was generated.
 
-- 525 active public catalog products.
-- 549 prerendered public route files plus `404.html`.
-- 550 generated HTML files passed the claims and crawl audits.
-- 22 indexable URLs in the sitemap.
-- 0 products automatically SEO-approved.
-- 525 existing catalog products classified as legacy for image-rights review.
-- 514 existing dashboard/import records captured in the legacy migration snapshot.
-- 350 products currently missing recommended dimensions.
-- 192 products currently missing recommended material information.
-- No verified Product Offer or availability data yet.
+Reproduction commands and format/dependency notes are in `CATALOGS.md`. The new generator refuses to overwrite an existing output directory; choose a new edition path when regenerating. Catalog creation does not change SEO/review decisions or add files to the public website.
 
-All product pages remain browsable. Product indexability is controlled by `seoStatus`; do not mass-approve products.
+## Hosting and Outstanding Work
 
-## Product SEO Approval Policy
+`wrangler.jsonc` configures Worker/static assets named `luckywebsite`, `./dist`, `html_handling: drop-trailing-slash`, and `not_found_handling: 404-page`. It does **not** configure an SPA fallback. The recorded Cloudflare flow uses `npm run build`, output `dist`, and `npx wrangler deploy`; actual hosting account/deployment settings were not checked. Vite preview does not prove Cloudflare's HTTP status/redirect behavior.
 
-Required for every product before SEO approval:
+Next work:
 
-- Clear product name.
-- Valid storefront category.
-- Unique customer-facing description of at least 80 characters.
-- At least one usable product image.
-- Descriptive primary-image alt text.
-- Product details manually checked.
-- No unsupported supplier, rating, warranty, delivery, customization, stock, or origin claims.
+1. Owner review of the new catalog library and representative physical print; replace/verify legacy photos and obtain better masters where needed. Add the eight omitted products only after suitable existing public product photography is available. Metal-bed expansion needs an intentional review/import/rights decision, not automatic scraper export.
+2. Review products in manageable batches, initially Sofas, Beds, Dining Sets, Wardrobes and Centre Tables. Fill verified optional facts over time and approve only records that pass policy.
+3. Confirm business identity, exact public address/postcode, visit model, hours and maintained service/offer policies.
+4. Investigate the one missing long-path archive image only if needed; retain the ZIP.
+5. When the owner explicitly requests publication, review changes, build, then handle Git/Cloudflare separately. Verify live 200/301/404 responses, deployment version, www-to-apex redirect and sitemap; then Search Console actions. No push or deployment is authorized by recovery/catalog creation.
+6. Choose analytics/consent, verify Google Business Profile eligibility, add original photography and pursue the existing external SEO actions after the relevant facts/accounts are available.
 
-Recommended but non-blocking:
-
-- Exact dimensions.
-- Material or finish.
-- Current price.
-- Current availability.
-- Color and other detailed specifications.
-- Image-rights review for legacy products.
-
-Image policy:
-
-- The 525 products that existed at migration time are `legacy-unverified`. This does not mean their images are owned, licensed, or authorized. Replace or verify them when practical.
-- Future products start as `pending` and require confirmed image rights plus an internal source/licence/permission note before SEO approval.
-- Never set image rights to confirmed without actual evidence.
-
-Structured data policy:
-
-- Product schema is allowed only after SEO approval.
-- Offer schema requires `offerVerified: true` and a valid positive current price.
-- Offer availability is included only when `availabilityVerified: true` and the value is recognized.
-- Unknown availability must never be converted to `InStock` or another assumed value.
-- Internal image-rights status must not appear in public schema.
-
-## Product Workflow
-
-1. Open the review dashboard.
-2. Review a manageable batch, preferably priority categories first: Sofas, Beds, Dining Sets, Wardrobes, and Centre Tables.
-3. Complete all required SEO checks. Optional information may remain blank when unknown.
-4. Export approved records from the dashboard.
-5. Run:
-
-```powershell
-npm run import:approved
-npm run build
-```
-
-The importer can add new approved products and update existing imported products in place. Existing public images are reused when an already-imported product is updated.
-
-6. Review the local production preview.
-7. Commit and push only after owner approval.
-
-## SEO Work Already Implemented
-
-- Route-specific prerendered HTML, metadata, canonical URLs, headings, and JSON-LD.
-- Genuine 404 output and trailing-slash redirects.
-- Approval-gated sitemap and `noindex,follow` controls.
-- Conservative Organization, WebSite, ContactPage, Breadcrumb, CollectionPage, ItemList, Article, Product, and Offer schema rules.
-- Improved homepage and five priority Mumbai category pages.
-- Category filters, sorting, counts, and empty states.
-- Internal links, About, Contact, Privacy, Terms, and two planning guides.
-- Product planning guidance and canonical product links in WhatsApp enquiries.
-- Legacy-versus-new image policy and dashboard panels for required versus recommended checks.
-- Automated product policy, rendered-claim, crawl, metadata, sitemap, analytics-event, schema, and route-count checks.
-- Responsive optimized header logo files and long-lived hashed-asset caching.
-- Analytics event hooks, with no GA4/GTM vendor connected yet.
-
-Detailed records are in:
-
-- `SEO_OWNER_CHECKLIST.md`
-- `SEO_SIMPLE_ROADMAP.md`
-- `SEO_IMPLEMENTATION_STATUS.md`
-- `SEO_BUSINESS_CONFIRMATION.md`
-- `SEO_EXTERNAL_ACTIONS.md`
-- `SEO_AUDIT_2026-07-11.md`
-- `CLOUDFLARE_SEO_SETUP.md`
-
-## Cloudflare Deployment
-
-Pushing `main` triggers the connected Cloudflare deployment.
-
-Expected project settings:
-
-- Build command: `npm run build`
-- Build output: `dist`
-- Deploy command in the current Cloudflare flow: `npx wrangler deploy`
-- SPA fallback is handled through `wrangler.jsonc`.
-
-After each deployment, verify:
-
-- Homepage and important routes return `200`.
-- Trailing-slash duplicates redirect once with `301`.
-- A deliberately invalid route returns `404`.
-- `https://luckyinteriorsfurniture.com/sitemap.xml` loads correctly.
-- Cloudflare reports a successful latest deployment.
-
-## Supporting Catalog Files
-
-The repository also contains optional WhatsApp/PDF catalog tools:
-
-- `scripts/export-catalog-data.mjs`
-- `scripts/create-product-catalog.py`
-- `scripts/create-metal-beds-catalog.py`
-- `output/pdf/lucky-interiors-whatsapp-catalog.pdf`
-- `output/pdf/lucky-interiors-metal-beds-catalog.pdf`
-
-The Python scripts require Pillow and ReportLab. Their temporary images and rendered QA pages are generated under `tmp/` and are not committed.
-
-## Immediate Next Actions
-
-1. Confirm the latest Cloudflare deployment succeeds after each push.
-2. Verify or add the `www` to apex redirect in Cloudflare.
-3. Resubmit the sitemap and request indexing for key pages in Google Search Console after deployment.
-4. Review products in small batches using the dashboard; do not guess missing facts.
-5. Confirm customer-facing business name, legal name, exact address/postcode, visit model, and maintained hours.
-6. Decide Google Business Profile eligibility only after location facts are confirmed.
-7. Choose GA4 or GTM and approve privacy/consent behavior before connecting analytics.
-8. Gradually replace or verify legacy images and add original business photography.
-
-## Verification Baseline
-
-The last full build completed successfully with:
-
-- Product policy verification passed.
-- Product quality audit passed.
-- Analytics event verification passed.
-- 22 sitemap URLs generated.
-- Client and SSR builds passed.
-- 549 routes plus `404.html` prerendered.
-- Rendered claim audit passed for 550 HTML files.
-- Prerendered crawl passed for 550 HTML pages, 22 indexable pages, and 22 sitemap URLs.
-- SEO build verification passed.
-
-Always run `npm run build` again after changes; this baseline is context, not a substitute for current verification.
+Do not commit `tmp/`, generated build folders, logs, `.env`, or private scraper/transfer archives. No commits, pushes or deployments were made during this recovery.
