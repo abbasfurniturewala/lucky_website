@@ -1,7 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import App from "./App.jsx";
+import { initializeAnalytics } from "./analytics.js";
 import "./styles.css";
+
+initializeAnalytics();
 
 const rootElement = document.getElementById("root");
 const initialPath = rootElement.dataset.prerenderPath || `${window.location.pathname}${window.location.search}`;

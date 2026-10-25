@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Lucky Interiors · Website insights</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" type="module"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/"><span class="brand-mark">LI</span><span>Lucky Interiors<small>FURNITURE · MUMBAI</small></span></a>
+    <p class="nav-label">YOUR BUSINESS</p>
+    <a class="nav-link selected" href="/" aria-current="page"><span aria-hidden="true">◫</span> Website insights</a>
+    <a class="nav-link" href="https://analytics.google.com/" target="_blank" rel="noreferrer"><span aria-hidden="true">↗</span> Open Google Analytics</a>
+    <a class="nav-link" href="#connection"><span aria-hidden="true">⚙</span> Connection & setup</a>
+    <div class="sidebar-note"><span class="lock" aria-hidden="true">◇</span><strong>Private workspace</strong><p>This dashboard runs on this device. Credentials never reach the browser.</p></div>
+  </aside>
+  <main>
+    <header class="topbar"><span>BUSINESS OVERVIEW</span><span class="badge" id="connection-badge">Checking connection</span></header>
+    <section class="page-heading"><div><p class="eyebrow">WEBSITE INSIGHTS</p><h1>Your website, at a glance.</h1><p>See who visits, where they come from, and how they reach out.</p></div><button id="refresh" class="refresh" type="button">↻ Refresh</button></section>
+    <div class="toolbar">
+      <div class="range-controls" aria-label="Reporting period"><button type="button" data-days="1" aria-pressed="false">Today</button><button type="button" data-days="7" aria-pressed="true">7 days</button><button type="button" data-days="30" aria-pressed="false">30 days</button><button type="button" data-days="90" aria-pressed="false">90 days</button></div>
+      <label class="scope">Visitors from <select id="city"><option value="all">All cities</option><option value="mumbai">Mumbai only</option></select></label>
+      <p class="updated" id="updated">No data fetched yet</p>
+    </div>
+    <section class="notice" id="notice" role="status" aria-live="polite"><span class="notice-icon" aria-hidden="true">!</span><div><h2 id="notice-title">Connecting to your reports</h2><p id="notice-text">Checking whether Google Analytics is configured.</p></div><a href="#connection">View setup ↓</a></section>
+    <div id="errors" class="errors" role="alert" hidden></div>
+    <section class="metrics" aria-label="Key website results">
+      <article class="metric"><span class="metric-label">Website visitors <span aria-hidden="true">↗</span></span><strong id="visitors">—</strong><p id="visitors-detail">Estimated GA4 users · selected cities</p></article>
+      <article class="metric mumbai"><span class="metric-label">Mumbai visitors <span aria-hidden="true">⌖</span></span><strong id="mumbai">—</strong><p>Mumbai city, India · selected period</p></article>
+      <article class="metric"><span class="metric-label">Call button clicks <span aria-hidden="true">↗</span></span><strong id="calls">—</strong><p id="calls-users">Unique clicking users: not available</p></article>
+      <article class="metric"><span class="metric-label">WhatsApp clicks <span aria-hidden="true">↗</span></span><strong id="whatsapp">—</strong><p id="whatsapp-users">Unique clicking users: not available</p></article>
+    </section>
+    <div class="content-grid">
+      <section class="panel traffic"><div class="panel-heading"><div><p class="eyebrow">TRAFFIC</p><h2>Visitors over time</h2></div><span class="quiet-label">Daily users</span></div><div id="traffic-chart" class="chart empty-chart"><div><span aria-hidden="true">▥</span><h3>Real visitors will appear here</h3><p>Connect Analytics to see your traffic trend.</p></div></div><div class="panel-foot" id="traffic-foot">No reporting data connected</div></section>
+      <section class="panel realtime"><div class="panel-heading"><div><p class="eyebrow">REALTIME</p><h2>Activity right now</h2></div><span class="live-dot" id="live-dot" aria-hidden="true"></span></div><div class="realtime-number"><strong id="active">—</strong><span>active users in the last 30 minutes</span></div><div id="realtime-events" class="activity-empty">Waiting for a live connection.</div><p class="small-note" id="realtime-updated">Auto-checks every 30 seconds while this page is open.</p></section>
+      <section class="panel"><div class="panel-heading"><div><p class="eyebrow">ENQUIRIES</p><h2>How visitors reach out</h2></div></div><div id="contact-breakdown" class="contact-breakdown"><p class="empty-copy">Call, WhatsApp and email click totals will appear after tracking starts.</p></div><p class="small-note">A click is an enquiry action—not proof of a connected call or sent message. The same user may use more than one channel.</p></section>
+      <section class="panel"><div class="panel-heading"><div><p class="eyebrow">AUDIENCE</p><h2>Top visitor cities</h2></div><span class="quiet-label">All cities</span></div><div id="city-table" class="city-list"><p class="empty-copy">No location data connected.</p></div><p class="small-note">City estimates use IP location, not GPS. Mumbai, Thane and Navi Mumbai may appear separately.</p></section>
+      <section class="panel timeline-panel"><div class="panel-heading"><div><p class="eyebrow">WHEN PEOPLE CLICKED</p><h2>Latest recorded click times</h2></div><span class="quiet-label" id="time-zone">Property time zone not connected</span></div><div class="table-wrap"><table><thead><tr><th scope="col">Date & time</th><th scope="col">Action</th><th scope="col">Clicks</th><th scope="col">Users</th></tr></thead><tbody id="timeline"><tr><td colspan="4" class="empty-cell">No recorded click results are available yet.</td></tr></tbody></table></div><p class="small-note" id="timeline-note">Aggregated by minute, not a visitor-by-visitor log. Standard reports can take 24–48 hours to settle; realtime is shown separately above.</p></section>
+      <section class="panel connection-panel" id="connection"><div class="panel-heading"><div><p class="eyebrow">GET CONNECTED</p><h2>Your Analytics setup</h2></div><span class="quiet-label">Read-only reporting</span></div><ol class="setup-list"><li id="setup-property"><span class="step-number">1</span><div><strong>Create your Google Analytics property</strong><p>Use your business Google account. Select India as the reporting time zone, then add the website as a Web stream.</p></div><span class="step-state">Needed</span></li><li id="setup-auth"><span class="step-number">2</span><div><strong>Connect private reporting access</strong><p>Enable the Data API and authorize a Viewer-only account. Keep credentials outside Git and the public website.</p></div><span class="step-state">Needed</span></li><li id="setup-tag"><span class="step-number">3</span><div><strong>Configure the website tracking tag</strong><p>Add the G-… Measurement ID, review privacy wording, and turn OFF all Enhanced measurement in the Web stream. This avoids duplicate views and automatic link/query collection.</p></div><span class="step-state">Needed</span></li><li><span class="step-number">4</span><div><strong>Publish and verify a real visit</strong><p>Publication needs a separate approval. Allow analytics during a test visit, click an enquiry button, then check Realtime.</p></div><span class="step-state">Verify live</span></li></ol><a class="setup-link" href="https://analytics.google.com/" target="_blank" rel="noreferrer">Open Google Analytics setup ↗</a></section>
+    </div>
+    <footer>LUCKY INTERIORS FURNITURE <span>Powered by your GA4 reports · No sample numbers · No product or review changes</span></footer>
+  </main>
+</body>
+</html>

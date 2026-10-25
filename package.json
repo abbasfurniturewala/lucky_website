@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "review": "node review-dashboard/server.mjs",
+    "analytics": "node --env-file-if-exists=.env.local analytics-dashboard/server.mjs",
+    "verify:analytics-dashboard": "node --test analytics-dashboard/*.test.mjs",
     "import:approved": "node scripts/import-approved-products.mjs",
     "audit:products": "node scripts/audit-product-quality.mjs",
     "verify:product-policy": "node scripts/verify-product-approval-policy.mjs",
@@ -27,6 +29,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.1.1",
+    "google-auth-library": "^11.3.1",
     "vite": "^7.2.4"
   }
 }

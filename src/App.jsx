@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  ArrowUpRight,
   ChevronLeft,
   ChevronRight,
   CheckCircle2,
   Clock,
-  Eye,
   Instagram,
   Mail,
   MapPin,
@@ -12,6 +12,7 @@ import {
   Phone,
   Search,
   ShieldCheck,
+  SlidersHorizontal,
   Truck,
   X,
 } from "lucide-react";
@@ -25,6 +26,7 @@ import {
 import { products } from "./data/products.js";
 import { site } from "./data/site.js";
 import { trackEvent } from "./analytics.js";
+import AnalyticsConsent from "./AnalyticsConsent.jsx";
 import { findGuide, guidePath, guides } from "./data/guides.js";
 import { MISSING_DIMENSIONS_MESSAGE } from "./data/product-seo-policy.js";
 import { buildProductSchema } from "./data/product-schema.js";
@@ -83,7 +85,7 @@ const informationPages = {
     description:
       "Read how Lucky Interiors Furniture handles enquiry information, technical data, external services, and privacy requests.",
     intro:
-      "This policy explains the information that may be handled when you browse this website or contact Lucky Interiors Furniture. It was last updated on 11 July 2026.",
+      "This policy explains the information that may be handled when you browse this website or contact Lucky Interiors Furniture. It was last updated on 24 October 2026.",
     sections: [
       {
         heading: "Information you choose to share",
@@ -95,13 +97,14 @@ const informationPages = {
         heading: "Technical and third-party services",
         paragraphs: [
           "Hosting and security providers may process technical information such as IP address, browser details, request time, and requested pages to deliver and protect the website. Links or embedded services from Google Maps, WhatsApp, email, and telephone providers are governed by their own privacy terms when used.",
-          "If measurement tools are added in the future, this policy should be updated before they are activated. The current site does not provide customer accounts or an online checkout.",
+          "When optional Google Analytics is configured, it loads only after you choose Allow analytics. It uses cookies to measure page visits, approximate city, device information and enquiry-button clicks. We do not send your enquiry message, contact details, URL query strings or search terms in these events. Google processes the measurement data under its own privacy terms. The current site does not provide customer accounts or an online checkout.",
         ],
       },
       {
         heading: "Your choices",
         paragraphs: [
           "You can avoid sending personal information through the website and contact us only with the details needed for your enquiry. For a privacy question or request relating to information shared directly with us, use the email address on the Contact page.",
+          "When analytics is enabled, use Analytics settings at the bottom of the website to allow or refuse it. Your choice is remembered on this browser for up to 180 days when local storage is available. Refusing does not prevent browsing or contacting us. Withdrawing stops this website's future Analytics events and removes its Analytics cookies, but does not automatically delete data already held by Google.",
         ],
       },
     ],
@@ -1388,27 +1391,25 @@ function ProductCard({ product, onNavigate }) {
             decoding="async"
           />
         </a>
-        <span className="product-badge">{product.badge}</span>
       </div>
       <div className="product-body">
-        <div className="product-meta">
-          <span>{product.category}</span>
-          <strong>{displayPrice(product)}</strong>
-        </div>
+        <span className="product-category">{collectionForProduct(product)?.name || product.category}</span>
         <a
           className="product-title-link"
           href={detailsPath}
+          title={product.name}
           onClick={(event) => onNavigate(detailsPath, event)}
         >
           <h3>{product.name}</h3>
         </a>
-        <p>{product.description}</p>
-        <div className="product-actions">
+        <div className="product-card-footer">
+          <strong className="product-card-price">{displayPrice(product)}</strong>
           <a
-            className="button"
+            className="product-enquiry"
             href={createWhatsappLink(product)}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
+            aria-label={`Enquire about ${product.name} on WhatsApp`}
             onClick={() =>
               trackWhatsappClick({
                 category: collectionForProduct(product)?.slug || product.collectionSlug,
@@ -1419,16 +1420,8 @@ function ProductCard({ product, onNavigate }) {
               })
             }
           >
-            <MessageCircle size={17} aria-hidden="true" />
             Enquire
-          </a>
-          <a
-            className="button button-secondary"
-            href={detailsPath}
-            onClick={(event) => onNavigate(detailsPath, event)}
-          >
-            <Eye size={17} aria-hidden="true" />
-            Details
+            <ArrowUpRight size={14} aria-hidden="true" />
           </a>
         </div>
       </div>
@@ -1587,6 +1580,7 @@ function CollectionPage({ collection, onNavigate }) {
   const collectionProducts = productsForCollection(collection);
   const [filters, setFilters] = useState(defaultCollectionFilters);
   const [sortBy, setSortBy] = useState("popular");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const filterOptions = useMemo(() => getCollectionFilterOptions(collectionProducts), [collectionProducts]);
   const filteredProducts = useMemo(
     () => collectionProducts.filter((product) => productMatchesCollectionFilters(product, filters)),
@@ -1601,6 +1595,7 @@ function CollectionPage({ collection, onNavigate }) {
   useEffect(() => {
     setFilters(defaultCollectionFilters);
     setSortBy("popular");
+    setFiltersOpen(false);
   }, [collection.slug]);
 
   function updateFilter(filterName, value) {
@@ -1615,8 +1610,8 @@ function CollectionPage({ collection, onNavigate }) {
   }
 
   return (
-    <main>
-      <section className="collection-hero">
+    <main className="collection-page">
+      <header className="collection-header">
         <nav className="breadcrumb" aria-label="Breadcrumb">
           <a href="/" onClick={(event) => onNavigate("/", event)}>
             Home
@@ -1625,19 +1620,20 @@ function CollectionPage({ collection, onNavigate }) {
           <span>{collection.name}</span>
         </nav>
 
-        <div className="collection-hero-panel">
-          <img
-            src={collection.image}
-            alt={`${collection.name} furniture collection`}
-            decoding="async"
-            fetchPriority="high"
-          />
+        <div className="collection-heading">
           <div>
-            <p className="eyebrow">Collection</p>
-            <h1>{collection.heading || collection.name}</h1>
-            <p>{collection.description}</p>
+            <div className="collection-title-row">
+              <h1>{collection.name}</h1>
+              <p className="collection-count" role="status" aria-live="polite" aria-atomic="true">
+                {collectionResultLabel(sortedProducts.length, collection)}
+                {activeFilters && <span> of {collectionProducts.length} total</span>}
+              </p>
+            </div>
+            <p className="collection-description">{collection.description}</p>
+          </div>
+          {collectionProducts.length > 0 && (
             <a
-              className="button"
+              className="collection-help"
               href={createWhatsappLink(collection.name)}
               target="_blank"
               rel="noreferrer"
@@ -1649,31 +1645,31 @@ function CollectionPage({ collection, onNavigate }) {
                 })
               }
             >
-              <MessageCircle size={18} aria-hidden="true" />
-              Ask about {collection.name}
+              Need a little guidance? Ask us
+              <ArrowUpRight size={15} aria-hidden="true" />
             </a>
-          </div>
+          )}
         </div>
-      </section>
+      </header>
 
-      <section className="section collection-products">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">Available options</p>
-            <h2>{collectionResultLabel(sortedProducts.length, collection)}</h2>
-          </div>
-          <p>Use the available filters to compare products, then open a product page for its current details.</p>
-        </div>
+      <section className="section collection-products" aria-label={`${collection.name} catalog`}>
+        <h2 className="sr-only">Explore {collection.name}</h2>
 
         {collectionProducts.length > 0 ? (
           <>
             <div className="collection-controls" aria-label={`${collection.name} filters and sorting`}>
-              <div className="collection-count">
-                <strong>{collectionResultLabel(sortedProducts.length, collection)}</strong>
-                {activeFilters && <span>Filtered from {collectionProducts.length} total</span>}
-              </div>
-
-              <div className="collection-control-grid">
+              <span className="collection-filter-caption"><SlidersHorizontal size={16} aria-hidden="true" /> Filter by</span>
+              <button
+                className="collection-filter-toggle"
+                type="button"
+                aria-expanded={filtersOpen}
+                aria-controls={`collection-filters-${collection.slug}`}
+                onClick={() => setFiltersOpen((open) => !open)}
+              >
+                <SlidersHorizontal size={16} aria-hidden="true" />
+                Filters{activeFilters ? ` (${Object.values(filters).filter((value) => value !== "all").length})` : ""}
+              </button>
+              <div id={`collection-filters-${collection.slug}`} className={`collection-control-grid${filtersOpen ? " is-open" : ""}`}>
                 <label className="filter-field">
                   <span>Price</span>
                   <select
@@ -1756,17 +1752,18 @@ function CollectionPage({ collection, onNavigate }) {
                   </label>
                 )}
 
-                <label className="filter-field">
-                  <span>Sort</span>
-                  <select value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
-                    {collectionSortOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
               </div>
+
+              <label className="filter-field collection-sort">
+                <span>Sort by</span>
+                <select aria-label="Sort by" value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
+                  {collectionSortOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
               {activeFilters && (
                 <button className="filter-reset" type="button" onClick={resetFilters}>
@@ -2954,6 +2951,7 @@ export default function App({ initialPath = "" }) {
         <WhatsAppIcon />
       </a>
       <Footer onNavigate={handleNavigate} />
+      <AnalyticsConsent />
     </>
   );
 }

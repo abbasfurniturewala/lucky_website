@@ -10,6 +10,9 @@ globalThis.CustomEvent = class CustomEvent {
 };
 
 globalThis.window = {
+  CustomEvent: globalThis.CustomEvent,
+  location: { href: "http://127.0.0.1/", origin: "http://127.0.0.1", hostname: "127.0.0.1" },
+  localStorage: { getItem() { return null; } },
   dataLayer: [],
   dispatchEvent(event) {
     dispatchedEvent = event;

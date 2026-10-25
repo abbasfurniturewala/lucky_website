@@ -1,5 +1,6 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { join, resolve } from "node:path";
+import { shopCategories } from "../src/data/catalog.js";
 
 const distDirectory = resolve("dist");
 
@@ -29,9 +30,47 @@ function occurrences(text, pattern) {
   return [...text.matchAll(pattern)].length;
 }
 
+function escapeHtml(text) {
+  return text.replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#x27;",
+  })[character]);
+}
+
 async function page(relativePath) {
   return readFile(join(distDirectory, relativePath), "utf8");
 }
+
+async function verifyFavicons(directory = distDirectory) {
+  let checked = 0;
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const entryPath = join(directory, entry.name);
+    if (entry.isDirectory()) {
+      checked += await verifyFavicons(entryPath);
+    } else if (entry.name.endsWith(".html")) {
+      const html = await readFile(entryPath, "utf8");
+      const head = html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1] || "";
+      const iconLinks = [...head.matchAll(/<link\b[^>]*\brel="icon"[^>]*>/g)];
+      assert(iconLinks.length === 1, `${entryPath}: expected exactly one favicon link in initial HTML.`);
+      assert(iconLinks[0][0].includes('href="/lucky-short-logo-icon.png"'), `${entryPath}: wrong brand favicon URL.`);
+      assert(iconLinks[0][0].includes('type="image/png"'), `${entryPath}: favicon MIME type is missing.`);
+      assert(iconLinks[0][0].includes('sizes="512x512"'), `${entryPath}: favicon dimensions are missing.`);
+      assert(head.includes('rel="apple-touch-icon" sizes="180x180" href="/lucky-short-logo-apple.png"'), `${entryPath}: Apple brand icon is missing.`);
+      checked += 1;
+    }
+  }
+  return checked;
+}
+
+for (const [filename, size] of [["lucky-short-logo-icon.png", 512], ["lucky-short-logo-apple.png", 180]]) {
+  const png = await readFile(join(distDirectory, filename));
+  assert(png.subarray(0, 8).toString("hex") === "89504e470d0a1a0a", `${filename}: expected a PNG image.`);
+  assert(png.readUInt32BE(16) === size && png.readUInt32BE(20) === size, `${filename}: expected a square ${size}px image.`);
+}
+assert(await verifyFavicons() === 550, "Expected brand favicon links in all 549 routes plus 404.html.");
 
 const home = await page("index.html");
 const contact = await page("contact/index.html");
@@ -71,8 +110,26 @@ assert(!measurementGuide.includes('"datePublished"'), "Guide schema must not inv
 assert(measurementGuide.includes('href="/collections/wardrobes"'), "Measurement guide lacks collection links.");
 assert(sofas.includes('rel="canonical" href="https://luckyinteriorsfurniture.com/collections/sofas"'), "Sofas canonical is wrong.");
 assert(sofas.includes("<title>Sofas in Mumbai | Sofa Sets | Lucky Interiors</title>"), "Sofas SEO title is missing.");
-assert(sofas.includes("<h1>Sofas in Mumbai</h1>"), "Sofas H1 is missing from initial HTML.");
+assert(sofas.includes("<h1>Sofas</h1>"), "Sofas must have a clean customer-facing H1 in initial HTML.");
+for (const collection of shopCategories) {
+  const html = await page(`collections/${collection.slug}/index.html`);
+  assert(html.includes(`<h1>${escapeHtml(collection.name)}</h1>`), `${collection.slug}: expected the category name as the visible H1.`);
+  assert(occurrences(html, /<h1\b/g) === 1, `${collection.slug}: expected exactly one H1.`);
+  assert(!/<h1\b[^>]*>[^<]*\bin Mumbai\b/i.test(html), `${collection.slug}: city suffix must not return in the visible category H1.`);
+  if (collection.seoTitle) {
+    assert(html.includes(`<title>${escapeHtml(collection.seoTitle)}</title>`), `${collection.slug}: the local SEO title must be preserved.`);
+  }
+  if (collection.seoDescription) {
+    assert(html.includes(`name="description" content="${escapeHtml(collection.seoDescription)}"`), `${collection.slug}: the local SEO description must be preserved.`);
+  }
+}
 assert(sofas.includes("Choosing a sofa for your living room"), "Sofas buying guide is missing from initial HTML.");
+assert(sofas.includes('class="collection-header"'), "Compact collection heading is missing.");
+assert(!sofas.includes('class="collection-hero-panel"'), "The oversized collection banner must not return.");
+assert(!sofas.includes('class="product-actions"'), "Heavy paired product-card buttons must not return.");
+assert(!sofas.includes('class="product-badge"'), "Unverified/promotional product-card badges must not return.");
+assert(sofas.includes('class="product-enquiry"'), "Discreet product-card enquiries are missing.");
+assert(sofas.includes('aria-controls="collection-filters-sofas"'), "Mobile filter controls must be accessible.");
 assert(!sofas.includes("starter products mapped"), "Internal starter-product copy must not be public.");
 assert(product.includes("<h1>Brown 2-Seater Sofa</h1>"), "Product H1 is missing from initial HTML.");
 assert(product.includes("Room fit, finish, and delivery access"), "Product planning guidance is missing.");
